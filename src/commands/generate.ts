@@ -12,12 +12,13 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
   generate
     .command('start')
     .description('Start a generation job')
-    .requiredOption('--video <videoId>')
+    .requiredOption('--video <videoId>', 'Video ID to generate from')
+    .requiredOption('--template <templateId>', 'Template ID to use')
     .option('--wait', 'Wait for completion')
-    .option('--json')
-    .action(async (opts: { video: string; wait?: boolean; json?: boolean }) => {
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { video: string; template: string; wait?: boolean; json?: boolean }) => {
       try {
-        const data = await api.start(opts.video);
+        const data = await api.start(opts.video, Number(opts.template));
         if (opts.wait) {
           const output = await pollJob(client, data.jobId);
           if (opts.json) return printJson(output);
@@ -32,7 +33,7 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
   generate
     .command('status <jobId>')
     .description('Check generation job status')
-    .option('--json')
+    .option('--json', 'Output as JSON')
     .action(async (jobId: string, opts: { json?: boolean }) => {
       try {
         const data = await api.status(jobId);
@@ -45,7 +46,7 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
     .command('structure')
     .description('Generate project structure')
     .option('--wait', 'Wait for completion')
-    .option('--json')
+    .option('--json', 'Output as JSON')
     .action(async (opts: { wait?: boolean; json?: boolean }) => {
       try {
         const data = await api.structure();

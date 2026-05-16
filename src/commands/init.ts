@@ -14,6 +14,8 @@ export function registerInit(program: Command): void {
     .requiredOption('--key <apiKey>', 'Your Hinto API key')
     .option('--api-url <url>', 'Override the Hinto base URL', 'https://app.hinto.ai')
     .action((opts: { key: string; apiUrl: string }) => {
-      runInit(opts.key, opts.apiUrl);
+      // Prefer the root program's --api-url (passed globally) over the local default
+      const baseUrl = (program.opts() as { apiUrl?: string }).apiUrl ?? opts.apiUrl;
+      runInit(opts.key, baseUrl);
     });
 }

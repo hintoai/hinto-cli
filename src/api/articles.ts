@@ -7,7 +7,7 @@ export interface Article {
   format: 'markdown' | 'html';
   content: string;
   metadata?: Record<string, unknown>;
-  folderId?: string | null;
+  folder_id?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,17 +18,17 @@ export interface ArticleVersion {
 }
 
 export const articlesApi = (client: AxiosInstance) => ({
-  list: (params?: { folderId?: string; page?: number; limit?: number }) =>
+  list: (params?: { folder_id?: string; page?: number; limit?: number }) =>
     client.get<{ articles: Article[]; total: number }>('/articles', { params }).then(r => r.data),
 
   get: (id: string) =>
     client.get<Article>(`/articles/${id}`).then(r => r.data),
 
-  create: (body: { title: string; content?: string; folderId?: string }) =>
+  create: (body: { title: string; markdown?: string; folder_id?: string }) =>
     client.post<Article>('/articles', body).then(r => r.data),
 
-  update: (id: string, body: { title?: string; content?: string }) =>
-    client.patch<Article>(`/articles/${id}`, body).then(r => r.data),
+  update: (id: string, body: { title?: string; slug?: string; meta_description?: string }) =>
+    client.put<Article>(`/articles/${id}`, body).then(r => r.data),
 
   delete: (id: string) =>
     client.delete(`/articles/${id}`).then(r => r.data),
@@ -36,8 +36,8 @@ export const articlesApi = (client: AxiosInstance) => ({
   duplicate: (id: string) =>
     client.post<Article>(`/articles/${id}/duplicate`).then(r => r.data),
 
-  move: (id: string, folderId: string) =>
-    client.post<Article>(`/articles/${id}/move`, { folderId }).then(r => r.data),
+  move: (id: string, folder_id: string | null) =>
+    client.patch<{ message: string; folderId: number | null }>(`/articles/${id}/move`, { folder_id }).then(r => r.data),
 
   regenerate: (id: string) =>
     client.post<{ jobId: string }>(`/articles/${id}/regenerate`).then(r => r.data),

@@ -29,7 +29,7 @@ registerInit(program);
 // UNAUTHORIZED message when a command is actually invoked without a valid key.
 const config = (() => {
   try { return loadConfig(); }
-  catch { return { apiKey: '', baseUrl: 'https://app.hinto.ai' }; }
+  catch { return { apiKey: process.env.HINTO_API_KEY ?? '', baseUrl: 'https://app.hinto.ai' }; }
 })();
 
 const apiUrl = (() => {

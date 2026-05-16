@@ -1,7 +1,7 @@
 import { AxiosInstance } from 'axios';
 
 export const exportApi = (client: AxiosInstance) => ({
-  article: (id: string, format?: 'md' | 'html') =>
+  article: (id: string, format?: 'markdown' | 'html') =>
     client.get<string>(`/export/articles/${id}`, { params: { format }, responseType: 'text' }).then(r => r.data),
 
   folder: (id: string) =>

@@ -11,7 +11,7 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
   folders
     .command('list')
     .description('List all folders')
-    .option('--json')
+    .option('--json', 'Output as JSON')
     .action(async (opts: { json?: boolean }) => {
       try {
         const data = await api.list();
@@ -22,8 +22,8 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
 
   folders
     .command('get <id>')
-    .description('Get a folder')
-    .option('--json')
+    .description('Get a folder by ID')
+    .option('--json', 'Output as JSON')
     .action(async (id: string, opts: { json?: boolean }) => {
       try {
         const data = await api.get(id);
@@ -35,9 +35,9 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
   folders
     .command('create')
     .description('Create a folder')
-    .requiredOption('--name <name>')
-    .option('--parent <id>')
-    .option('--json')
+    .requiredOption('--name <name>', 'Folder name')
+    .option('--parent <id>', 'Parent folder ID (omit for root)')
+    .option('--json', 'Output as JSON')
     .action(async (opts: { name: string; parent?: string; json?: boolean }) => {
       try {
         const data = await api.create(opts.name, opts.parent);
@@ -48,9 +48,9 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
 
   folders
     .command('update <id>')
-    .description('Update a folder name')
-    .requiredOption('--name <name>')
-    .option('--json')
+    .description('Rename a folder')
+    .requiredOption('--name <name>', 'New folder name')
+    .option('--json', 'Output as JSON')
     .action(async (id: string, opts: { name: string; json?: boolean }) => {
       try {
         const data = await api.update(id, opts.name);
@@ -72,8 +72,8 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
   folders
     .command('move <id>')
     .description('Move a folder (omit --parent to move to root)')
-    .option('--parent <parentId>')
-    .option('--json')
+    .option('--parent <id>', 'Target parent folder ID')
+    .option('--json', 'Output as JSON')
     .action(async (id: string, opts: { parent?: string; json?: boolean }) => {
       try {
         const data = await api.move(id, opts.parent ?? null);

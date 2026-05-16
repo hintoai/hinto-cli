@@ -11,7 +11,7 @@ export function registerTemplates(program: Command, client: AxiosInstance): void
   templates
     .command('list')
     .description('List available templates')
-    .option('--json')
+    .option('--json', 'Output as JSON')
     .action(async (opts: { json?: boolean }) => {
       try {
         const data = await api.list();

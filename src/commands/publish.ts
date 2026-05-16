@@ -12,8 +12,8 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
   publish
     .command('now')
     .description('Publish the project')
-    .option('--wait')
-    .option('--json')
+    .option('--wait', 'Block until publishing completes')
+    .option('--json', 'Output as JSON')
     .action(async (opts: { wait?: boolean; json?: boolean }) => {
       try {
         const data = await api.now();
@@ -30,9 +30,9 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
 
   publish
     .command('republish')
-    .description('Republish the project')
-    .option('--wait')
-    .option('--json')
+    .description('Republish the project after content changes')
+    .option('--wait', 'Block until republishing completes')
+    .option('--json', 'Output as JSON')
     .action(async (opts: { wait?: boolean; json?: boolean }) => {
       try {
         const data = await api.republish();
@@ -49,8 +49,8 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
 
   publish
     .command('status')
-    .description('Get publish status')
-    .option('--json')
+    .description('Show whether the project is currently published')
+    .option('--json', 'Output as JSON')
     .action(async (opts: { json?: boolean }) => {
       try {
         const data = await api.status();

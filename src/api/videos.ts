@@ -26,7 +26,7 @@ export const videosApi = (client: AxiosInstance) => ({
     client.post<{ videoId: string; status: string }>('/videos/import', { url }).then(r => r.data),
 
   uploadPresigned: (filename: string, contentType: string) =>
-    client.post<{ uploadUrl: string; videoId: string }>('/videos/upload/presigned', { filename, contentType }).then(r => r.data),
+    client.post<{ video_id: string; upload_url: string; s3_url: string; expires_in: number }>('/videos/upload/presigned', { filename, content_type: contentType }).then(r => r.data),
 
   uploadComplete: (videoId: string) =>
     client.post<Video>('/videos/upload/complete', { videoId }).then(r => r.data),

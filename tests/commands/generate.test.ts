@@ -10,8 +10,8 @@ afterEach(() => nock.cleanAll());
 
 describe('generateApi.start', () => {
   it('starts a generation job', async () => {
-    nock(BASE_URL).post('/api/external/v2/generate', { videoId: 'v1' }).reply(202, { jobId: 'j1' });
-    const result = await api.start('v1');
+    nock(BASE_URL).post('/api/external/v2/generate', { video_id: 'v1', template_id: 42 }).reply(202, { jobId: 'j1' });
+    const result = await api.start('v1', 42);
     expect(result.jobId).toBe('j1');
   });
 });

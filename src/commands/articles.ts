@@ -23,7 +23,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .option('--json', 'Output as JSON')
     .action(async (opts: { folder?: string; json?: boolean }) => {
       try {
-        const data = await api.list({ folderId: opts.folder });
+        const data = await api.list({ folder_id: opts.folder });
         if (opts.json) return printJson(data);
         printTable(
           ['ID', 'Title', 'Slug', 'Updated'],
@@ -52,15 +52,15 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .command('create')
     .description('Create an article')
     .requiredOption('--title <title>', 'Article title')
-    .option('--content <content>', 'Content string or @filepath')
+    .requiredOption('--content <content>', 'Markdown content string or @filepath')
     .option('--folder <id>', 'Folder ID')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { title: string; content?: string; folder?: string; json?: boolean }) => {
+    .action(async (opts: { title: string; content: string; folder?: string; json?: boolean }) => {
       try {
         const data = await api.create({
           title: opts.title,
-          content: opts.content ? resolveContent(opts.content) : undefined,
-          folderId: opts.folder,
+          markdown: resolveContent(opts.content),
+          folder_id: opts.folder,
         });
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
@@ -73,13 +73,13 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .command('update <id>')
     .description('Update an article')
     .option('--title <title>', 'New title')
-    .option('--content <content>', 'New content or @filepath')
+    .option('--slug <slug>', 'New slug')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { title?: string; content?: string; json?: boolean }) => {
+    .action(async (id: string, opts: { title?: string; slug?: string; json?: boolean }) => {
       try {
         const data = await api.update(id, {
           title: opts.title,
-          content: opts.content ? resolveContent(opts.content) : undefined,
+          slug: opts.slug,
         });
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
