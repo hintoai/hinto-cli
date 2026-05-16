@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+import { Command } from 'commander';
+import { loadConfig } from './config';
+import { createClient } from './api/client';
+import { exitWithError } from './errors';
+import { registerInit } from './commands/init';
+import { registerVideos } from './commands/videos';
+import { registerArticles } from './commands/articles';
+import { registerFolders } from './commands/folders';
+import { registerGenerate } from './commands/generate';
+import { registerProject } from './commands/project';
+import { registerPublish } from './commands/publish';
+import { registerTemplates } from './commands/templates';
+import { registerExport } from './commands/export';
+
+const program = new Command();
+
+program
+  .name('hinto')
+  .description('Hinto AI CLI — manage videos, articles, and publishing')
+  .version('0.1.0')
+  .option('--api-url <url>', 'Override the Hinto base URL');
+
+// init doesn't need auth — register first
+registerInit(program);
+
+// Load config eagerly. If missing, fall back to empty key so --help still
+// works on all subcommands. The client's interceptor returns a helpful
+// UNAUTHORIZED message when a command is actually invoked without a valid key.
+const config = (() => {
+  try { return loadConfig(); }
+  catch { return { apiKey: '', baseUrl: 'https://app.hinto.ai' }; }
+})();
+
+const apiUrl = (() => {
+  const idx = process.argv.indexOf('--api-url');
+  return idx !== -1 ? process.argv[idx + 1] : config.baseUrl;
+})();
+
+const client = createClient(config.apiKey, apiUrl);
+
+registerVideos(program, client);
+registerArticles(program, client);
+registerFolders(program, client);
+registerGenerate(program, client);
+registerProject(program, client);
+registerPublish(program, client);
+registerTemplates(program, client);
+registerExport(program, client);
+
+program.parseAsync(process.argv).catch((e: unknown) => {
+  exitWithError(e instanceof Error ? e.message : String(e));
+});
