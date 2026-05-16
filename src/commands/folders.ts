@@ -71,12 +71,12 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
 
   folders
     .command('move <id>')
-    .description('Move a folder')
-    .requiredOption('--parent <parentId>')
+    .description('Move a folder (omit --parent to move to root)')
+    .option('--parent <parentId>')
     .option('--json')
-    .action(async (id: string, opts: { parent: string; json?: boolean }) => {
+    .action(async (id: string, opts: { parent?: string; json?: boolean }) => {
       try {
-        const data = await api.move(id, opts.parent);
+        const data = await api.move(id, opts.parent ?? null);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }

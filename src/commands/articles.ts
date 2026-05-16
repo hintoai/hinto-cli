@@ -1,12 +1,15 @@
 import { Command } from 'commander';
 import { AxiosInstance } from 'axios';
 import fs from 'fs';
+import path from 'path';
 import { articlesApi } from '../api/articles';
 import { printJson, printTable, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
 
 function resolveContent(raw: string): string {
-  return raw.startsWith('@') ? fs.readFileSync(raw.slice(1), 'utf-8') : raw;
+  if (!raw.startsWith('@')) return raw;
+  const filePath = path.resolve(raw.slice(1));
+  return fs.readFileSync(filePath, 'utf-8');
 }
 
 export function registerArticles(program: Command, client: AxiosInstance): void {

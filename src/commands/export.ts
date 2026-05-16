@@ -32,7 +32,7 @@ export function registerExport(program: Command, client: AxiosInstance): void {
     .action(async (id: string, opts: { out: string }) => {
       try {
         const data = await api.folder(id);
-        fs.writeFileSync(opts.out, Buffer.from(data));
+        fs.writeFileSync(opts.out, data);
         process.stdout.write(`Folder exported to ${opts.out}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
@@ -44,7 +44,7 @@ export function registerExport(program: Command, client: AxiosInstance): void {
     .action(async (opts: { out: string }) => {
       try {
         const data = await api.project();
-        fs.writeFileSync(opts.out, Buffer.from(data));
+        fs.writeFileSync(opts.out, data);
         process.stdout.write(`Project exported to ${opts.out}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });

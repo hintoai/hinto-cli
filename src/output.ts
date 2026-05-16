@@ -11,8 +11,12 @@ export function printTable(headers: string[], rows: string[][]): void {
   process.stdout.write(table.toString() + '\n');
 }
 
-export function printKeyValue(obj: Record<string, unknown>): void {
-  const lines = Object.entries(obj)
+export function printKeyValue(obj: Record<string, unknown> | unknown): void {
+  if (obj == null || typeof obj !== 'object') {
+    process.stdout.write(String(obj) + '\n');
+    return;
+  }
+  const lines = Object.entries(obj as Record<string, unknown>)
     .map(([k, v]) => `${chalk.bold(k)}: ${formatValue(k, v)}`)
     .join('\n');
   process.stdout.write(lines + '\n');

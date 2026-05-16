@@ -5,6 +5,7 @@ export function createClient(apiKey: string, baseUrl: string): AxiosInstance {
   const instance = axios.create({
     baseURL: `${baseUrl}/api/external/v2`,
     headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json' },
+    timeout: 30_000,
   });
 
   instance.interceptors.response.use(

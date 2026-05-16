@@ -11,8 +11,8 @@ export const CONFIG_PATH = path.join(os.homedir(), '.hinto', 'config.json');
 
 export function saveConfig(config: HintoConfig): void {
   const dir = path.dirname(CONFIG_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), { encoding: 'utf-8', mode: 0o600 });
 }
 
 export function loadConfig(): HintoConfig {
