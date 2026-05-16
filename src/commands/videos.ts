@@ -34,7 +34,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.import(opts.url);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -48,7 +48,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.get(videoId);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -62,7 +62,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.status(videoId);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

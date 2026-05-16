@@ -39,7 +39,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.get(id);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -60,7 +60,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
           folderId: opts.folder,
         });
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -79,7 +79,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
           content: opts.content ? resolveContent(opts.content) : undefined,
         });
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -105,7 +105,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.duplicate(id);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -120,7 +120,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.move(id, opts.folder);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -134,7 +134,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.regenerate(id);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -163,7 +163,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.restoreVersion(id, opts.version);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -192,7 +192,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.getTranslation(id, opts.lang);
         if (opts.json) return printJson(data);
-        printKeyValue(data as Record<string, unknown>);
+        printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
