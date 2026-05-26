@@ -114,9 +114,10 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
 
         // Step 2: PUT file to S3
         process.stderr.write(`Uploading ${filename}...\n`);
-        const fileBuffer = fs.readFileSync(filePath);
-        await axios.put(upload_url, fileBuffer, {
-          headers: { 'Content-Type': contentType },
+        const fileStream = fs.createReadStream(filePath);
+        const { size } = fs.statSync(filePath);
+        await axios.put(upload_url, fileStream, {
+          headers: { 'Content-Type': contentType, 'Content-Length': size },
           maxBodyLength: Infinity,
           maxContentLength: Infinity,
         });

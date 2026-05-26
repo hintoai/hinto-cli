@@ -9,23 +9,26 @@ const api = articlesApi(client);
 afterEach(() => nock.cleanAll());
 
 const mockArticle = {
-  id: 'a1',
-  title: 'Hello',
-  slug: 'hello',
-  format: 'markdown' as const,
-  content: '# Hi',
-  createdAt: '2026-01-01',
-  updatedAt: '2026-01-01',
+  id: 1,
+  title: 'Test Article',
+  slug: 'article-slug',
+  folder_id: null,
+  inserted_at: '2026-01-01',
+  updated_at: '2026-01-01',
 };
 
 describe('articlesApi.list', () => {
   it('returns articles', async () => {
     nock(BASE_URL)
       .get('/api/external/v2/articles')
-      .reply(200, { articles: [mockArticle], total: 1 });
+      .reply(200, {
+        articles: [mockArticle],
+        pagination: { limit: 20, offset: 0, count: 1 },
+      });
 
     const result = await api.list();
-    expect(result.articles[0].id).toBe('a1');
+    expect(result.articles[0].id).toBe(1);
+    expect(result.pagination.count).toBe(1);
   });
 });
 
@@ -33,31 +36,31 @@ describe('articlesApi.create', () => {
   it('creates article', async () => {
     nock(BASE_URL)
       .post('/api/external/v2/articles', { title: 'New Article' })
-      .reply(201, mockArticle);
+      .reply(201, { id: 2, title: 'New Article', slug: null });
 
     const result = await api.create({ title: 'New Article' });
-    expect(result.id).toBe('a1');
+    expect(result.id).toBe(2);
   });
 });
 
 describe('articlesApi.delete', () => {
   it('calls DELETE', async () => {
     nock(BASE_URL)
-      .delete('/api/external/v2/articles/a1')
+      .delete('/api/external/v2/articles/1')
       .reply(200, {});
 
-    await expect(api.delete('a1')).resolves.not.toThrow();
+    await expect(api.delete('1')).resolves.not.toThrow();
   });
 });
 
 describe('articlesApi.duplicate', () => {
   it('duplicates article', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/articles/a1/duplicate')
-      .reply(201, { ...mockArticle, id: 'a2' });
+      .post('/api/external/v2/articles/1/duplicate')
+      .reply(201, { id: 3, title: 'Test Article (copy)', slug: null });
 
-    const result = await api.duplicate('a1');
-    expect(result.id).toBe('a2');
+    const result = await api.duplicate('1');
+    expect(result.id).toBe(3);
   });
 });
 
