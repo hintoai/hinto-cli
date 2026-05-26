@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios';
 
 interface JobStatus {
   jobId: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'completed' | 'failed';
   output: unknown | null;
   error?: string | null;
 }
