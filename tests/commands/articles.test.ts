@@ -60,3 +60,15 @@ describe('articlesApi.duplicate', () => {
     expect(result.id).toBe('a2');
   });
 });
+
+describe('articlesApi.triggerTranslate', () => {
+  it('posts to translations endpoint and returns jobId', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/articles/123/translations/fr')
+      .reply(202, { jobId: 'j-tr', articleId: 123, languageCode: 'fr', status: 'pending', message: 'Translation queued' });
+
+    const result = await api.triggerTranslate('123', 'fr');
+    expect(result.jobId).toBe('j-tr');
+    expect(result.languageCode).toBe('fr');
+  });
+});

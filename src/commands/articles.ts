@@ -200,4 +200,20 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         exitWithError(e instanceof Error ? e.message : String(e));
       }
     });
+
+  articles
+    .command('trigger-translate <id>')
+    .description('Trigger translation of an article to a language')
+    .requiredOption('--lang <code>', 'Target language code (e.g. fr, de, es)')
+    .option('--json', 'Output as JSON')
+    .action(async (id: string, opts: { lang: string; json?: boolean }) => {
+      try {
+        const data = await api.triggerTranslate(id, opts.lang);
+        if (opts.json) return printJson(data);
+        process.stdout.write(`Translation queued: jobId=${data.jobId}\n`);
+        process.stdout.write(`Track: hinto generate status ${data.jobId}\n`);
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
+    });
 }
