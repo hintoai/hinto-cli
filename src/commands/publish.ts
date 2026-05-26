@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import { AxiosInstance } from 'axios';
 import { publishApi } from '../api/publish';
-import { pollJob } from '../poll';
 import { printJson, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
 
@@ -11,38 +10,30 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
 
   publish
     .command('now')
-    .description('Publish the project')
-    .option('--wait', 'Block until publishing completes')
+    .description('Publish the project (synchronous)')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { json?: boolean }) => {
       try {
         const data = await api.now();
-        if (opts.wait) {
-          const output = await pollJob(client, data.jobId);
-          if (opts.json) return printJson(output);
-          printKeyValue(output as Record<string, unknown>);
-        } else {
-          if (opts.json) return printJson(data);
-          process.stdout.write(`Publish job started: ${data.jobId}\n`);
-        }
+        if (opts.json) return printJson(data);
+        process.stdout.write(`Published: ${data.slug}\n`);
+        process.stdout.write(`Articles: ${data.articlesCount}  Folders: ${data.foldersCount}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
   publish
     .command('republish')
     .description('Republish the project after content changes')
-    .option('--wait', 'Block until republishing completes')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { json?: boolean }) => {
       try {
         const data = await api.republish();
-        if (opts.wait) {
-          const output = await pollJob(client, data.jobId);
-          if (opts.json) return printJson(output);
-          printKeyValue(output as Record<string, unknown>);
+        if (opts.json) return printJson(data);
+        if (!data.hasChanges) {
+          process.stdout.write('No changes detected since last publication.\n');
         } else {
-          if (opts.json) return printJson(data);
-          process.stdout.write(`Republish job started: ${data.jobId}\n`);
+          process.stdout.write(`Republished: ${data.slug}\n`);
+          process.stdout.write(`Articles: ${data.articlesCount}  Folders: ${data.foldersCount}\n`);
         }
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
@@ -56,6 +47,18 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
         const data = await api.status();
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
+      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+    });
+
+  publish
+    .command('unpublish')
+    .description('Unpublish the project')
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { json?: boolean }) => {
+      try {
+        const data = await api.unpublish();
+        if (opts.json) return printJson(data);
+        process.stdout.write(`${data.message}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 }
