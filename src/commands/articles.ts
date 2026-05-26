@@ -166,11 +166,11 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
   articles
     .command('restore <id>')
     .description('Restore an article version')
-    .requiredOption('--version <vId>', 'Version ID to restore')
+    .requiredOption('--vid <vId>', 'Version ID to restore')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { version: string; json?: boolean }) => {
+    .action(async (id: string, opts: { vid: string; json?: boolean }) => {
       try {
-        const data = await api.restoreVersion(id, opts.version);
+        const data = await api.restoreVersion(id, opts.vid);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {

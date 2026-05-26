@@ -124,7 +124,8 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
 
         // Step 3: complete upload
         process.stderr.write('Completing upload...\n');
-        const result = await api.uploadComplete(video_id);
+        const s3Key = `videos/original/${video_id}${ext}`
+        const result = await api.uploadComplete(video_id, s3Key, filename);
 
         if (opts.json) return printJson(result);
         process.stdout.write(`Uploaded: videoId=${result.videoId}  status=${result.status}\n`);
