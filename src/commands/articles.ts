@@ -27,7 +27,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         if (opts.json) return printJson(data);
         printTable(
           ['ID', 'Title', 'Slug', 'Updated'],
-          data.articles.map(a => [a.id, a.title, a.slug, a.updatedAt])
+          data.articles.map(a => [String(a.id), a.title, a.slug ?? '(none)', a.updated_at])
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
@@ -151,7 +151,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.listVersions(id);
         if (opts.json) return printJson(data);
-        printTable(['Version ID', 'Created'], data.versions.map(v => [v.vId, v.createdAt]));
+        printTable(['Version ID', 'Created'], data.versions.map(v => [v.id, v.createdAt]));
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -180,7 +180,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.listTranslations(id);
         if (opts.json) return printJson(data);
-        printTable(['Language'], data.translations.map(t => [t.lang]));
+        printTable(['Language'], data.translations.map(t => [t.language_code]));
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

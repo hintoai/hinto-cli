@@ -1,56 +1,77 @@
 import { AxiosInstance } from 'axios';
 
 export interface Article {
-  id: string;
+  id: number;
   title: string;
-  slug: string;
-  format: 'markdown' | 'html';
-  content: string;
-  metadata?: Record<string, unknown>;
-  folder_id?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  slug: string | null;
+  folder_id: string | null;
+  inserted_at: string;
+  updated_at: string;
+}
+
+export interface ArticleDetail {
+  metadata: {
+    article: {
+      id: number;
+      title: string;
+      slug: string | null;
+      content: string;
+      format: string;
+      folder_id: string | null;
+      inserted_at: string;
+      updated_at: string;
+    };
+  };
 }
 
 export interface ArticleVersion {
-  vId: string;
+  id: string;
   createdAt: string;
+}
+
+export interface ArticleTranslation {
+  language_code: string;
+  title: string | null;
+  content: string | null;
 }
 
 export const articlesApi = (client: AxiosInstance) => ({
   list: (params?: { folder_id?: string; page?: number; limit?: number }) =>
-    client.get<{ articles: Article[]; total: number }>('/articles', { params }).then(r => r.data),
+    client.get<{ articles: Article[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>('/articles', { params }).then(r => r.data),
 
   get: (id: string) =>
-    client.get<Article>(`/articles/${id}`).then(r => r.data),
+    client.get<ArticleDetail>(`/articles/${id}`).then(r => r.data),
 
   create: (body: { title: string; markdown?: string; folder_id?: string }) =>
-    client.post<Article>('/articles', body).then(r => r.data),
+    client.post<{ id: number; title: string; slug: string | null }>('/articles', body).then(r => r.data),
 
   update: (id: string, body: { title?: string; slug?: string; meta_description?: string }) =>
-    client.put<Article>(`/articles/${id}`, body).then(r => r.data),
+    client.put<{ id: number; title: string; slug: string | null; updatedAt: string }>(`/articles/${id}`, body).then(r => r.data),
 
   delete: (id: string) =>
     client.delete(`/articles/${id}`).then(r => r.data),
 
   duplicate: (id: string) =>
-    client.post<Article>(`/articles/${id}/duplicate`).then(r => r.data),
+    client.post<{ id: number; title: string; slug: string | null }>(`/articles/${id}/duplicate`).then(r => r.data),
 
   move: (id: string, folder_id: string | null) =>
     client.patch<{ message: string; folderId: number | null }>(`/articles/${id}/move`, { folder_id }).then(r => r.data),
 
   regenerate: (id: string) =>
-    client.post<{ jobId: string }>(`/articles/${id}/regenerate`).then(r => r.data),
+    client.post<{ jobId: string; articleId: number; status: string; message: string }>(`/articles/${id}/regenerate`).then(r => r.data),
 
   listVersions: (id: string) =>
     client.get<{ versions: ArticleVersion[] }>(`/articles/${id}/versions`).then(r => r.data),
 
-  restoreVersion: (id: string, vId: string) =>
-    client.post<Article>(`/articles/${id}/versions/${vId}/restore`).then(r => r.data),
+  restoreVersion: (id: string, versionId: string) =>
+    client.post<{ id: number; title: string }>(`/articles/${id}/versions/${versionId}/restore`).then(r => r.data),
 
   listTranslations: (id: string) =>
-    client.get<{ translations: Array<{ lang: string }> }>(`/articles/${id}/translations`).then(r => r.data),
+    client.get<{ translations: ArticleTranslation[] }>(`/articles/${id}/translations`).then(r => r.data),
 
   getTranslation: (id: string, lang: string) =>
-    client.get<{ lang: string; content: string }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
+    client.get<{ languageCode: string; title: string | null; content: string | null }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
+
+  triggerTranslate: (id: string, lang: string) =>
+    client.post<{ jobId: string; articleId: number; languageCode: string; status: string; message: string }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
 });
