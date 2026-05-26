@@ -10,17 +10,17 @@ export interface Article {
 }
 
 export interface ArticleDetail {
+  id: number;
+  title: string;
+  slug: string | null;
+  format: string;
+  content: string;
   metadata: {
-    article: {
-      id: number;
-      title: string;
-      slug: string | null;
-      content: string;
-      format: string;
-      folder_id: string | null;
-      inserted_at: string;
-      updated_at: string;
-    };
+    metaDescription: string | null;
+    metaKeywords: string | null;
+    jsonLd: string | null;
+    createdAt: string | null;
+    updatedAt: string | null;
   };
 }
 
@@ -37,7 +37,7 @@ export interface ArticleTranslation {
 
 export const articlesApi = (client: AxiosInstance) => ({
   list: (params?: { folder_id?: string; page?: number; limit?: number }) =>
-    client.get<{ articles: Article[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>('/articles', { params }).then(r => r.data),
+    client.get<{ articles: Article[]; pagination: { limit: number; offset: number; count: number } }>('/articles', { params }).then(r => r.data),
 
   get: (id: string) =>
     client.get<ArticleDetail>(`/articles/${id}`).then(r => r.data),

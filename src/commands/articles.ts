@@ -42,7 +42,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.get(id);
         if (opts.json) return printJson(data);
-        printKeyValue(data as unknown as Record<string, unknown>);
+        printKeyValue(data);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
