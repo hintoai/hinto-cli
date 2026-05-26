@@ -71,21 +71,26 @@ When this skill is active:
 ## Core Workflow: Upload → Generate → Publish
 
 ```bash
-# 1. Import a video (async — returns a jobId, not a videoId)
+# 1. Upload a local video file
+hinto videos upload --file ./video.mp4 --json
+# → { "videoId": "...", "status": "pending" }
+
+# OR import from a URL (returns a jobId, not a videoId)
 hinto videos import --url https://example.com/video.mp4 --json
-# → { "jobId": "abc123", "status": "pending", ... }
+# → { "jobId": "...", "status": "pending", "message": "..." }
+# Then poll the import job: hinto generate status <jobId>
 
-# 2. Poll the import job until it completes, then extract the videoId
-hinto generate status abc123 --json
-# → { "status": "completed", "output": { "videoId": "..." }, ... }
+# 2. Wait until the video is ready
+hinto videos status <videoId> --json
+# → { "videoId": "...", "status": "ready", ... }
 
-# 3. List available templates to pick a templateId
+# 3. List available templates
 hinto templates list --json
 
 # 4. Generate an article and wait for completion
 hinto generate start --video <videoId> --template <templateId> --wait --json
 
-# 5. Publish the project (synchronous — no --wait needed)
+# 5. Publish the project (synchronous — returns immediately)
 hinto publish now --json
 ```
 

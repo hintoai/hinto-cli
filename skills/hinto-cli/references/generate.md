@@ -79,13 +79,12 @@ hinto generate status <jobId> [--json]
 Generate a folder and article structure for the project from a video. Creates folders and article stubs.
 
 ```bash
-hinto generate structure [--wait] [--json]
+hinto generate structure --video <videoId> [--wait] [--json]
 ```
-
-> **CLI limitation:** The underlying API requires `video_id` in the request body, but the CLI does not expose a `--video` flag for structure generation. Running this command without patching the CLI will return a `400 MISSING_VIDEO_ID` error from the API. Use the API directly for now: `POST /v2/generate/structure` with `{ "video_id": "<videoId>" }`.
 
 | Flag | Required | Description |
 |---|---|---|
+| `--video <videoId>` | **Yes** | The video to derive structure from |
 | `--wait` | No | Block until structure generation settles |
 | `--json` | No | Output JSON |
 

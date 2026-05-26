@@ -29,6 +29,8 @@ hinto videos list [--json]
 
 `ingest_status` values: `pending` | `processing` | `ready` | `failed`
 
+> **Pagination:** `hinto videos list` accepts `--page <n>` and `--limit <n>` (defaults: page=1, limit=20).
+
 ---
 
 ### `hinto videos import --url <url>`
@@ -54,6 +56,36 @@ hinto videos import --url <url> [--json]
 After import, poll `hinto generate status <jobId>` until the job is `completed`. The job output will contain the `videoId` to use for generation.
 
 > **CLI note:** The CLI API module currently expects `{ videoId }` from the import response but the API returns `{ jobId, status, message }`. Use `hinto generate status <jobId> --json` to get the videoId from the completed job's output.
+
+---
+
+### `hinto videos upload`
+
+Upload a local video file to Hinto using the presigned S3 flow.
+
+```bash
+hinto videos upload --file <path> [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--file <path>` | Yes | Path to the local video file (`.mp4`, `.mov`, `.webm`, `.avi`, `.mkv`) |
+
+```bash
+# Upload a local file
+hinto videos upload --file ./recording.mp4
+
+# With JSON output
+hinto videos upload --file ./recording.mp4 --json
+# → { "videoId": "...", "status": "pending", "createdAt": "..." }
+```
+
+The CLI automatically detects content type from the file extension. Progress messages go to stderr; result goes to stdout.
+
+After upload, the video enters `pending` → `processing` → `ready` pipeline. Poll with:
+```bash
+hinto videos status <videoId>
+```
 
 ---
 

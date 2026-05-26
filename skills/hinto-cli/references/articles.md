@@ -33,6 +33,8 @@ hinto articles list [--folder <id>] [--json]
 
 The list response does **not** include `content` or `format` — use `hinto articles get <id>` for full content.
 
+> **Note:** `slug` may be `null` for auto-generated articles (assigned when first published). `hinto articles list` accepts `--page <n>` and `--limit <n>` (defaults: page=1, limit=20).
+
 ---
 
 ### `hinto articles get <id>`
@@ -274,6 +276,33 @@ hinto articles translate <id> --lang <code> [--json]
 ```
 
 Returns `404` if the translation does not exist. Returns `400 INVALID_LANGUAGE` if the language code is not valid.
+
+---
+
+### `hinto articles trigger-translate <id>`
+
+Queue translation of a single article into a target language.
+
+```bash
+hinto articles trigger-translate <id> --lang <code> [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--lang <code>` | Yes | Target language code (e.g. `fr`, `de`, `es`) |
+
+**`--json` response (202):**
+```json
+{
+  "jobId": "uuid",
+  "articleId": 123,
+  "languageCode": "fr",
+  "status": "pending",
+  "message": "Translation queued"
+}
+```
+
+Track completion: `hinto generate status <jobId>`
 
 ---
 
