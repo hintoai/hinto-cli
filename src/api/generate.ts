@@ -3,7 +3,7 @@ import { AxiosInstance } from 'axios';
 export interface Job {
   jobId: string;
   type: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'completed' | 'failed';
   output: unknown | null;
   error?: string | null;
   createdAt: string;
