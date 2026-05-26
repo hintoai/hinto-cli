@@ -1,5 +1,8 @@
 import { Command } from 'commander';
 import { AxiosInstance } from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
+import axios from 'axios';
 import { videosApi } from '../api/videos';
 import { printJson, printTable, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
@@ -77,6 +80,54 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
       try {
         await api.delete(videoId);
         process.stdout.write(`Video ${videoId} deleted.\n`);
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
+    });
+
+  videos
+    .command('upload')
+    .description('Upload a video file from disk (3-step presigned flow)')
+    .requiredOption('--file <path>', 'Path to the video file')
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { file: string; json?: boolean }) => {
+      try {
+        const filePath = path.resolve(opts.file);
+        if (!fs.existsSync(filePath)) {
+          exitWithError(`File not found: ${filePath}`);
+          return;
+        }
+        const filename = path.basename(filePath);
+        const ext = path.extname(filename).toLowerCase();
+        const contentTypeMap: Record<string, string> = {
+          '.mp4': 'video/mp4',
+          '.mov': 'video/quicktime',
+          '.webm': 'video/webm',
+          '.avi': 'video/avi',
+          '.mkv': 'video/x-matroska',
+        };
+        const contentType = contentTypeMap[ext] ?? 'video/mp4';
+
+        // Step 1: get presigned URL
+        process.stderr.write('Requesting presigned upload URL...\n');
+        const { video_id, upload_url } = await api.uploadPresigned(filename, contentType);
+
+        // Step 2: PUT file to S3
+        process.stderr.write(`Uploading ${filename}...\n`);
+        const fileBuffer = fs.readFileSync(filePath);
+        await axios.put(upload_url, fileBuffer, {
+          headers: { 'Content-Type': contentType },
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+        });
+
+        // Step 3: complete upload
+        process.stderr.write('Completing upload...\n');
+        const result = await api.uploadComplete(video_id);
+
+        if (opts.json) return printJson(result);
+        process.stdout.write(`Uploaded: videoId=${result.videoId}  status=${result.status}\n`);
+        process.stdout.write(`Track: hinto videos status ${result.videoId}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

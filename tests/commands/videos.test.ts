@@ -41,3 +41,31 @@ describe('videosApi.delete', () => {
     await expect(api.delete('v1')).resolves.not.toThrow();
   });
 });
+
+describe('videosApi.uploadPresigned', () => {
+  it('requests a presigned URL', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/videos/upload/presigned', { filename: 'video.mp4', content_type: 'video/mp4' })
+      .reply(200, {
+        video_id: 'v-new',
+        upload_url: 'https://s3.example.com/upload',
+        s3_url: 'https://s3.example.com/video.mp4',
+        expires_in: 3600,
+      });
+
+    const result = await api.uploadPresigned('video.mp4', 'video/mp4');
+    expect(result.video_id).toBe('v-new');
+    expect(result.upload_url).toBe('https://s3.example.com/upload');
+  });
+});
+
+describe('videosApi.uploadComplete', () => {
+  it('completes the upload', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/videos/upload/complete', { videoId: 'v-new' })
+      .reply(200, { videoId: 'v-new', status: 'pending', createdAt: '2026-01-01' });
+
+    const result = await api.uploadComplete('v-new');
+    expect(result.videoId).toBe('v-new');
+  });
+});
