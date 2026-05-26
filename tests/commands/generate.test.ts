@@ -25,3 +25,14 @@ describe('generateApi.status', () => {
     expect(result.status).toBe('completed');
   });
 });
+
+describe('generateApi.structure', () => {
+  it('posts video_id in body', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/generate/structure', { video_id: 'v1' })
+      .reply(202, { jobId: 'j-struct' });
+
+    const result = await api.structure('v1');
+    expect(result.jobId).toBe('j-struct');
+  });
+});

@@ -44,12 +44,13 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
 
   generate
     .command('structure')
-    .description('Generate project structure')
+    .description('Generate project structure from a video')
+    .requiredOption('--video <videoId>', 'Video ID to generate structure from')
     .option('--wait', 'Wait for completion')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { video: string; wait?: boolean; json?: boolean }) => {
       try {
-        const data = await api.structure();
+        const data = await api.structure(opts.video);
         if (opts.wait) {
           const output = await pollJob(client, data.jobId);
           if (opts.json) return printJson(output);

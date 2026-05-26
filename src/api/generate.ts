@@ -17,6 +17,6 @@ export const generateApi = (client: AxiosInstance) => ({
   status: (jobId: string) =>
     client.get<Job>(`/generate/${jobId}`).then(r => r.data),
 
-  structure: (params?: { autoGenerate?: boolean }) =>
-    client.post<{ jobId: string }>('/generate/structure', params).then(r => r.data),
+  structure: (videoId: string) =>
+    client.post<{ jobId: string }>('/generate/structure', { video_id: videoId }).then(r => r.data),
 });
