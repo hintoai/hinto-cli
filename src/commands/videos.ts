@@ -11,10 +11,12 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
   videos
     .command('list')
     .description('List all videos')
+    .option('--page <n>', 'Page number', '1')
+    .option('--limit <n>', 'Results per page', '20')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { json?: boolean }) => {
+    .action(async (opts: { page: string; limit: string; json?: boolean }) => {
       try {
-        const data = await api.list();
+        const data = await api.list({ page: Number(opts.page), limit: Number(opts.limit) });
         if (opts.json) return printJson(data);
         printTable(
           ['Video ID', 'Status', 'Created'],
