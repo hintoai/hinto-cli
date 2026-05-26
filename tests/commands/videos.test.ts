@@ -21,13 +21,14 @@ describe('videosApi.list', () => {
 });
 
 describe('videosApi.import', () => {
-  it('returns videoId on import', async () => {
+  it('returns jobId on import', async () => {
     nock(BASE_URL)
       .post('/api/external/v2/videos/import', { url: 'https://example.com/video.mp4' })
-      .reply(200, { videoId: 'v2', status: 'pending' });
+      .reply(202, { jobId: 'j-abc', status: 'pending', message: 'Video import started' });
 
     const result = await api.import('https://example.com/video.mp4');
-    expect(result.videoId).toBe('v2');
+    expect(result.jobId).toBe('j-abc');
+    expect(result.status).toBe('pending');
   });
 });
 
