@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import { AxiosInstance } from 'axios';
 import { projectApi } from '../api/project';
-import { pollJob } from '../poll';
 import { printJson, printTable, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
 
@@ -17,8 +16,7 @@ export function registerProject(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.get();
         if (opts.json) return printJson(data);
-        const inner = (data as unknown as { project?: Record<string, unknown> }).project ?? data;
-        printKeyValue(inner as unknown as Record<string, unknown>);
+        printKeyValue(data.project as unknown as Record<string, unknown>);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
@@ -55,7 +53,15 @@ export function registerProject(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.listLanguages();
         if (opts.json) return printJson(data);
-        printTable(['Code', 'Name'], data.languages.map(l => [l.code, l.name]));
+        printTable(
+          ['Code', 'Translated', 'Total', 'Translating'],
+          data.languages.map(l => [
+            l.languageCode,
+            String(l.translatedArticles),
+            String(l.totalArticles),
+            String(l.isTranslating),
+          ])
+        );
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
@@ -63,19 +69,13 @@ export function registerProject(program: Command, client: AxiosInstance): void {
     .command('retranslate')
     .description('Retranslate all articles to a language')
     .requiredOption('--lang <code>', 'Language code (e.g. fr, de, es)')
-    .option('--wait', 'Block until translation completes')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { lang: string; wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { lang: string; json?: boolean }) => {
       try {
         const data = await api.retranslate(opts.lang);
-        if (opts.wait) {
-          const output = await pollJob(client, data.jobId);
-          if (opts.json) return printJson(output);
-          printKeyValue(output as Record<string, unknown>);
-        } else {
-          if (opts.json) return printJson(data);
-          process.stdout.write(`Retranslation job started: ${data.jobId}\n`);
-        }
+        if (opts.json) return printJson(data);
+        process.stdout.write(`Queued ${data.queued} articles for translation to ${data.languageCode}.\n`);
+        process.stdout.write(`Track progress: hinto project languages --json\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 }
