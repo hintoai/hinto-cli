@@ -1,15 +1,5 @@
 import { AxiosInstance } from 'axios';
 
-export interface Video {
-  id: string;
-  filename?: string | null;
-  duration?: number | null;
-  ingest_status: 'pending' | 'processing' | 'ready' | 'failed';
-  created_at: string;
-  project_id?: string | null;
-  user_id?: string | null;
-}
-
 export interface VideoListItem {
   videoId: string;
   filename?: string | null;
