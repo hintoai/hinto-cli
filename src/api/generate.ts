@@ -11,8 +11,11 @@ export interface Job {
 }
 
 export const generateApi = (client: AxiosInstance) => ({
-  start: (videoId: string, templateId: number) =>
-    client.post<{ jobId: string }>('/generate', { video_id: videoId, template_id: templateId }).then(r => r.data),
+  start: (videoId: string, templateId?: number) =>
+    client.post<{ jobId: string; articleId: number; status: string; message: string }>(
+      '/generate',
+      { video_id: videoId, ...(templateId !== undefined ? { template_id: templateId } : {}) }
+    ).then(r => r.data),
 
   status: (jobId: string) =>
     client.get<Job>(`/generate/${jobId}`).then(r => r.data),

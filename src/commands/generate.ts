@@ -13,12 +13,12 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
     .command('start')
     .description('Start a generation job')
     .requiredOption('--video <videoId>', 'Video ID to generate from')
-    .requiredOption('--template <templateId>', 'Template ID to use')
+    .option('--template <templateId>', 'Template ID (optional — server auto-selects if omitted)')
     .option('--wait', 'Wait for completion')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { video: string; template: string; wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { video: string; template?: string; wait?: boolean; json?: boolean }) => {
       try {
-        const data = await api.start(opts.video, Number(opts.template));
+        const data = await api.start(opts.video, opts.template ? Number(opts.template) : undefined);
         if (opts.wait) {
           const output = await pollJob(client, data.jobId);
           if (opts.json) return printJson(output);
