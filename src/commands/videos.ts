@@ -14,12 +14,12 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
   videos
     .command('list')
     .description('List all videos')
-    .option('--page <n>', 'Page number', '1')
+    .option('--offset <n>', 'Number of videos to skip', '0')
     .option('--limit <n>', 'Results per page', '20')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { page: string; limit: string; json?: boolean }) => {
+    .action(async (opts: { offset: string; limit: string; json?: boolean }) => {
       try {
-        const data = await api.list({ page: Number(opts.page), limit: Number(opts.limit) });
+        const data = await api.list({ offset: Number(opts.offset), limit: Number(opts.limit) });
         if (opts.json) return printJson(data);
         printTable(
           ['Video ID', 'Filename', 'Status', 'Created'],

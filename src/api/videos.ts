@@ -11,7 +11,7 @@ export interface Video {
 }
 
 export interface VideoListParams {
-  page?: number;
+  offset?: number;
   limit?: number;
 }
 
