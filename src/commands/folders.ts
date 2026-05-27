@@ -62,9 +62,11 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
   folders
     .command('delete <id>')
     .description('Delete a folder')
-    .action(async (id: string) => {
+    .option('--json', 'Output as JSON')
+    .action(async (id: string, opts: { json?: boolean }) => {
       try {
         await api.delete(id);
+        if (opts.json) return printJson({ deleted: true });
         process.stdout.write(`Folder ${id} deleted.\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });

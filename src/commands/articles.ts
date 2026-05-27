@@ -101,9 +101,11 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
   articles
     .command('delete <id>')
     .description('Delete an article')
-    .action(async (id: string) => {
+    .option('--json', 'Output as JSON')
+    .action(async (id: string, opts: { json?: boolean }) => {
       try {
         await api.delete(id);
+        if (opts.json) return printJson({ deleted: true });
         process.stdout.write(`Article ${id} deleted.\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));

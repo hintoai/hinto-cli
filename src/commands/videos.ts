@@ -76,9 +76,11 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
   videos
     .command('delete <videoId>')
     .description('Delete a video')
-    .action(async (videoId: string) => {
+    .option('--json', 'Output as JSON')
+    .action(async (videoId: string, opts: { json?: boolean }) => {
       try {
         await api.delete(videoId);
+        if (opts.json) return printJson({ deleted: true });
         process.stdout.write(`Video ${videoId} deleted.\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
