@@ -18,6 +18,23 @@ export function createClient(apiKey: string, baseUrl: string): AxiosInstance {
         }
         throw new CliError(apiError.code, apiError.message);
       }
+      if (!apiError && err.response?.data) {
+        try {
+          const raw = typeof err.response.data === 'string'
+            ? err.response.data
+            : Buffer.from(err.response.data as unknown as ArrayBuffer).toString('utf-8')
+          const parsed = JSON.parse(raw)
+          if (parsed?.error) {
+            if (parsed.error.code === 'UNAUTHORIZED') {
+              throw new CliError('UNAUTHORIZED', 'Invalid API key. Run `hinto init --key <your-api-key>` to authenticate.');
+            }
+            throw new CliError(parsed.error.code, parsed.error.message ?? 'Unknown error')
+          }
+        } catch (parseErr) {
+          if (parseErr instanceof CliError) throw parseErr
+          // ignore parse failures — fall through to generic message
+        }
+      }
       if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
         throw new CliError('NETWORK_ERROR', 'Could not reach Hinto API — check your connection');
       }
