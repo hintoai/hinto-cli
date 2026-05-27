@@ -9,14 +9,32 @@ export function registerTemplates(program: Command, client: AxiosInstance): void
   const api = templatesApi(client);
 
   templates
-    .command('list')
-    .description('List available templates')
+    .command('article')
+    .description('List article generation templates for this project type')
     .option('--json', 'Output as JSON')
     .action(async (opts: { json?: boolean }) => {
       try {
-        const data = await api.list();
+        const data = await api.articleTemplates();
         if (opts.json) return printJson(data);
-        printTable(['ID', 'Name', 'Description'], data.templates.map(t => [t.id, t.name, t.description ?? '—']));
+        printTable(
+          ['ID', 'Name', 'Requires Video', 'Description'],
+          data.templates.map(t => [String(t.id), t.name, t.requires_video ? 'yes' : 'no', t.description ?? '—'])
+        );
+      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+    });
+
+  templates
+    .command('structure')
+    .description('List structure generation templates for this project type')
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { json?: boolean }) => {
+      try {
+        const data = await api.structureTemplates();
+        if (opts.json) return printJson(data);
+        printTable(
+          ['ID', 'Name', 'Requires Video', 'Description'],
+          data.templates.map(t => [String(t.id), t.name, t.requires_video ? 'yes' : 'no', t.description ?? '—'])
+        );
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 }
