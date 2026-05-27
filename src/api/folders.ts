@@ -1,9 +1,11 @@
 import { AxiosInstance } from 'axios';
 
 export interface Folder {
-  id: string;
+  id: number;
   name: string;
-  parent_id?: string | null;
+  parentId: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const foldersApi = (client: AxiosInstance) => ({

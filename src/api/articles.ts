@@ -4,9 +4,9 @@ export interface Article {
   id: number;
   title: string;
   slug: string | null;
-  folder_id: string | null;
-  inserted_at: string;
-  updated_at: string;
+  folderId: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ArticleDetail {

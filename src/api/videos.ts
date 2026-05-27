@@ -10,6 +10,14 @@ export interface Video {
   user_id?: string | null;
 }
 
+export interface VideoListItem {
+  videoId: string;
+  filename?: string | null;
+  durationSeconds?: number | null;
+  status: string;
+  createdAt: string;
+}
+
 export interface VideoListParams {
   offset?: number;
   limit?: number;
@@ -17,7 +25,7 @@ export interface VideoListParams {
 
 export const videosApi = (client: AxiosInstance) => ({
   list: (params?: VideoListParams) =>
-    client.get<{ videos: Video[]; pagination: { limit: number; offset: number; count: number } }>('/videos', { params }).then(r => r.data),
+    client.get<{ videos: VideoListItem[]; pagination: { limit: number; offset: number; count: number } }>('/videos', { params }).then(r => r.data),
 
   get: (videoId: string) =>
     client.get<{ videoId: string; filename?: string | null; status: string; durationSeconds?: number | null; createdAt: string }>(`/videos/${videoId}`).then(r => r.data),

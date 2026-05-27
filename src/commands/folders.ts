@@ -16,7 +16,7 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.list();
         if (opts.json) return printJson(data);
-        printTable(['ID', 'Name', 'Parent'], data.folders.map(f => [f.id, f.name, f.parent_id ?? '—']));
+        printTable(['ID', 'Name', 'Parent'], data.folders.map(f => [String(f.id), f.name, f.parentId != null ? String(f.parentId) : '—']));
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 

@@ -33,7 +33,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         if (opts.json) return printJson(data);
         printTable(
           ['ID', 'Title', 'Slug', 'Folder', 'Updated'],
-          data.articles.map(a => [String(a.id), a.title, a.slug ?? '(none)', a.folder_id ? String(a.folder_id) : '—', a.updated_at])
+          data.articles.map(a => [String(a.id), a.title, a.slug ?? '(none)', a.folderId != null ? String(a.folderId) : '—', a.updatedAt])
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));

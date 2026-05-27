@@ -13,13 +13,15 @@ describe('videosApi.list', () => {
     nock(BASE_URL)
       .get('/api/external/v2/videos')
       .reply(200, {
-        videos: [{ id: 'v1', filename: 'video.mp4', duration: 120, ingest_status: 'ready', created_at: '2026-01-01' }],
+        videos: [{ videoId: 'v1', filename: 'video.mp4', durationSeconds: 120, status: 'ready', createdAt: '2026-01-01' }],
         pagination: { limit: 20, offset: 0, count: 1 }
       });
 
     const result = await api.list();
     expect(result.videos).toHaveLength(1);
-    expect(result.videos[0].id).toBe('v1');
+    expect(result.videos[0].videoId).toBe('v1');
+    expect(result.videos[0].status).toBe('ready');
+    expect(result.videos[0].createdAt).toBe('2026-01-01');
   });
 });
 

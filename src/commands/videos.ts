@@ -23,7 +23,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         if (opts.json) return printJson(data);
         printTable(
           ['Video ID', 'Filename', 'Status', 'Created'],
-          data.videos.map(v => [v.id, v.filename ?? '—', v.ingest_status, v.created_at])
+          data.videos.map(v => [v.videoId, v.filename ?? '—', v.status, v.createdAt])
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
