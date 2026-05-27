@@ -192,7 +192,10 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.listTranslations(id);
         if (opts.json) return printJson(data);
-        printTable(['Language'], data.translations.map(t => [t.language_code]));
+        printTable(
+          ['Language', 'Status', 'Title', 'Has Content', 'Updated'],
+          data.translations.map(t => [t.languageCode, t.status, t.title ?? '—', t.hasContent ? 'yes' : 'no', t.updatedAt])
+        );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

@@ -30,9 +30,14 @@ export interface ArticleVersion {
 }
 
 export interface ArticleTranslation {
-  language_code: string;
+  languageCode: string;
+  status: string;
   title: string | null;
-  content: string | null;
+  slug: string | null;
+  metaDescription: string | null;
+  metaKeywords: string[] | null;
+  hasContent: boolean;
+  updatedAt: string;
 }
 
 export const articlesApi = (client: AxiosInstance) => ({

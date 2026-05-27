@@ -15,19 +15,18 @@ hinto videos list [--json]
 {
   "videos": [
     {
-      "videoId": "uuid",
+      "id": "uuid",
       "filename": "demo.mp4",
-      "title": null,
-      "durationSeconds": 120,
-      "status": "ready",
-      "createdAt": "2026-05-26T10:00:00Z"
+      "duration": 120,
+      "ingest_status": "ready",
+      "created_at": "2026-05-26T10:00:00Z"
     }
   ],
-  "pagination": { "limit": 50, "offset": 0, "count": 1 }
+  "pagination": { "limit": 20, "offset": 0, "count": 1 }
 }
 ```
 
-`status` values: `pending` | `processing` | `ready` | `failed`
+`ingest_status` values: `pending` | `processing` | `ready` | `failed`
 
 > **Pagination:** `hinto videos list` accepts `--limit <n>` (default: 20).
 
@@ -89,6 +88,29 @@ hinto videos status <videoId>
 
 ---
 
+### `hinto videos get <videoId>`
+
+Get full details of a video by ID.
+
+```bash
+hinto videos get <videoId> [--json]
+```
+
+**`--json` response:**
+```json
+{
+  "videoId": "uuid",
+  "filename": "demo.mp4",
+  "status": "ready",
+  "durationSeconds": 120,
+  "createdAt": "2026-05-26T10:00:00Z"
+}
+```
+
+Returns `404 VIDEO_NOT_FOUND` if the ID doesn't exist or belongs to another project.
+
+---
+
 ### `hinto videos status <videoId>`
 
 Check the processing status of a known video by its ID.
@@ -117,21 +139,22 @@ hinto videos status <videoId> [--json]
 Delete a video. Irreversible.
 
 ```bash
-hinto videos delete <videoId>
+hinto videos delete <videoId> [--json]
 ```
 
-Prints: `Video <videoId> deleted.`  
+Plain: `Video <videoId> deleted.`  
+JSON: `{ "deleted": true }`  
 **Scope:** `write`
 
 ---
 
-## Direct Upload (Two-Step, API only)
+## Presigned Upload Flow (API internals)
 
-To upload a local file directly, use the presigned URL flow via the API — there is no `hinto videos upload` CLI command:
+The `hinto videos upload` command uses a three-step presigned S3 flow internally:
 
 1. `POST /v2/videos/upload/presigned` (`{ filename, content_type }`) → `{ video_id, upload_url, s3_url, expires_in }`
 2. PUT the file to `upload_url` directly
-3. `POST /v2/videos/upload/complete` (`{ videoId }`) → video object
+3. `POST /v2/videos/upload/complete` (`{ videoId }`) → `{ videoId }`
 
 ---
 
