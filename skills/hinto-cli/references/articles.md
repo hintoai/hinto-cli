@@ -202,7 +202,7 @@ hinto articles versions <id> [--json]
 }
 ```
 
-Use the version `id` (not `vId`) as the `--version` value in `hinto articles restore`.
+Use the version `id` as the `--vid` value in `hinto articles restore`.
 
 ---
 
@@ -211,10 +211,10 @@ Use the version `id` (not `vId`) as the `--version` value in `hinto articles res
 Restore an article to a previous version.
 
 ```bash
-hinto articles restore <id> --version <id> [--json]
+hinto articles restore <id> --vid <id> [--json]
 ```
 
-**Required:** `--version <id>` — a version `id` from `hinto articles versions`
+**Required:** `--vid <id>` — a version `id` from `hinto articles versions`
 
 **`--json` response:** the restored article object.
 

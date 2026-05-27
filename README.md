@@ -141,7 +141,7 @@ hinto articles move <id> --folder <folderId>
 hinto articles regenerate <id>
 
 hinto articles versions <id>
-hinto articles restore <id> --version <vId>
+hinto articles restore <id> --vid <vId>
 
 hinto articles translations <id>
 hinto articles translate <id> --lang fr
@@ -325,16 +325,58 @@ Commands that start background jobs — `generate start`, `publish now`, `publis
 
 ## Development
 
+### Setup
+
 ```bash
 git clone <repo-url>
 cd hinto-cli
 npm install
 npm run build      # compile TypeScript → dist/
-npm test           # run unit tests (27 tests, nock-based, no network required)
+npm test           # run unit tests (nock-based, no network required)
 ```
 
-Point the CLI at a local Next.js dev server:
+### Running locally without installing globally
+
+Use `node dist/index.js` directly — no `npm link` or global install needed:
 
 ```bash
-hinto --api-url http://localhost:3099 project get
+npm run build
+node dist/index.js --api-url http://localhost:3000 project get
 ```
+
+Or set a shell alias for the session:
+
+```bash
+alias hinto="node $(pwd)/dist/index.js"
+hinto --api-url http://localhost:3000 videos list
+```
+
+Set `HINTO_API_KEY` in your environment to avoid passing the key on every command:
+
+```bash
+export HINTO_API_KEY=hinto_...
+```
+
+### Testing against a local server
+
+Point the CLI at the Next.js dev server running on port 3000 (or the e2e port 3099):
+
+```bash
+node dist/index.js --api-url http://localhost:3000 videos list --json
+```
+
+Grab an API key from the local Supabase DB or from the e2e test setup.
+
+### Skill development
+
+The Claude Code skill lives in `skills/hinto-cli/`. After editing any file there, copy it to Claude's global skills directory so it takes effect immediately:
+
+```bash
+cp -r skills/hinto-cli/. ~/.claude/skills/hinto-cli/
+```
+
+**Rule:** whenever you change a CLI flag or command behaviour, update **both**:
+1. The relevant `skills/hinto-cli/references/*.md` file
+2. The usage examples in this `README.md`
+
+Then copy and commit together so the repo and the local skill stay in sync.
