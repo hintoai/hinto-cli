@@ -67,11 +67,15 @@ hinto project retranslate --lang fr --wait      # block until done
 ### `hinto templates`
 
 ```bash
-hinto templates list
-hinto templates list --json
+hinto templates article              # article templates for this project type
+hinto templates article --json
+hinto templates structure            # structure templates for this project type
+hinto templates structure --json
 ```
 
-`templates list --json` — `requires_video` tells you whether a template needs a video to generate from; `project_id: null` means the template is available to all projects:
+Templates are automatically scoped to your project type.
+
+`templates article --json` — `requires_video` tells you whether a template needs a video to generate from:
 
 ```json
 {
@@ -80,12 +84,9 @@ hinto templates list --json
       "id": 1,
       "name": "Tutorial",
       "description": "Step-by-step guide format",
-      "template_type": "article",
-      "project_id": null,
-      "sort_order": 1,
       "requires_video": true,
       "image_url": "https://cdn.hinto.ai/templates/tutorial.png",
-      "visible": true
+      "sort_order": 1
     }
   ]
 }
@@ -212,18 +213,24 @@ hinto videos delete <videoId>
 ### `hinto generate`
 
 ```bash
-# fire-and-forget — prints job metadata and exits immediately
+# fire-and-forget with explicit template
 hinto generate start --video <videoId> --template <templateId>
+
+# fire-and-forget with auto-selected template (optional --template)
+hinto generate start --video <videoId>
 
 # block until the job completes
 hinto generate start --video <videoId> --template <templateId> --wait --json
+
+# without --template, server picks the default
+hinto generate start --video <videoId> --wait --json
 
 # check an existing job
 hinto generate status <jobId> --json
 
 # generate / refresh project structure
-hinto generate structure
-hinto generate structure --wait
+hinto generate structure --video <videoId>
+hinto generate structure --video <videoId> --wait
 ```
 
 `generate start --json` (fire-and-forget) — use `jobId` to poll status:
