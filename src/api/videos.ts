@@ -32,7 +32,7 @@ export const videosApi = (client: AxiosInstance) => ({
     client.post<{ video_id: string; upload_url: string; s3_url: string; expires_in: number }>('/videos/upload/presigned', { filename, content_type: contentType }).then(r => r.data),
 
   uploadComplete: (videoId: string, key: string, filename: string) =>
-    client.post<Video>('/videos/upload/complete', { key, fileId: videoId, filename }).then(r => r.data),
+    client.post<{ videoId: string }>('/videos/upload/complete', { key, fileId: videoId, filename }).then(r => r.data),
 
   delete: (videoId: string) =>
     client.delete(`/videos/${videoId}`).then(r => r.data),

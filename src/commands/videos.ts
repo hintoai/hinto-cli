@@ -128,8 +128,8 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         const result = await api.uploadComplete(video_id, s3Key, filename);
 
         if (opts.json) return printJson(result);
-        process.stdout.write(`Uploaded: videoId=${result.id}  status=${result.ingest_status}\n`);
-        process.stdout.write(`Track: hinto videos status ${result.id}\n`);
+        process.stdout.write(`Uploaded: videoId=${result.videoId}  status=pending\n`);
+        process.stdout.write(`Track: hinto videos status ${result.videoId}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
