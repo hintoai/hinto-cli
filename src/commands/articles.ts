@@ -122,12 +122,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
 
   articles
     .command('move <id>')
-    .description('Move an article to a folder')
-    .requiredOption('--folder <folderId>', 'Target folder ID')
+    .description('Move an article to a folder, or to root if --folder is omitted')
+    .option('--folder <folderId>', 'Destination folder ID — omit to move to root')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { folder: string; json?: boolean }) => {
+    .action(async (id: string, opts: { folder?: string; json?: boolean }) => {
       try {
-        const data = await api.move(id, opts.folder);
+        const data = await api.move(id, opts.folder ?? null);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
@@ -216,8 +216,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.triggerTranslate(id, opts.lang);
         if (opts.json) return printJson(data);
-        process.stdout.write(`Translation queued: jobId=${data.jobId}\n`);
-        process.stdout.write(`Track: hinto generate status ${data.jobId}\n`);
+        process.stdout.write(`Translation queued for article ${id} → ${opts.lang}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

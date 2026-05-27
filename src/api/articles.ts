@@ -73,5 +73,5 @@ export const articlesApi = (client: AxiosInstance) => ({
     client.get<{ languageCode: string; title: string | null; content: string | null }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
 
   triggerTranslate: (id: string, lang: string) =>
-    client.post<{ jobId: string; articleId: number; languageCode: string; status: string; message: string }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
+    client.post<{ message: string; articleId: number; languageCode: string }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
 });
