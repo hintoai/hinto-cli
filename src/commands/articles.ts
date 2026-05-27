@@ -83,6 +83,10 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .option('--json', 'Output as JSON')
     .action(async (id: string, opts: { title?: string; slug?: string; json?: boolean }) => {
       try {
+        if (!opts.title && !opts.slug) {
+          exitWithError('Provide at least one field to update: --title or --slug');
+          return;
+        }
         const data = await api.update(id, {
           title: opts.title,
           slug: opts.slug,

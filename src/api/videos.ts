@@ -20,10 +20,10 @@ export const videosApi = (client: AxiosInstance) => ({
     client.get<{ videos: Video[]; pagination: { limit: number; offset: number; count: number } }>('/videos', { params }).then(r => r.data),
 
   get: (videoId: string) =>
-    client.get<Video>(`/videos/${videoId}`).then(r => r.data),
+    client.get<{ videoId: string; filename?: string | null; status: string; durationSeconds?: number | null; createdAt: string }>(`/videos/${videoId}`).then(r => r.data),
 
   status: (videoId: string) =>
-    client.get<Video>(`/videos/${videoId}/status`).then(r => r.data),
+    client.get<{ videoId: string; filename?: string | null; status: string; durationSeconds?: number | null; createdAt: string }>(`/videos/${videoId}/status`).then(r => r.data),
 
   import: (url: string) =>
     client.post<{ jobId: string; status: string; message: string }>('/videos/import', { url }).then(r => r.data),

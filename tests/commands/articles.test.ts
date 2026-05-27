@@ -65,13 +65,33 @@ describe('articlesApi.duplicate', () => {
 });
 
 describe('articlesApi.triggerTranslate', () => {
-  it('posts to translations endpoint and returns jobId', async () => {
+  it('posts to translations endpoint and returns message', async () => {
     nock(BASE_URL)
       .post('/api/external/v2/articles/123/translations/fr')
-      .reply(202, { jobId: 'j-tr', articleId: 123, languageCode: 'fr', status: 'pending', message: 'Translation queued' });
+      .reply(202, { message: 'Translation queued', articleId: 123, languageCode: 'fr' });
 
     const result = await api.triggerTranslate('123', 'fr');
-    expect(result.jobId).toBe('j-tr');
+    expect(result.message).toBe('Translation queued');
     expect(result.languageCode).toBe('fr');
+  });
+});
+
+describe('articlesApi.update', () => {
+  it('updates article with title', async () => {
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { title: 'Updated Title' })
+      .reply(200, { id: 1, title: 'Updated Title', slug: 'article-slug', updatedAt: '2026-01-01' });
+
+    const result = await api.update('1', { title: 'Updated Title' });
+    expect(result.title).toBe('Updated Title');
+  });
+
+  it('updates article with slug', async () => {
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { slug: 'new-slug' })
+      .reply(200, { id: 1, title: 'Test Article', slug: 'new-slug', updatedAt: '2026-01-01' });
+
+    const result = await api.update('1', { slug: 'new-slug' });
+    expect(result.slug).toBe('new-slug');
   });
 });

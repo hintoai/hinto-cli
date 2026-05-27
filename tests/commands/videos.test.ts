@@ -12,11 +12,14 @@ describe('videosApi.list', () => {
   it('returns video list', async () => {
     nock(BASE_URL)
       .get('/api/external/v2/videos')
-      .reply(200, { videos: [{ videoId: 'v1', status: 'ready', createdAt: '2026-01-01' }], total: 1 });
+      .reply(200, {
+        videos: [{ id: 'v1', filename: 'video.mp4', duration: 120, ingest_status: 'ready', created_at: '2026-01-01' }],
+        pagination: { limit: 20, offset: 0, count: 1 }
+      });
 
     const result = await api.list();
     expect(result.videos).toHaveLength(1);
-    expect(result.videos[0].videoId).toBe('v1');
+    expect(result.videos[0].id).toBe('v1');
   });
 });
 
@@ -62,10 +65,48 @@ describe('videosApi.uploadPresigned', () => {
 describe('videosApi.uploadComplete', () => {
   it('completes the upload', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/videos/upload/complete', { videoId: 'v-new' })
-      .reply(200, { videoId: 'v-new', status: 'pending', createdAt: '2026-01-01' });
+      .post('/api/external/v2/videos/upload/complete', { key: 'videos/original/v-new.mp4', fileId: 'v-new', filename: 'video.mp4' })
+      .reply(200, { videoId: 'v-new' });
 
-    const result = await api.uploadComplete('v-new');
+    const result = await api.uploadComplete('v-new', 'videos/original/v-new.mp4', 'video.mp4');
     expect(result.videoId).toBe('v-new');
+  });
+});
+
+describe('videosApi.get', () => {
+  it('returns a video with camelCase fields', async () => {
+    nock(BASE_URL)
+      .get('/api/external/v2/videos/v1')
+      .reply(200, { videoId: 'v1', filename: 'video.mp4', status: 'ready', durationSeconds: 120, createdAt: '2026-01-01' });
+
+    const result = await api.get('v1');
+    expect(result.videoId).toBe('v1');
+    expect(result.filename).toBe('video.mp4');
+    expect(result.status).toBe('ready');
+    expect(result.durationSeconds).toBe(120);
+    expect(result.createdAt).toBe('2026-01-01');
+  });
+
+  it('handles optional fields', async () => {
+    nock(BASE_URL)
+      .get('/api/external/v2/videos/v2')
+      .reply(200, { videoId: 'v2', filename: null, status: 'processing', durationSeconds: null, createdAt: '2026-01-02' });
+
+    const result = await api.get('v2');
+    expect(result.videoId).toBe('v2');
+    expect(result.filename).toBeNull();
+    expect(result.durationSeconds).toBeNull();
+  });
+});
+
+describe('videosApi.status', () => {
+  it('returns video status with camelCase fields', async () => {
+    nock(BASE_URL)
+      .get('/api/external/v2/videos/v1/status')
+      .reply(200, { videoId: 'v1', status: 'ready', createdAt: '2026-01-01' });
+
+    const result = await api.status('v1');
+    expect(result.videoId).toBe('v1');
+    expect(result.status).toBe('ready');
   });
 });
