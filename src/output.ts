@@ -29,5 +29,6 @@ function formatValue(key: string, value: unknown): string {
     if (value === 'failed') return chalk.red(value);
   }
   if (value === null || value === undefined) return chalk.dim('—');
+  if (typeof value === 'object') return JSON.stringify(value, null, 2);
   return String(value);
 }
