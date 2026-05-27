@@ -38,7 +38,10 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.status(jobId);
         if (opts.json) return printJson(data);
-        printKeyValue(data as unknown as Record<string, unknown>);
+        const display = Object.fromEntries(
+          Object.entries(data as unknown as Record<string, unknown>).filter(([k, v]) => !(k === 'error' && (v === null || v === undefined)))
+        );
+        printKeyValue(display);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
