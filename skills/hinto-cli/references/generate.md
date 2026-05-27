@@ -28,7 +28,7 @@ hinto generate start --video <videoId> --template <templateId> [--wait] [--json]
 | Flag | Required | Description |
 |---|---|---|
 | `--video <videoId>` | Yes | ID of a `ready` video |
-| `--template <templateId>` | Yes | Template ID (get from `hinto templates list`) |
+| `--template <templateId>` | No | Template ID from `hinto templates article` — auto-selected if omitted |
 | `--wait` | No | Block until the job completes |
 | `--json` | No | Output JSON |
 
@@ -101,13 +101,27 @@ hinto generate structure --video <videoId> [--wait] [--json]
 
 ---
 
+## Optional Template
+
+The `--template` flag is optional. When omitted, the server auto-selects the default template for your project type:
+
+```bash
+# Without --template: server auto-selects the default template
+hinto generate start --video <videoId> --wait --json
+
+# With explicit template
+hinto generate start --video <videoId> --template 5 --wait --json
+```
+
+---
+
 ## Polling Manually
 
 If you didn't use `--wait`, track the job yourself:
 
 ```bash
 # Fire and capture jobId
-JOB=$(hinto generate start --video abc123 --template 1 --json | jq -r .jobId)
+JOB=$(hinto generate start --video abc123 --json | jq -r .jobId)
 
 # Poll until done
 while true; do
