@@ -15,20 +15,24 @@ hinto folders list [--json]
 {
   "folders": [
     {
-      "id": "uuid",
+      "id": 1,
       "name": "Getting Started",
-      "parent_id": null
+      "parentId": null,
+      "createdAt": "2026-05-26T10:00:00Z",
+      "updatedAt": "2026-05-26T10:00:00Z"
     },
     {
-      "id": "uuid2",
+      "id": 2,
       "name": "Advanced Topics",
-      "parent_id": "uuid"
+      "parentId": 1,
+      "createdAt": "2026-05-26T10:00:00Z",
+      "updatedAt": "2026-05-26T10:00:00Z"
     }
   ]
 }
 ```
 
-`parent_id` is `null` for root-level folders. Use `hinto project structure` for the full hierarchical tree.
+`parentId` is `null` for root-level folders. `id` is an integer, not a UUID. Use `hinto project structure` for the full hierarchical tree.
 
 ---
 
@@ -42,7 +46,7 @@ hinto folders get <id> [--json]
 
 **`--json` response:**
 ```json
-{ "id": "uuid", "name": "Getting Started", "parent_id": null }
+{ "id": 1, "name": "Getting Started", "parentId": null, "createdAt": "2026-05-26T10:00:00Z", "updatedAt": "2026-05-26T10:00:00Z" }
 ```
 
 ---
@@ -60,7 +64,9 @@ hinto folders create --name "..." [--parent <id>] [--json]
 | `--name <name>` | Yes | Folder name |
 | `--parent <id>` | No | Parent folder ID — omit to create at root level |
 
-**`--json` response:** the created folder object (`id`, `name`, `parent_id`).
+**`--json` response (201):** `{ "id": 1, "name": "Getting Started", "parentId": null }`
+
+Returns `404 PARENT_NOT_FOUND` if `--parent` points to a folder that doesn't exist in this project.
 
 ---
 
@@ -74,7 +80,7 @@ hinto folders update <id> --name "..." [--json]
 
 **Required:** `--name <name>`
 
-**`--json` response:** the updated folder object.
+**`--json` response:** `{ "id": 1, "name": "New Name", "parentId": null, "createdAt": "...", "updatedAt": "..." }`
 
 ---
 
@@ -83,10 +89,11 @@ hinto folders update <id> --name "..." [--json]
 Delete a folder. Also deletes all articles and sub-folders inside it.
 
 ```bash
-hinto folders delete <id>
+hinto folders delete <id> [--json]
 ```
 
-Prints: `Folder <id> deleted.`
+Plain: `Folder <id> deleted.`  
+JSON: `{ "deleted": true }`
 
 ---
 
@@ -117,7 +124,8 @@ Moving a folder into one of its own descendants returns `400 INVALID_MOVE`.
 
 | Error code | HTTP | Meaning |
 |---|---|---|
-| `NOT_FOUND` | 404 | Folder ID does not exist or belongs to another project |
+| `FOLDER_NOT_FOUND` | 404 | Folder ID does not exist or belongs to another project |
+| `PARENT_NOT_FOUND` | 404 | Parent folder ID does not exist in this project |
 | `INSUFFICIENT_SCOPE` | 403 | `read` for list/get; `write` for create/update/delete/move |
 | `INVALID_MOVE` | 400 | Cannot move a folder into one of its own descendants |
-| `MISSING_FIELD` | 400 | `parent_id` missing from move body (pass `null` explicitly to move to root) |
+| `MISSING_FIELD` | 400 | Required field missing (e.g. `name` for create/update) |

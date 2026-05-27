@@ -163,7 +163,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.listVersions(id);
         if (opts.json) return printJson(data);
-        printTable(['Version ID', 'Created'], data.versions.map(v => [v.id, v.createdAt]));
+        printTable(['Version ID', 'Version #', 'Created', 'Auto-save'], data.versions.map(v => [v.id, String(v.versionNumber), v.createdAt, v.isAutoSave ? 'yes' : 'no']));
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

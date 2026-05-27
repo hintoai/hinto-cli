@@ -26,7 +26,11 @@ export interface ArticleDetail {
 
 export interface ArticleVersion {
   id: string;
+  versionNumber: number;
   createdAt: string;
+  createdBy: string;
+  changeDescription: string | null;
+  isAutoSave: boolean;
 }
 
 export interface ArticleTranslation {
@@ -69,13 +73,13 @@ export const articlesApi = (client: AxiosInstance) => ({
     client.get<{ versions: ArticleVersion[] }>(`/articles/${id}/versions`).then(r => r.data),
 
   restoreVersion: (id: string, versionId: string) =>
-    client.post<{ id: number; title: string }>(`/articles/${id}/versions/${versionId}/restore`).then(r => r.data),
+    client.post<{ message: string; articleId: number; versionId: string }>(`/articles/${id}/versions/${versionId}/restore`).then(r => r.data),
 
   listTranslations: (id: string) =>
     client.get<{ translations: ArticleTranslation[] }>(`/articles/${id}/translations`).then(r => r.data),
 
   getTranslation: (id: string, lang: string) =>
-    client.get<{ languageCode: string; title: string | null; content: string | null }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
+    client.get<{ languageCode: string; status: string; title: string | null; slug: string | null; format: string; content: string | null; metadata: { metaDescription: string | null; metaKeywords: string[] | null; updatedAt: string | null } }>(`/articles/${id}/translations/${lang}`).then(r => r.data),
 
   triggerTranslate: (id: string, lang: string) =>
     client.post<{ message: string; articleId: number; languageCode: string }>(`/articles/${id}/translations/${lang}`).then(r => r.data),

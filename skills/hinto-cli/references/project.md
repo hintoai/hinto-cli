@@ -66,21 +66,21 @@ hinto project structure [--json]
 {
   "folders": [
     {
-      "id": "uuid",
+      "id": 1,
       "name": "Getting Started",
-      "parent_id": null,
-      "inserted_at": "2026-05-27T10:48:43Z",
-      "updated_at": "2026-05-27T10:48:43Z",
+      "parentId": null,
+      "createdAt": "2026-05-27T10:48:43Z",
+      "updatedAt": "2026-05-27T10:48:43Z",
       "articles": [
-        { "id": 123, "title": "Introduction", "slug": "introduction" }
+        { "id": 123, "title": "Introduction", "slug": "introduction", "folderId": 1, "createdAt": "...", "updatedAt": "..." }
       ],
       "children": [
         {
-          "id": "uuid",
-          "name": "Subfolder",
-          "parent_id": "uuid",
-          "inserted_at": "2026-05-27T10:48:43Z",
-          "updated_at": "2026-05-27T10:48:43Z",
+          "id": 2,
+          "name": "Advanced",
+          "parentId": 1,
+          "createdAt": "...",
+          "updatedAt": "...",
           "articles": [],
           "children": []
         }
@@ -88,12 +88,14 @@ hinto project structure [--json]
     }
   ],
   "articles": [
-    { "id": 456, "title": "Overview", "slug": "overview" }
+    { "id": 456, "title": "Overview", "slug": "overview", "folderId": null, "createdAt": "...", "updatedAt": "..." }
   ]
 }
 ```
 
-Use this to explore the full content tree without paginating through folders and articles separately. Root-level articles are in the top-level `articles` array; folders have nested `children` and `articles` arrays.
+Root-level articles (not in any folder) appear in the top-level `articles` array. Folder-nested articles appear inside each folder's `articles` array. `id` values are integers.
+
+Use this to explore the full content tree without paginating through folders and articles separately.
 
 ---
 

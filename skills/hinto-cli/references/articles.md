@@ -22,12 +22,12 @@ hinto articles list [--folder <id>] [--json]
       "id": 123,
       "title": "How to deploy Next.js",
       "slug": "how-to-deploy-nextjs",
-      "folder_id": 456,
-      "inserted_at": "2026-05-26T10:00:00Z",
-      "updated_at": "2026-05-26T10:00:00Z"
+      "folderId": 456,
+      "createdAt": "2026-05-26T10:00:00Z",
+      "updatedAt": "2026-05-26T10:00:00Z"
     }
   ],
-  "pagination": { "limit": 50, "offset": 0, "count": 1 }
+  "pagination": { "limit": 20, "offset": 0, "count": 1 }
 }
 ```
 
@@ -104,7 +104,7 @@ hinto articles update <id> [--title "..."] [--slug "..."] [--json]
 | `--title <title>` | No | New title |
 | `--slug <slug>` | No | New URL slug |
 
-> **Note:** At least one of `--title` or `--slug` must be provided. The API also accepts `meta_description` and `meta_keywords` but the CLI does not expose them as flags.
+> **Note:** The API also accepts `meta_description` and `meta_keywords` but the CLI does not expose them as flags.
 
 **`--json` response:**
 ```json
@@ -121,7 +121,8 @@ Delete an article permanently.
 hinto articles delete <id> [--json]
 ```
 
-Prints: `Article <id> deleted.` (or `--json` returns success message).
+Plain: `Article <id> deleted.`  
+JSON: `{ "deleted": true }`
 
 ---
 
@@ -194,11 +195,11 @@ hinto articles versions <id> [--json]
   "versions": [
     {
       "id": "uuid",
-      "version_number": 3,
-      "created_at": "2026-05-26T10:00:00Z",
-      "created_by": "user-uuid",
-      "change_description": null,
-      "is_auto_save": false
+      "versionNumber": 3,
+      "createdAt": "2026-05-26T10:00:00Z",
+      "createdBy": "user-uuid",
+      "changeDescription": null,
+      "isAutoSave": false
     }
   ]
 }

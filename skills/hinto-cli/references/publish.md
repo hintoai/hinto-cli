@@ -88,16 +88,17 @@ Published URLs use the domain `hintoai.com` (e.g. `https://my-docs.hintoai.com`)
 
 ---
 
-## Unpublish (API only)
+### `hinto publish unpublish`
 
-`DELETE /v2/publish` unpublishes the project. There is no `hinto publish unpublish` CLI command — call the API directly:
+Remove the project from public access.
 
 ```bash
-curl -X DELETE https://app.hinto.ai/api/external/v2/publish \
-  -H "X-API-Key: $HINTO_API_KEY"
+hinto publish unpublish [--json]
 ```
 
-Response: `{ "message": "Project unpublished successfully" }`
+Plain: `Project unpublished.`  
+JSON: `{ "message": "Project unpublished successfully" }`  
+**Scope:** `publish`
 
 ---
 

@@ -15,20 +15,20 @@ hinto videos list [--json]
 {
   "videos": [
     {
-      "id": "uuid",
+      "videoId": "uuid",
       "filename": "demo.mp4",
-      "duration": 120,
-      "ingest_status": "ready",
-      "created_at": "2026-05-26T10:00:00Z"
+      "durationSeconds": 120,
+      "status": "ready",
+      "createdAt": "2026-05-26T10:00:00Z"
     }
   ],
   "pagination": { "limit": 20, "offset": 0, "count": 1 }
 }
 ```
 
-`ingest_status` values: `pending` | `processing` | `ready` | `failed`
+`status` values: `pending` | `processing` | `ready` | `failed`
 
-> **Pagination:** `hinto videos list` accepts `--limit <n>` (default: 20).
+> **Pagination:** `hinto videos list` accepts `--offset <n>` and `--limit <n>` (defaults: offset=0, limit=20).
 
 ---
 
@@ -162,7 +162,7 @@ The `hinto videos upload` command uses a three-step presigned S3 flow internally
 
 | Error code | HTTP | Meaning |
 |---|---|---|
-| `NOT_FOUND` | 404 | Video ID does not exist or belongs to another project |
+| `VIDEO_NOT_FOUND` | 404 | Video ID does not exist or belongs to another project |
 | `MISSING_URL` | 400 | `url` not provided to import |
 | `INVALID_URL` | 400 | `url` is not a valid URL |
-| `INSUFFICIENT_SCOPE` | 403 | `generate` scope for import; `read` for list/status; `write` for delete |
+| `INSUFFICIENT_SCOPE` | 403 | `generate` scope for import; `read` for list/get/status; `write` for delete |

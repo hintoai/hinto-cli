@@ -29,7 +29,7 @@ export const projectApi = (client: AxiosInstance) => ({
     client.get<{ project: Project }>('/project').then(r => r.data),
 
   update: (body: { name?: string }) =>
-    client.patch<Project>('/project', body).then(r => r.data),
+    client.patch<{ project: Project }>('/project', body).then(r => r.data),
 
   structure: () =>
     client.get<unknown>('/project/structure').then(r => r.data),

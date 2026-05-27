@@ -29,7 +29,7 @@ export function registerProject(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.update({ name: opts.name });
         if (opts.json) return printJson(data);
-        printKeyValue(data as unknown as Record<string, unknown>);
+        printKeyValue(data.project as unknown as Record<string, unknown>);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
