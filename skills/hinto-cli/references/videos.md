@@ -15,19 +15,19 @@ hinto videos list [--json]
 {
   "videos": [
     {
-      "id": "uuid",
+      "videoId": "uuid",
       "filename": "demo.mp4",
       "title": null,
-      "duration": 120,
-      "ingest_status": "ready",
-      "created_at": "2026-05-26T10:00:00Z"
+      "durationSeconds": 120,
+      "status": "ready",
+      "createdAt": "2026-05-26T10:00:00Z"
     }
   ],
   "pagination": { "limit": 50, "offset": 0, "count": 1 }
 }
 ```
 
-`ingest_status` values: `pending` | `processing` | `ready` | `failed`
+`status` values: `pending` | `processing` | `ready` | `failed`
 
 > **Pagination:** `hinto videos list` accepts `--limit <n>` (default: 20).
 

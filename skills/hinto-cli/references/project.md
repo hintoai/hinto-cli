@@ -74,13 +74,26 @@ hinto project structure [--json]
       "articles": [
         { "id": 123, "title": "Introduction", "slug": "introduction" }
       ],
-      "children": []
+      "children": [
+        {
+          "id": "uuid",
+          "name": "Subfolder",
+          "parent_id": "uuid",
+          "inserted_at": "2026-05-27T10:48:43Z",
+          "updated_at": "2026-05-27T10:48:43Z",
+          "articles": [],
+          "children": []
+        }
+      ]
     }
+  ],
+  "articles": [
+    { "id": 456, "title": "Overview", "slug": "overview" }
   ]
 }
 ```
 
-Use this to explore the full content tree without paginating through folders and articles separately.
+Use this to explore the full content tree without paginating through folders and articles separately. Root-level articles are in the top-level `articles` array; folders have nested `children` and `articles` arrays.
 
 ---
 

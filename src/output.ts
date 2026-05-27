@@ -23,7 +23,7 @@ export function printKeyValue(obj: Record<string, unknown> | unknown): void {
 }
 
 function formatValue(key: string, value: unknown): string {
-  if (key === 'status' && typeof value === 'string') {
+  if ((key === 'status' || key === 'ingest_status') && typeof value === 'string') {
     if (['ready', 'completed'].includes(value)) return chalk.green(value);
     if (['pending', 'processing'].includes(value)) return chalk.yellow(value);
     if (value === 'failed') return chalk.red(value);

@@ -104,7 +104,7 @@ hinto articles update <id> [--title "..."] [--slug "..."] [--json]
 | `--title <title>` | No | New title |
 | `--slug <slug>` | No | New URL slug |
 
-> **Note:** The API also accepts `meta_description` and `meta_keywords` but the CLI does not expose them as flags.
+> **Note:** At least one of `--title` or `--slug` must be provided. The API also accepts `meta_description` and `meta_keywords` but the CLI does not expose them as flags.
 
 **`--json` response:**
 ```json
@@ -118,10 +118,10 @@ hinto articles update <id> [--title "..."] [--slug "..."] [--json]
 Delete an article permanently.
 
 ```bash
-hinto articles delete <id>
+hinto articles delete <id> [--json]
 ```
 
-Prints: `Article <id> deleted.`
+Prints: `Article <id> deleted.` (or `--json` returns success message).
 
 ---
 
@@ -240,12 +240,14 @@ hinto articles translations <id> [--json]
 {
   "translations": [
     {
-      "language_code": "fr",
+      "languageCode": "fr",
       "status": "completed",
       "title": "Comment déployer Next.js",
       "slug": "comment-deployer-nextjs",
-      "has_content": true,
-      "updated_at": "2026-05-26T10:00:00Z"
+      "metaDescription": null,
+      "metaKeywords": null,
+      "hasContent": true,
+      "updatedAt": "2026-05-26T10:00:00Z"
     }
   ]
 }
