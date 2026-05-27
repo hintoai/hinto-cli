@@ -33,7 +33,7 @@ hinto articles list [--folder <id>] [--json]
 
 The list response does **not** include `content` or `format` — use `hinto articles get <id>` for full content.
 
-> **Note:** `slug` may be `null` for auto-generated articles (assigned when first published). `hinto articles list` accepts `--page <n>` and `--limit <n>` (defaults: page=1, limit=20).
+> **Note:** `slug` may be `null` for auto-generated articles (assigned when first published). `hinto articles list` accepts `--offset <n>` and `--limit <n>` (defaults: offset=0, limit=20).
 
 ---
 
@@ -142,10 +142,10 @@ hinto articles duplicate <id> [--json]
 Move an article to a different folder.
 
 ```bash
-hinto articles move <id> --folder <folderId> [--json]
+hinto articles move <id> [--folder <folderId>] [--json]
 ```
 
-**Required:** `--folder <folderId>`
+| `--folder <id>` | No | Destination folder — omit to move to root |
 
 **`--json` response:**
 ```json
@@ -153,6 +153,8 @@ hinto articles move <id> --folder <folderId> [--json]
 ```
 
 `folderId` may be `null` if moved to the root.
+
+> To move an article to root (top level), omit `--folder`: `hinto articles move <id>`
 
 ---
 
@@ -216,7 +218,12 @@ hinto articles restore <id> --vid <id> [--json]
 
 **Required:** `--vid <id>` — a version `id` from `hinto articles versions`
 
-**`--json` response:** the restored article object.
+**`--json` response:**
+```json
+{ "message": "Version restored", "articleId": 123, "versionId": "uuid" }
+```
+
+> Use `hinto articles get <id>` if you need the restored content.
 
 ---
 
@@ -294,15 +301,11 @@ hinto articles trigger-translate <id> --lang <code> [--json]
 **`--json` response (202):**
 ```json
 {
-  "jobId": "uuid",
-  "articleId": 123,
+  "message": "Translation to 'fr' queued",
   "languageCode": "fr",
-  "status": "pending",
-  "message": "Translation queued"
+  "articleId": 123
 }
 ```
-
-Track completion: `hinto generate status <jobId>`
 
 ---
 

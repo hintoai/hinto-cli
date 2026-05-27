@@ -258,7 +258,7 @@ hinto generate structure --video <videoId> --wait
 }
 ```
 
-Possible `status` values: `pending` · `running` · `completed` · `failed`.
+Possible `status` values: `pending` · `processing` · `completed` · `failed`.
 
 ### `hinto export`
 

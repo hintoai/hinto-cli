@@ -36,7 +36,20 @@ The CLI unwraps the `project` wrapper when printing in human mode, but `--json` 
 
 ### `hinto project update`
 
-> **API limitation:** The `PUT /v2/project` endpoint is not implemented — the project route only handles GET. Running `hinto project update` will return `405 Method Not Allowed`. Use the Hinto web UI to rename the project for now.
+Update the project name.
+
+```bash
+hinto project update --name "New Name" [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--name <name>` | Yes | New project name |
+
+**`--json` response:**
+```json
+{ "project": { "id": "uuid", "name": "New Name", ... } }
+```
 
 ---
 
@@ -56,6 +69,8 @@ hinto project structure [--json]
       "id": "uuid",
       "name": "Getting Started",
       "parent_id": null,
+      "inserted_at": "2026-05-27T10:48:43Z",
+      "updated_at": "2026-05-27T10:48:43Z",
       "articles": [
         { "id": 123, "title": "Introduction", "slug": "introduction" }
       ],

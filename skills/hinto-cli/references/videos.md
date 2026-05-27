@@ -23,13 +23,13 @@ hinto videos list [--json]
       "created_at": "2026-05-26T10:00:00Z"
     }
   ],
-  "pagination": { "limit": 50, "offset": 0, "total": 1 }
+  "pagination": { "limit": 50, "offset": 0, "count": 1 }
 }
 ```
 
 `ingest_status` values: `pending` | `processing` | `ready` | `failed`
 
-> **Pagination:** `hinto videos list` accepts `--page <n>` and `--limit <n>` (defaults: page=1, limit=20).
+> **Pagination:** `hinto videos list` accepts `--limit <n>` (default: 20).
 
 ---
 
