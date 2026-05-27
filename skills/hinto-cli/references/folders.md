@@ -64,7 +64,7 @@ hinto folders create --name "..." [--parent <id>] [--json]
 | `--name <name>` | Yes | Folder name |
 | `--parent <id>` | No | Parent folder ID — omit to create at root level |
 
-**`--json` response (201):** `{ "id": 1, "name": "Getting Started", "parentId": null }`
+**`--json` response (201):** `{ "id": 1, "name": "Getting Started", "parentId": null, "createdAt": "...", "updatedAt": "..." }`
 
 Returns `404 PARENT_NOT_FOUND` if `--parent` points to a folder that doesn't exist in this project.
 
