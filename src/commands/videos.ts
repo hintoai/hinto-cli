@@ -23,7 +23,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         if (opts.json) return printJson(data);
         printTable(
           ['Video ID', 'Status', 'Created'],
-          data.videos.map(v => [v.videoId, v.status, v.createdAt])
+          data.videos.map(v => [v.id, v.ingest_status, v.created_at])
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
@@ -128,8 +128,8 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         const result = await api.uploadComplete(video_id, s3Key, filename);
 
         if (opts.json) return printJson(result);
-        process.stdout.write(`Uploaded: videoId=${result.videoId}  status=${result.status}\n`);
-        process.stdout.write(`Track: hinto videos status ${result.videoId}\n`);
+        process.stdout.write(`Uploaded: videoId=${result.id}  status=${result.ingest_status}\n`);
+        process.stdout.write(`Track: hinto videos status ${result.id}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
