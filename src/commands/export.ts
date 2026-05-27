@@ -11,7 +11,7 @@ export function registerExport(program: Command, client: AxiosInstance): void {
   exportCmd
     .command('article <id>')
     .description('Export an article')
-    .option('--format <fmt>', 'md or html', 'md')
+    .option('--format <fmt>', 'Output format: md (default) or html', 'md')
     .option('--out <path>', 'Save to file instead of stdout')
     .action(async (id: string, opts: { format: string; out?: string }) => {
       try {

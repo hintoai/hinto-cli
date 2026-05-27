@@ -20,14 +20,14 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .command('list')
     .description('List articles')
     .option('--folder <id>', 'Filter by folder ID')
-    .option('--page <n>', 'Page number', '1')
+    .option('--offset <n>', 'Number of articles to skip', '0')
     .option('--limit <n>', 'Results per page', '20')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { folder?: string; page: string; limit: string; json?: boolean }) => {
+    .action(async (opts: { folder?: string; offset: string; limit: string; json?: boolean }) => {
       try {
         const data = await api.list({
           folder_id: opts.folder,
-          page: Number(opts.page),
+          offset: Number(opts.offset),
           limit: Number(opts.limit),
         });
         if (opts.json) return printJson(data);

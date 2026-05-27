@@ -36,7 +36,7 @@ export interface ArticleTranslation {
 }
 
 export const articlesApi = (client: AxiosInstance) => ({
-  list: (params?: { folder_id?: string; page?: number; limit?: number }) =>
+  list: (params?: { folder_id?: string; offset?: number; limit?: number }) =>
     client.get<{ articles: Article[]; pagination: { limit: number; offset: number; count: number } }>('/articles', { params }).then(r => r.data),
 
   get: (id: string) =>
