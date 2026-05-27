@@ -22,8 +22,8 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         const data = await api.list({ page: Number(opts.page), limit: Number(opts.limit) });
         if (opts.json) return printJson(data);
         printTable(
-          ['Video ID', 'Status', 'Created'],
-          data.videos.map(v => [v.id, v.ingest_status, v.created_at])
+          ['Video ID', 'Filename', 'Status', 'Created'],
+          data.videos.map(v => [v.id, v.filename ?? '—', v.ingest_status, v.created_at])
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
