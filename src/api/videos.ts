@@ -17,7 +17,7 @@ export interface VideoListParams {
 
 export const videosApi = (client: AxiosInstance) => ({
   list: (params?: VideoListParams) =>
-    client.get<{ videos: Video[]; pagination: { limit: number; offset: number; total: number } }>('/videos', { params }).then(r => r.data),
+    client.get<{ videos: Video[]; pagination: { limit: number; offset: number; count: number } }>('/videos', { params }).then(r => r.data),
 
   get: (videoId: string) =>
     client.get<Video>(`/videos/${videoId}`).then(r => r.data),
