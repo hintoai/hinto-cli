@@ -14,11 +14,13 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
     .description('Start a generation job')
     .requiredOption('--video <videoId>', 'Video ID to generate from')
     .option('--template <templateId>', 'Template ID (optional — server auto-selects if omitted)')
+    .option('--callback-url <url>', 'URL to receive a webhook when the job completes')
+    .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--wait', 'Wait for completion')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { video: string; template?: string; wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { video: string; template?: string; callbackUrl?: string; callbackSecret?: string; wait?: boolean; json?: boolean }) => {
       try {
-        const data = await api.start(opts.video, opts.template ? Number(opts.template) : undefined);
+        const data = await api.start(opts.video, opts.template ? Number(opts.template) : undefined, opts.callbackUrl, opts.callbackSecret);
         if (opts.wait) {
           const output = await pollJob(client, data.jobId);
           if (opts.json) return printJson(output);
@@ -49,11 +51,13 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
     .command('structure')
     .description('Generate project structure from a video')
     .requiredOption('--video <videoId>', 'Video ID to generate structure from')
+    .option('--callback-url <url>', 'URL to receive a webhook when the job completes')
+    .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--wait', 'Wait for completion')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { video: string; wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { video: string; callbackUrl?: string; callbackSecret?: string; wait?: boolean; json?: boolean }) => {
       try {
-        const data = await api.structure(opts.video);
+        const data = await api.structure(opts.video, opts.callbackUrl, opts.callbackSecret);
         if (opts.wait) {
           const output = await pollJob(client, data.jobId);
           if (opts.json) return printJson(output);
