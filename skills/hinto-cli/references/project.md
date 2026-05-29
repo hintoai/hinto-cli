@@ -144,7 +144,7 @@ hinto project retranslate --lang <code> [--json]
 
 Plain: `Retranslation queued. Job ID: <uuid>`
 
-**`--json` response (202):**
+**`--json` response (200):**
 ```json
 {
   "jobId": "uuid",
