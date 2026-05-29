@@ -73,7 +73,7 @@ When this skill is active:
 ```bash
 # 1. Upload a local video file
 hinto videos upload --file ./video.mp4 --json
-# → { "videoId": "...", "status": "pending" }
+# → { "videoId": "..." }
 
 # OR import from a URL (returns a Job object — poll until completed to get videoId)
 hinto videos import --url https://example.com/video.mp4 --json
@@ -85,7 +85,7 @@ hinto videos status <videoId> --json
 # → { "videoId": "...", "status": "ready", ... }
 
 # 3. List available templates
-hinto templates list --json
+hinto templates article --json
 
 # 4. Generate an article and wait for completion
 hinto generate start --video <videoId> --template <templateId> --wait --json

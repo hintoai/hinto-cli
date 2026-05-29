@@ -249,10 +249,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .command('trigger-translate <id>')
     .description('Trigger translation of an article to a language')
     .requiredOption('--lang <code>', 'Target language code (e.g. fr, de, es)')
+    .option('--callback-url <url>', 'URL to receive a webhook when the job completes')
+    .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { lang: string; json?: boolean }) => {
+    .action(async (id: string, opts: { lang: string; callbackUrl?: string; callbackSecret?: string; json?: boolean }) => {
       try {
-        const data = await api.triggerTranslate(id, opts.lang);
+        const data = await api.triggerTranslate(id, opts.lang, opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
         process.stdout.write(`Translation triggered. Job ID: ${data.jobId}\n`);
       } catch (e: unknown) {

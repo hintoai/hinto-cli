@@ -380,12 +380,18 @@ hinto articles trigger-translate <id> --lang <code> [--json]
 |---|---|---|
 | `--lang <code>` | Yes | Target language code (e.g. `fr`, `de`, `es`) |
 
+Plain: `Translation triggered. Job ID: <uuid>`
+
 **`--json` response (202):**
 ```json
 {
-  "message": "Translation to 'fr' queued",
-  "languageCode": "fr",
-  "articleId": 123
+  "jobId": "uuid",
+  "type": "translate",
+  "status": "pending",
+  "output": null,
+  "error": null,
+  "createdAt": "2026-05-29T10:00:00Z",
+  "completedAt": null
 }
 ```
 

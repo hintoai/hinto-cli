@@ -14,29 +14,12 @@ export interface PublishStatus extends PublishStatusResponse {
   status: 'published' | 'unpublished';
 }
 
-export interface PublishResult {
-  message: string;
-  slug: string;
-  publicationId: string;
-  articlesCount: number;
-  foldersCount: number;
-}
-
-export interface RepublishResult {
-  message: string;
-  hasChanges: boolean;
-  slug?: string;
-  publicationId?: string;
-  articlesCount?: number;
-  foldersCount?: number;
-}
-
 export const publishApi = (client: AxiosInstance) => ({
   now: () =>
-    client.post<PublishResult>('/publish').then(r => r.data),
+    client.post<import('./generate').Job>('/publish').then(r => r.data),
 
   republish: () =>
-    client.post<RepublishResult>('/publish/republish').then(r => r.data),
+    client.post<import('./generate').Job>('/publish/republish').then(r => r.data),
 
   status: () =>
     client.get<PublishStatusResponse>('/publish/status').then(r => ({

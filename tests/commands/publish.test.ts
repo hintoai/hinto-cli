@@ -8,6 +8,16 @@ const api = publishApi(client);
 
 afterEach(() => nock.cleanAll());
 
+const mockJob = (jobId: string, type: string) => ({
+  jobId,
+  type,
+  status: 'pending' as const,
+  output: null,
+  error: null,
+  createdAt: '2026-01-01T00:00:00Z',
+  completedAt: null,
+});
+
 describe('publishApi.status', () => {
   it('returns publish status', async () => {
     nock(BASE_URL).get('/api/external/v2/publish/status').reply(200, {
@@ -22,41 +32,22 @@ describe('publishApi.status', () => {
 });
 
 describe('publishApi.now', () => {
-  it('returns synchronous publish result', async () => {
-    nock(BASE_URL).post('/api/external/v2/publish').reply(200, {
-      message: 'Project published successfully',
-      slug: 'my-docs',
-      publicationId: 'pub-1',
-      articlesCount: 5,
-      foldersCount: 2,
-    });
+  it('returns a Job object with jobId', async () => {
+    nock(BASE_URL).post('/api/external/v2/publish').reply(202, mockJob('job-publish-1', 'publish'));
     const result = await api.now();
-    expect(result.slug).toBe('my-docs');
-    expect(result.articlesCount).toBe(5);
+    expect(result.jobId).toBe('job-publish-1');
+    expect(result.type).toBe('publish');
+    expect(result.status).toBe('pending');
   });
 });
 
 describe('publishApi.republish', () => {
-  it('returns hasChanges: true when content changed', async () => {
-    nock(BASE_URL).post('/api/external/v2/publish/republish').reply(200, {
-      message: 'Project republished successfully',
-      hasChanges: true,
-      slug: 'my-docs',
-      publicationId: 'pub-2',
-      articlesCount: 5,
-      foldersCount: 2,
-    });
+  it('returns a Job object with jobId', async () => {
+    nock(BASE_URL).post('/api/external/v2/publish/republish').reply(202, mockJob('job-republish-1', 'republish'));
     const result = await api.republish();
-    expect(result.hasChanges).toBe(true);
-  });
-
-  it('returns hasChanges: false when nothing changed', async () => {
-    nock(BASE_URL).post('/api/external/v2/publish/republish').reply(200, {
-      message: 'No changes detected since last publication',
-      hasChanges: false,
-    });
-    const result = await api.republish();
-    expect(result.hasChanges).toBe(false);
+    expect(result.jobId).toBe('job-republish-1');
+    expect(result.type).toBe('republish');
+    expect(result.status).toBe('pending');
   });
 });
 

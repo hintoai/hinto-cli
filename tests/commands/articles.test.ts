@@ -93,6 +93,40 @@ describe('articlesApi.triggerTranslate', () => {
     expect(result.type).toBe('translate_article');
     expect(result.status).toBe('pending');
   });
+
+  it('includes callbackUrl in request body when provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/articles/123/translations/de', { callbackUrl: 'https://cb.example.com' })
+      .reply(202, {
+        jobId: 'job-translate-cb',
+        type: 'translate_article',
+        status: 'pending',
+        output: null,
+        error: null,
+        createdAt: '2026-01-01T00:00:00Z',
+        completedAt: null,
+      });
+
+    const result = await api.triggerTranslate('123', 'de', 'https://cb.example.com');
+    expect(result.jobId).toBe('job-translate-cb');
+  });
+
+  it('sends empty body when no callback fields provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/articles/123/translations/es', {})
+      .reply(202, {
+        jobId: 'job-translate-no-cb',
+        type: 'translate_article',
+        status: 'pending',
+        output: null,
+        error: null,
+        createdAt: '2026-01-01T00:00:00Z',
+        completedAt: null,
+      });
+
+    const result = await api.triggerTranslate('123', 'es');
+    expect(result.jobId).toBe('job-translate-no-cb');
+  });
 });
 
 const mockJob = (jobId: string) => ({

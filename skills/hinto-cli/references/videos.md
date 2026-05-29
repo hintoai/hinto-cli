@@ -84,7 +84,7 @@ hinto videos upload --file ./recording.mp4
 
 # With JSON output
 hinto videos upload --file ./recording.mp4 --json
-# → { "videoId": "...", "status": "pending", "createdAt": "..." }
+# → { "videoId": "..." }
 ```
 
 The CLI automatically detects content type from the file extension. Progress messages go to stderr; result goes to stdout.
@@ -162,7 +162,10 @@ The `hinto videos upload` command uses a three-step presigned S3 flow internally
 
 1. `POST /v2/videos/upload/presigned` (`{ filename, contentType }`) → `{ videoId, uploadUrl, s3Url, expiresIn }`
 2. PUT the file to `upload_url` directly
-3. `POST /v2/videos/upload/complete` (`{ videoId }`) → `{ videoId }`
+3. `POST /v2/videos/upload/complete` (`{ key, fileId, filename }`) → `{ videoId }`
+   - `key` = S3 object key (e.g. `videos/original/<videoId>.mp4`)
+   - `fileId` = the video UUID
+   - `filename` = the original filename
 
 ---
 

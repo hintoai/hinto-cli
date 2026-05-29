@@ -88,6 +88,9 @@ export const articlesApi = (client: AxiosInstance) => ({
   getTranslation: (id: string, lang: string, format?: 'markdown' | 'html') =>
     client.get<{ languageCode: string; status: string; title: string | null; slug: string | null; format: string; content: string | null; metadata: { metaDescription: string | null; metaKeywords: string[] | null; updatedAt: string | null } }>(`/articles/${id}/translations/${lang}`, { params: format ? { format } : undefined }).then(r => r.data),
 
-  triggerTranslate: (id: string, lang: string) =>
-    client.post<import('./generate').Job>(`/articles/${id}/translations/${lang}`).then(r => r.data),
+  triggerTranslate: (id: string, lang: string, callbackUrl?: string, callbackSecret?: string) =>
+    client.post<import('./generate').Job>(`/articles/${id}/translations/${lang}`, {
+      ...(callbackUrl ? { callbackUrl } : {}),
+      ...(callbackSecret ? { callbackSecret } : {}),
+    }).then(r => r.data),
 });

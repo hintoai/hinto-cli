@@ -142,14 +142,22 @@ hinto project retranslate --lang <code> [--json]
 |---|---|---|
 | `--lang <code>` | Yes | Language code to retranslate (e.g. `fr`, `de`, `es`) |
 
+Plain: `Retranslation queued. Job ID: <uuid>`
+
 **`--json` response (202):**
 ```json
-{ "languageCode": "fr", "queued": 12 }
+{
+  "jobId": "uuid",
+  "type": "translate",
+  "status": "completed",
+  "output": { "queued": 12 },
+  "error": null,
+  "createdAt": "2026-05-29T10:00:00Z",
+  "completedAt": "2026-05-29T10:00:01Z"
+}
 ```
 
-`queued` is the number of articles enqueued for translation.
-
-> **CLI note:** The CLI also accepts `--wait` and attempts to poll a jobId, but the retranslate API returns `{ languageCode, queued }` — not a jobId. The `--wait` path will not work correctly. Track translation progress via `hinto project languages --json` and watch `translatedArticles` count.
+`output.queued` is the number of articles enqueued for translation.
 
 ---
 

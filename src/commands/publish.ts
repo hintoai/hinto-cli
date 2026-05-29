@@ -16,8 +16,7 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.now();
         if (opts.json) return printJson(data);
-        process.stdout.write(`Published: ${data.slug}\n`);
-        process.stdout.write(`Articles: ${data.articlesCount}  Folders: ${data.foldersCount}\n`);
+        process.stdout.write(`Publish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
@@ -29,12 +28,7 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.republish();
         if (opts.json) return printJson(data);
-        if (!data.hasChanges) {
-          process.stdout.write('No changes detected since last publication.\n');
-        } else {
-          process.stdout.write(`Republished: ${data.slug}\n`);
-          process.stdout.write(`Articles: ${data.articlesCount}  Folders: ${data.foldersCount}\n`);
-        }
+        process.stdout.write(`Republish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
