@@ -37,24 +37,32 @@ hinto videos list [--json]
 Import a video from a public URL (YouTube, Dropbox, Google Drive, direct MP4, etc.). Async — returns a `jobId` immediately; the import runs in the background.
 
 ```bash
-hinto videos import --url <url> [--json]
+hinto videos import --url <url> [--name <name>] [--callback-url <url>] [--callback-secret <secret>] [--json]
 ```
 
-**Required:** `--url <url>` — must be a valid URL  
+| Flag | Required | Description |
+|---|---|---|
+| `--url <url>` | Yes | Public video URL to import |
+| `--name <name>` | No | Display name for the imported video |
+| `--callback-url <url>` | No | URL to POST a webhook to when the import job completes or fails |
+| `--callback-secret <secret>` | No | HMAC-SHA256 signing secret; if set, the webhook includes `X-Hinto-Signature` for verification. Requires `--callback-url`. |
+
 **Scope:** `generate`
 
-**`--json` response (202 Accepted):**
+**`--json` response (202 Accepted):** the full Job object.
 ```json
 {
   "jobId": "uuid",
+  "type": "import_video_url",
   "status": "pending",
-  "message": "Video import job created. Check job status via GET /v2/jobs/{jobId}"
+  "output": null,
+  "error": null,
+  "createdAt": "2026-05-26T10:00:00Z",
+  "completedAt": null
 }
 ```
 
 After import, poll `hinto generate status <jobId>` until the job is `completed`. The job output will contain the `videoId` to use for generation.
-
-> **CLI note:** The CLI API module currently expects `{ videoId }` from the import response but the API returns `{ jobId, status, message }`. Use `hinto generate status <jobId> --json` to get the videoId from the completed job's output.
 
 ---
 
@@ -152,7 +160,7 @@ JSON: `{ "deleted": true }`
 
 The `hinto videos upload` command uses a three-step presigned S3 flow internally:
 
-1. `POST /v2/videos/upload/presigned` (`{ filename, content_type }`) → `{ video_id, upload_url, s3_url, expires_in }`
+1. `POST /v2/videos/upload/presigned` (`{ filename, contentType }`) → `{ videoId, uploadUrl, s3Url, expiresIn }`
 2. PUT the file to `upload_url` directly
 3. `POST /v2/videos/upload/complete` (`{ videoId }`) → `{ videoId }`
 

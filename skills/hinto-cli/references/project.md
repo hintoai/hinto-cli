@@ -16,16 +16,16 @@ hinto project get [--json]
   "project": {
     "id": "uuid",
     "name": "My Documentation",
-    "url_slug": "my-docs",
+    "urlSlug": "my-docs",
     "description": null,
     "language": "en",
-    "is_published": true,
-    "logo_url": null,
-    "project_type": "standard",
-    "is_archived": false,
-    "created_at": "2026-05-01T00:00:00Z",
-    "custom_domain": null,
-    "custom_domain_verified": false
+    "isPublished": true,
+    "logoUrl": null,
+    "projectType": "standard",
+    "isArchived": false,
+    "createdAt": "2026-05-01T00:00:00Z",
+    "customDomain": null,
+    "customDomainVerified": false
   }
 }
 ```
@@ -112,7 +112,8 @@ hinto project languages [--json]
 {
   "languages": [
     {
-      "languageCode": "fr",
+      "code": "fr",
+      "label": "French",
       "createdAt": "2026-05-10T00:00:00Z",
       "translationRules": null,
       "totalArticles": 12,
@@ -123,7 +124,9 @@ hinto project languages [--json]
 }
 ```
 
-An empty `languages` array means no translation languages have been configured. To add a language, use `POST /v2/project/languages` directly.
+An empty `languages` array means no translation languages have been configured. Use `hinto project add-language` to add a language.
+
+Plain output columns: `Code`, `Label`, `Translated`, `Total`, `Translating`.
 
 ---
 
@@ -150,9 +153,30 @@ hinto project retranslate --lang <code> [--json]
 
 ---
 
+### `hinto project add-language`
+
+Add a new translation language to this project. Once added, use `hinto project retranslate` or `hinto articles trigger-translate` to queue translations.
+
+```bash
+hinto project add-language --code <code> [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--code <code>` | Yes | Language code to add (e.g. `fr`, `de`, `es`) |
+
+**`--json` response:**
+```json
+{ "languageCode": "fr", "message": "Language added successfully" }
+```
+
+Plain: `Language fr added. Language added successfully`
+
+---
+
 ## Errors
 
 | Error code | HTTP | Meaning |
 |---|---|---|
-| `INSUFFICIENT_SCOPE` | 403 | `read` for get/structure/languages; `generate` for retranslate |
+| `INSUFFICIENT_SCOPE` | 403 | `read` for get/structure/languages; `generate` for retranslate; `write` for add-language |
 | `LANGUAGE_NOT_FOUND` | 404 | Language code is not configured on this project |

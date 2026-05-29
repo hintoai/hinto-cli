@@ -34,13 +34,16 @@ hinto generate start --video <videoId> [--template <templateId>] [--callback-url
 | `--wait` | No | Block until the job completes |
 | `--json` | No | Output JSON |
 
-**Without `--wait`** (202 Accepted):
+**Without `--wait`** (202 Accepted): the full Job object.
 ```json
 {
   "jobId": "uuid",
-  "articleId": 123,
+  "type": "generate_article",
   "status": "pending",
-  "message": "Article generation started. Poll the job status endpoint for updates."
+  "output": null,
+  "error": null,
+  "createdAt": "2026-05-26T10:00:00Z",
+  "completedAt": null
 }
 ```
 
@@ -81,23 +84,28 @@ hinto generate status <jobId> [--json]
 Generate a folder and article structure for the project from a video. Creates folders and article stubs.
 
 ```bash
-hinto generate structure --video <videoId> [--callback-url <url>] [--callback-secret <secret>] [--wait] [--json]
+hinto generate structure --video <videoId> [--template <id>] [--callback-url <url>] [--callback-secret <secret>] [--wait] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--video <videoId>` | **Yes** | The video to derive structure from |
+| `--template <id>` | No | Template ID — server auto-selects the default if omitted |
 | `--callback-url <url>` | No | URL to POST a webhook to when the job completes or fails |
 | `--callback-secret <secret>` | No | HMAC-SHA256 signing secret for the callback webhook. Requires `--callback-url`. |
 | `--wait` | No | Block until structure generation settles |
 | `--json` | No | Output JSON |
 
-**Without `--wait`** (202 Accepted):
+**Without `--wait`** (202 Accepted): the full Job object.
 ```json
 {
   "jobId": "uuid",
+  "type": "generate_structure",
   "status": "pending",
-  "message": "Structure generation started. Poll the job status endpoint for updates."
+  "output": null,
+  "error": null,
+  "createdAt": "2026-05-26T10:00:00Z",
+  "completedAt": null
 }
 ```
 
@@ -146,6 +154,6 @@ hinto generate status "$JOB" --json | jq .output
 | Error code | HTTP | Meaning |
 |---|---|---|
 | `JOB_NOT_FOUND` | 404 | `jobId` does not exist or belongs to another project |
-| `MISSING_VIDEO_ID` | 400 | `video_id` required for structure generation |
+| `MISSING_VIDEO_ID` | 400 | `videoId` required for generation |
 | `INSUFFICIENT_SCOPE` | 403 | `generate` scope for start/structure; `read` for status |
 | `QUOTA_EXCEEDED` | 400 | Monthly generation limit reached |

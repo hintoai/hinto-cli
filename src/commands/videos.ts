@@ -34,10 +34,13 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
     .command('import')
     .description('Import a video from a URL')
     .requiredOption('--url <url>', 'Video URL to import')
+    .option('--name <name>', 'Display name for the imported video')
+    .option('--callback-url <url>', 'URL to receive a webhook when the import job completes')
+    .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { url: string; json?: boolean }) => {
+    .action(async (opts: { url: string; name?: string; callbackUrl?: string; callbackSecret?: string; json?: boolean }) => {
       try {
-        const data = await api.import(opts.url);
+        const data = await api.import(opts.url, opts.name, opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
@@ -112,13 +115,13 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
 
         // Step 1: get presigned URL
         process.stderr.write('Requesting presigned upload URL...\n');
-        const { video_id, upload_url } = await api.uploadPresigned(filename, contentType);
+        const { videoId, uploadUrl } = await api.uploadPresigned(filename, contentType);
 
         // Step 2: PUT file to S3
         process.stderr.write(`Uploading ${filename}...\n`);
         const fileStream = fs.createReadStream(filePath);
         const { size } = fs.statSync(filePath);
-        await axios.put(upload_url, fileStream, {
+        await axios.put(uploadUrl, fileStream, {
           headers: { 'Content-Type': contentType, 'Content-Length': size },
           maxBodyLength: Infinity,
           maxContentLength: Infinity,
@@ -126,8 +129,8 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
 
         // Step 3: complete upload
         process.stderr.write('Completing upload...\n');
-        const s3Key = `videos/original/${video_id}${ext}`
-        const result = await api.uploadComplete(video_id, s3Key, filename);
+        const s3Key = `videos/original/${videoId}${ext}`
+        const result = await api.uploadComplete(videoId, s3Key, filename);
 
         if (opts.json) return printJson(result);
         process.stdout.write(`Uploaded: videoId=${result.videoId}  status=pending\n`);

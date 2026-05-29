@@ -26,7 +26,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .action(async (opts: { folder?: string; offset: string; limit: string; json?: boolean }) => {
       try {
         const data = await api.list({
-          folder_id: opts.folder,
+          folderId: opts.folder,
           offset: Number(opts.offset),
           limit: Number(opts.limit),
         });
@@ -67,8 +67,27 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.create({
           title: opts.title,
-          markdown: resolveContent(opts.content),
-          folder_id: opts.folder,
+          content: resolveContent(opts.content),
+          folderId: opts.folder,
+        });
+        if (opts.json) return printJson(data);
+        printKeyValue(data as unknown as Record<string, unknown>);
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
+    });
+
+  articles
+    .command('create-empty')
+    .description('Create an empty article (no content required)')
+    .option('--title <title>', 'Article title')
+    .option('--folder <id>', 'Folder ID')
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { title?: string; folder?: string; json?: boolean }) => {
+      try {
+        const data = await api.createEmpty({
+          ...(opts.title !== undefined && { title: opts.title }),
+          ...(opts.folder !== undefined && { folderId: Number(opts.folder) }),
         });
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
@@ -94,8 +113,8 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         const data = await api.update(id, {
           ...(opts.title !== undefined && { title: opts.title }),
           ...(opts.slug !== undefined && { slug: opts.slug }),
-          ...(opts.metaDescription !== undefined && { meta_description: opts.metaDescription }),
-          ...(opts.metaKeywords !== undefined && { meta_keywords: opts.metaKeywords.split(',').map(k => k.trim()).filter(Boolean) }),
+          ...(opts.metaDescription !== undefined && { metaDescription: opts.metaDescription }),
+          ...(opts.metaKeywords !== undefined && { metaKeywords: opts.metaKeywords.split(',').map(k => k.trim()).filter(Boolean) }),
         });
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
@@ -150,10 +169,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
   articles
     .command('regenerate <id>')
     .description('Regenerate an article')
+    .option('--callback-url <url>', 'URL to receive a webhook when the job completes')
+    .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { json?: boolean }) => {
+    .action(async (id: string, opts: { callbackUrl?: string; callbackSecret?: string; json?: boolean }) => {
       try {
-        const data = await api.regenerate(id);
+        const data = await api.regenerate(id, opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
@@ -211,10 +232,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .command('translate <id>')
     .description('Get a specific translation')
     .requiredOption('--lang <code>', 'Language code (e.g. en, fr)')
+    .option('--format <format>', 'Content format: markdown or html', /^(markdown|html)$/, 'markdown')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { lang: string; json?: boolean }) => {
+    .action(async (id: string, opts: { lang: string; format?: string; json?: boolean }) => {
       try {
-        const data = await api.getTranslation(id, opts.lang);
+        const fmt = opts.format === 'html' ? 'html' : 'markdown';
+        const data = await api.getTranslation(id, opts.lang, fmt);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
       } catch (e: unknown) {
@@ -231,7 +254,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.triggerTranslate(id, opts.lang);
         if (opts.json) return printJson(data);
-        process.stdout.write(`Translation queued for article ${id} → ${opts.lang}\n`);
+        process.stdout.write(`Translation triggered. Job ID: ${data.jobId}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

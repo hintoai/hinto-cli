@@ -23,11 +23,16 @@ export const videosApi = (client: AxiosInstance) => ({
   status: (videoId: string) =>
     client.get<{ videoId: string; filename?: string | null; status: string; durationSeconds?: number | null; createdAt: string }>(`/videos/${videoId}/status`).then(r => r.data),
 
-  import: (url: string) =>
-    client.post<{ jobId: string; status: string; message: string }>('/videos/import', { url }).then(r => r.data),
+  import: (url: string, name?: string, callbackUrl?: string, callbackSecret?: string) =>
+    client.post<import('./generate').Job>('/videos/import', {
+      url,
+      ...(name ? { name } : {}),
+      ...(callbackUrl ? { callbackUrl } : {}),
+      ...(callbackSecret ? { callbackSecret } : {}),
+    }).then(r => r.data),
 
   uploadPresigned: (filename: string, contentType: string) =>
-    client.post<{ video_id: string; upload_url: string; s3_url: string; expires_in: number }>('/videos/upload/presigned', { filename, content_type: contentType }).then(r => r.data),
+    client.post<{ videoId: string; uploadUrl: string; s3Url: string; expiresIn: number }>('/videos/upload/presigned', { filename, contentType }).then(r => r.data),
 
   uploadComplete: (videoId: string, key: string, filename: string) =>
     client.post<{ videoId: string }>('/videos/upload/complete', { key, fileId: videoId, filename }).then(r => r.data),

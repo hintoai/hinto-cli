@@ -54,9 +54,10 @@ export function registerProject(program: Command, client: AxiosInstance): void {
         const data = await api.listLanguages();
         if (opts.json) return printJson(data);
         printTable(
-          ['Code', 'Translated', 'Total', 'Translating'],
+          ['Code', 'Label', 'Translated', 'Total', 'Translating'],
           data.languages.map(l => [
-            l.languageCode,
+            l.code,
+            l.label,
             String(l.translatedArticles),
             String(l.totalArticles),
             String(l.isTranslating),
@@ -74,8 +75,20 @@ export function registerProject(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.retranslate(opts.lang);
         if (opts.json) return printJson(data);
-        process.stdout.write(`Queued ${data.queued} articles for translation to ${data.languageCode}.\n`);
-        process.stdout.write(`Track progress: hinto project languages --json\n`);
+        process.stdout.write(`Retranslation queued. Job ID: ${data.jobId}\n`);
+      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+    });
+
+  project
+    .command('add-language')
+    .description('Add a language to this project')
+    .requiredOption('--code <code>', 'Language code to add (e.g. fr, de, es)')
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { code: string; json?: boolean }) => {
+      try {
+        const data = await api.addLanguage(opts.code);
+        if (opts.json) return printJson(data);
+        process.stdout.write(`Language ${data.languageCode} added. ${data.message}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 }

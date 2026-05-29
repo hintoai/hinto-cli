@@ -55,14 +55,15 @@ hinto articles get <id> [--format markdown|html] [--json]
   "id": 123,
   "title": "How to deploy Next.js",
   "slug": "how-to-deploy-nextjs",
+  "folderId": null,
   "format": "markdown",
   "content": "# How to deploy Next.js\n\n...",
+  "createdAt": "2026-05-26T10:00:00Z",
+  "updatedAt": "2026-05-26T10:00:00Z",
   "metadata": {
     "metaDescription": "Step-by-step guide.",
     "metaKeywords": ["nextjs", "deploy"],
-    "jsonLd": null,
-    "createdAt": "2026-05-26T10:00:00Z",
-    "updatedAt": "2026-05-26T10:00:00Z"
+    "jsonLd": null
   }
 }
 ```
@@ -86,9 +87,51 @@ hinto articles create --title "..." --content @article.md [--folder <id>] [--jso
 
 **`@filepath` syntax:** prefix with `@` to read from a file, e.g. `--content @./article.md`
 
-**`--json` response (201):**
+**`--json` response (201):** the full article object (same shape as `hinto articles get`).
+
 ```json
-{ "id": 123, "title": "How to deploy Next.js", "slug": "how-to-deploy-nextjs" }
+{
+  "id": 123,
+  "title": "How to deploy Next.js",
+  "slug": null,
+  "folderId": null,
+  "format": "markdown",
+  "content": "# How to deploy Next.js\n\n...",
+  "createdAt": "2026-05-26T10:00:00Z",
+  "updatedAt": "2026-05-26T10:00:00Z",
+  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null }
+}
+```
+
+---
+
+### `hinto articles create-empty`
+
+Create an empty article with no content. Useful when you want to create a stub and fill in content later.
+
+```bash
+hinto articles create-empty [--title "..."] [--folder <id>] [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--title <title>` | No | Article title (defaults to untitled if omitted) |
+| `--folder <id>` | No | Place article in this folder |
+
+**`--json` response (201):** the full article object (same shape as `hinto articles get`).
+
+```json
+{
+  "id": 124,
+  "title": "Untitled",
+  "slug": null,
+  "folderId": null,
+  "format": "markdown",
+  "content": "",
+  "createdAt": "2026-05-26T11:00:00Z",
+  "updatedAt": "2026-05-26T11:00:00Z",
+  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null }
+}
 ```
 
 ---
@@ -108,9 +151,20 @@ hinto articles update <id> [--title "..."] [--slug "..."] [--meta-description ".
 | `--meta-description <text>` | No | SEO meta description |
 | `--meta-keywords <keywords>` | No | Comma-separated SEO keywords |
 
-**`--json` response:**
+**`--json` response:** the full article object (same shape as `hinto articles get`).
+
 ```json
-{ "id": 123, "title": "New Title", "slug": "new-slug", "updatedAt": "2026-05-26T10:00:00Z" }
+{
+  "id": 123,
+  "title": "New Title",
+  "slug": "new-slug",
+  "folderId": null,
+  "format": "markdown",
+  "content": "# New Title\n\n...",
+  "createdAt": "2026-05-26T10:00:00Z",
+  "updatedAt": "2026-05-26T10:00:00Z",
+  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null }
+}
 ```
 
 ---
@@ -150,12 +204,23 @@ hinto articles move <id> [--folder <folderId>] [--json]
 
 | `--folder <id>` | No | Destination folder — omit to move to root |
 
-**`--json` response:**
+**`--json` response:** the full article object (same shape as `hinto articles get`), reflecting the new `folderId`.
+
 ```json
-{ "message": "Article moved", "folderId": 456 }
+{
+  "id": 123,
+  "title": "How to deploy Next.js",
+  "slug": "how-to-deploy-nextjs",
+  "folderId": 456,
+  "format": "markdown",
+  "content": "# How to deploy Next.js\n\n...",
+  "createdAt": "2026-05-26T10:00:00Z",
+  "updatedAt": "2026-05-26T10:00:00Z",
+  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null }
+}
 ```
 
-`folderId` may be `null` if moved to the root.
+`folderId` is `null` if moved to the root.
 
 > To move an article to root (top level), omit `--folder`: `hinto articles move <id>`
 
@@ -166,16 +231,25 @@ hinto articles move <id> [--folder <folderId>] [--json]
 Re-run AI generation on an existing article. Returns immediately with a `jobId`.
 
 ```bash
-hinto articles regenerate <id> [--json]
+hinto articles regenerate <id> [--callback-url <url>] [--callback-secret <secret>] [--json]
 ```
 
-**`--json` response (202):**
+| Flag | Required | Description |
+|---|---|---|
+| `--callback-url <url>` | No | URL to POST a webhook to when the job completes or fails |
+| `--callback-secret <secret>` | No | HMAC-SHA256 signing secret for the callback webhook. Requires `--callback-url`. |
+
+**`--json` response (202):** the full Job object.
+
 ```json
 {
   "jobId": "uuid",
-  "articleId": 123,
+  "type": "generate_article",
   "status": "pending",
-  "message": "Article regeneration started. Poll the job status endpoint for updates."
+  "output": null,
+  "error": null,
+  "createdAt": "2026-05-26T10:00:00Z",
+  "completedAt": null
 }
 ```
 
@@ -265,10 +339,13 @@ Translation `status` values: `pending` | `processing` | `completed` | `manual`
 Fetch the content of a specific translation. This **retrieves** an existing translation — it does not trigger a new one. To trigger translation, use `hinto project retranslate` or `POST /v2/articles/{id}/translations/{lang}` directly.
 
 ```bash
-hinto articles translate <id> --lang <code> [--json]
+hinto articles translate <id> --lang <code> [--format markdown|html] [--json]
 ```
 
-**Required:** `--lang <code>` (e.g. `en`, `fr`, `de`, `es`)
+| Flag | Required | Default | Description |
+|---|---|---|---|
+| `--lang <code>` | Yes | — | Language code (e.g. `en`, `fr`, `de`, `es`) |
+| `--format <format>` | No | `markdown` | Content format: `markdown` or `html` |
 
 **`--json` response:**
 ```json

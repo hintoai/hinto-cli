@@ -3,20 +3,21 @@ import { AxiosInstance } from 'axios';
 export interface Project {
   id: string;
   name: string;
-  url_slug: string;
+  urlSlug: string;
   description: string | null;
   language: string;
-  is_published: boolean;
-  logo_url: string | null;
-  project_type: string;
-  is_archived: boolean;
-  created_at: string;
-  custom_domain: string | null;
-  custom_domain_verified: boolean;
+  isPublished: boolean;
+  logoUrl: string | null;
+  projectType: string;
+  isArchived: boolean;
+  createdAt: string;
+  customDomain: string | null;
+  customDomainVerified: boolean;
 }
 
 export interface Language {
-  languageCode: string;
+  code: string;
+  label: string;
   createdAt: string;
   translationRules: unknown | null;
   totalArticles: number;
@@ -38,5 +39,8 @@ export const projectApi = (client: AxiosInstance) => ({
     client.get<{ languages: Language[] }>('/project/languages').then(r => r.data),
 
   retranslate: (code: string) =>
-    client.post<{ languageCode: string; queued: number }>(`/project/languages/${code}/retranslate`).then(r => r.data),
+    client.post<import('./generate').Job>(`/project/languages/${code}/retranslate`).then(r => r.data),
+
+  addLanguage: (languageCode: string) =>
+    client.post<{ languageCode: string; message: string }>('/project/languages', { languageCode }).then(r => r.data),
 });

@@ -75,10 +75,10 @@ When this skill is active:
 hinto videos upload --file ./video.mp4 --json
 # → { "videoId": "...", "status": "pending" }
 
-# OR import from a URL (returns a jobId, not a videoId)
+# OR import from a URL (returns a Job object — poll until completed to get videoId)
 hinto videos import --url https://example.com/video.mp4 --json
-# → { "jobId": "...", "status": "pending", "message": "..." }
-# Then poll the import job: hinto generate status <jobId>
+# → { "jobId": "...", "type": "import_video_url", "status": "pending", "output": null, ... }
+# Then poll: hinto generate status <jobId> — completed output contains the videoId
 
 # 2. Wait until the video is ready
 hinto videos status <videoId> --json

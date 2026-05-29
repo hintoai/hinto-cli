@@ -109,9 +109,10 @@ hinto folders move <id> [--parent <parentId>] [--json]
 |---|---|---|
 | `--parent <id>` | No | Target parent folder ID — omit to move to root |
 
-**`--json` response:**
+**`--json` response:** the full Folder object, reflecting the new `parentId`.
+
 ```json
-{ "message": "Folder moved", "parentId": 123 }
+{ "id": 1, "name": "Getting Started", "parentId": 123, "createdAt": "2026-05-26T10:00:00Z", "updatedAt": "2026-05-26T10:00:00Z" }
 ```
 
 `parentId` is `null` when moved to root.

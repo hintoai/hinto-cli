@@ -25,15 +25,83 @@ describe('videosApi.list', () => {
   });
 });
 
+const mockImportJob = (jobId: string) => ({
+  jobId,
+  type: 'import_video_url',
+  status: 'pending',
+  output: null,
+  error: null,
+  createdAt: '2026-01-01T00:00:00Z',
+  completedAt: null,
+});
+
 describe('videosApi.import', () => {
-  it('returns jobId on import', async () => {
+  it('returns jobId on import with url only', async () => {
     nock(BASE_URL)
       .post('/api/external/v2/videos/import', { url: 'https://example.com/video.mp4' })
-      .reply(202, { jobId: 'j-abc', status: 'pending', message: 'Video import started' });
+      .reply(202, mockImportJob('j-abc'));
 
     const result = await api.import('https://example.com/video.mp4');
     expect(result.jobId).toBe('j-abc');
     expect(result.status).toBe('pending');
+    expect(result.type).toBe('import_video_url');
+  });
+
+  it('includes name when provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/videos/import', { url: 'https://example.com/video.mp4', name: 'My Video' })
+      .reply(202, mockImportJob('j-name'));
+
+    const result = await api.import('https://example.com/video.mp4', 'My Video');
+    expect(result.jobId).toBe('j-name');
+  });
+
+  it('includes callbackUrl when provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/videos/import', {
+        url: 'https://example.com/video.mp4',
+        callbackUrl: 'https://cb.example.com',
+      })
+      .reply(202, mockImportJob('j-cb'));
+
+    const result = await api.import('https://example.com/video.mp4', undefined, 'https://cb.example.com');
+    expect(result.jobId).toBe('j-cb');
+  });
+
+  it('includes callbackSecret when both callback fields provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/videos/import', {
+        url: 'https://example.com/video.mp4',
+        callbackUrl: 'https://cb.example.com',
+        callbackSecret: 'my-secret',
+      })
+      .reply(202, mockImportJob('j-cb-secret'));
+
+    const result = await api.import('https://example.com/video.mp4', undefined, 'https://cb.example.com', 'my-secret');
+    expect(result.jobId).toBe('j-cb-secret');
+  });
+
+  it('omits optional fields when not provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/videos/import', { url: 'https://example.com/video.mp4' })
+      .reply(202, mockImportJob('j-no-opts'));
+
+    const result = await api.import('https://example.com/video.mp4', undefined, undefined, undefined);
+    expect(result.jobId).toBe('j-no-opts');
+  });
+
+  it('includes all optional fields together', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/videos/import', {
+        url: 'https://example.com/video.mp4',
+        name: 'All Options',
+        callbackUrl: 'https://cb.example.com',
+        callbackSecret: 'all-secret',
+      })
+      .reply(202, mockImportJob('j-all'));
+
+    const result = await api.import('https://example.com/video.mp4', 'All Options', 'https://cb.example.com', 'all-secret');
+    expect(result.jobId).toBe('j-all');
   });
 });
 
@@ -50,17 +118,17 @@ describe('videosApi.delete', () => {
 describe('videosApi.uploadPresigned', () => {
   it('requests a presigned URL', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/videos/upload/presigned', { filename: 'video.mp4', content_type: 'video/mp4' })
+      .post('/api/external/v2/videos/upload/presigned', { filename: 'video.mp4', contentType: 'video/mp4' })
       .reply(200, {
-        video_id: 'v-new',
-        upload_url: 'https://s3.example.com/upload',
-        s3_url: 'https://s3.example.com/video.mp4',
-        expires_in: 3600,
+        videoId: 'v-new',
+        uploadUrl: 'https://s3.example.com/upload',
+        s3Url: 'https://s3.example.com/video.mp4',
+        expiresIn: 3600,
       });
 
     const result = await api.uploadPresigned('video.mp4', 'video/mp4');
-    expect(result.video_id).toBe('v-new');
-    expect(result.upload_url).toBe('https://s3.example.com/upload');
+    expect(result.videoId).toBe('v-new');
+    expect(result.uploadUrl).toBe('https://s3.example.com/upload');
   });
 });
 

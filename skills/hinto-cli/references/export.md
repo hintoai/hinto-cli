@@ -6,18 +6,18 @@ Export commands write content directly to disk (or stdout for article text). The
 
 ### `hinto export article <id>`
 
-Export a single article as markdown, HTML, or PDF.
+Export a single article as markdown or HTML.
 
 ```bash
-hinto export article <id> [--format md|html|pdf] [--out <path>]
+hinto export article <id> [--format md|html] [--out <path>]
 ```
 
 | Flag | Required | Default | Description |
 |---|---|---|---|
-| `--format <fmt>` | No | `md` | Output format: `md` (markdown), `html`, or `pdf` |
+| `--format <fmt>` | No | `md` | Output format: `md` (markdown) or `html` |
 | `--out <path>` | No | stdout | Write to file instead of printing to stdout |
 
-`md` is mapped to `markdown` automatically before the API call. Valid API formats: `pdf`, `markdown`, `html`.
+`md` is mapped to `markdown` automatically before the API call. Valid API formats: `markdown`, `html`.
 
 ```bash
 # Print markdown to stdout
@@ -25,9 +25,6 @@ hinto export article 123
 
 # Save as HTML file
 hinto export article 123 --format html --out article.html
-
-# Export as PDF
-hinto export article 123 --format pdf --out article.pdf
 
 # Pipe to another tool
 hinto export article 123 | pandoc -o article.pdf
