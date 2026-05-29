@@ -7,6 +7,6 @@ export const exportApi = (client: AxiosInstance) => ({
   folder: (id: string) =>
     client.get<Buffer>(`/export/folders/${id}`, { responseType: 'arraybuffer' }).then(r => r.data),
 
-  project: () =>
-    client.get<Buffer>('/export/project', { responseType: 'arraybuffer' }).then(r => r.data),
+  project: (format?: 'markdown' | 'html' | 'pdf' | 'llm-text') =>
+    client.get<Buffer>('/export/project', { params: format ? { format } : undefined, responseType: 'arraybuffer' }).then(r => r.data),
 });

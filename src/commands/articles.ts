@@ -43,10 +43,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
   articles
     .command('get <id>')
     .description('Get an article by ID')
+    .option('--format <fmt>', 'Content format: markdown (default) or html', 'markdown')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { json?: boolean }) => {
+    .action(async (id: string, opts: { format: string; json?: boolean }) => {
       try {
-        const data = await api.get(id);
+        const fmt = opts.format === 'html' ? 'html' : 'markdown'
+        const data = await api.get(id, fmt);
         if (opts.json) return printJson(data);
         printKeyValue(data);
       } catch (e: unknown) {
@@ -80,16 +82,20 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .description('Update an article')
     .option('--title <title>', 'New title')
     .option('--slug <slug>', 'New slug')
+    .option('--meta-description <text>', 'SEO meta description')
+    .option('--meta-keywords <keywords>', 'Comma-separated SEO keywords')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { title?: string; slug?: string; json?: boolean }) => {
+    .action(async (id: string, opts: { title?: string; slug?: string; metaDescription?: string; metaKeywords?: string; json?: boolean }) => {
       try {
-        if (!opts.title && !opts.slug) {
-          exitWithError('Provide at least one field to update: --title or --slug');
+        if (!opts.title && !opts.slug && !opts.metaDescription && !opts.metaKeywords) {
+          exitWithError('Provide at least one field to update: --title, --slug, --meta-description, or --meta-keywords');
           return;
         }
         const data = await api.update(id, {
-          title: opts.title,
-          slug: opts.slug,
+          ...(opts.title !== undefined && { title: opts.title }),
+          ...(opts.slug !== undefined && { slug: opts.slug }),
+          ...(opts.metaDescription !== undefined && { meta_description: opts.metaDescription }),
+          ...(opts.metaKeywords !== undefined && { meta_keywords: opts.metaKeywords.split(',').map(k => k.trim()).filter(Boolean) }),
         });
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);

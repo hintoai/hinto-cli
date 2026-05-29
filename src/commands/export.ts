@@ -43,9 +43,11 @@ export function registerExport(program: Command, client: AxiosInstance): void {
     .command('project')
     .description('Export the full project as zip')
     .requiredOption('--out <path>', 'Output zip file path')
-    .action(async (opts: { out: string }) => {
+    .option('--format <fmt>', 'Export format: markdown (default), html, pdf, or llm-text', 'markdown')
+    .action(async (opts: { out: string; format: string }) => {
       try {
-        const data = await api.project();
+        const fmt = opts.format as 'markdown' | 'html' | 'pdf' | 'llm-text'
+        const data = await api.project(fmt);
         fs.writeFileSync(opts.out, data);
         process.stdout.write(`Project exported to ${opts.out}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }

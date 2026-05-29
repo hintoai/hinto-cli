@@ -17,7 +17,7 @@ export interface ArticleDetail {
   content: string;
   metadata: {
     metaDescription: string | null;
-    metaKeywords: string | null;
+    metaKeywords: string[] | null;
     jsonLd: string | null;
     createdAt: string | null;
     updatedAt: string | null;
@@ -48,13 +48,13 @@ export const articlesApi = (client: AxiosInstance) => ({
   list: (params?: { folder_id?: string; offset?: number; limit?: number }) =>
     client.get<{ articles: Article[]; pagination: { limit: number; offset: number; count: number } }>('/articles', { params }).then(r => r.data),
 
-  get: (id: string) =>
-    client.get<ArticleDetail>(`/articles/${id}`).then(r => r.data),
+  get: (id: string, format?: 'markdown' | 'html') =>
+    client.get<ArticleDetail>(`/articles/${id}`, { params: format ? { format } : undefined }).then(r => r.data),
 
   create: (body: { title: string; markdown?: string; folder_id?: string }) =>
     client.post<{ id: number; title: string; slug: string | null }>('/articles', body).then(r => r.data),
 
-  update: (id: string, body: { title?: string; slug?: string; meta_description?: string }) =>
+  update: (id: string, body: { title?: string; slug?: string; meta_description?: string; meta_keywords?: string[] }) =>
     client.put<{ id: number; title: string; slug: string | null; updatedAt: string }>(`/articles/${id}`, body).then(r => r.data),
 
   delete: (id: string) =>
