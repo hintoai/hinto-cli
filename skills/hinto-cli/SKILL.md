@@ -64,7 +64,7 @@ When this skill is active:
 
 1. **Run commands via Bash** — execute `hinto` commands directly, don't just describe them.
 2. **Use `--json` when chaining** — pipe or parse JSON output to feed the next command.
-3. **Use `--wait` for async jobs** — when the user needs the result before moving on (generate, publish, retranslate). Without `--wait`, the command returns immediately with a `jobId`.
+3. **Use `--wait` for async jobs** — supported on `generate start` and `generate structure` only. Without `--wait`, these return immediately with a `jobId`. `publish now`, `publish republish`, and `project retranslate` are always async (no `--wait`) — poll manually with `hinto generate status <jobId>`.
 4. **Check auth first** — if a command returns `UNAUTHORIZED`, verify `HINTO_API_KEY` is set or `hinto init` has been run.
 5. **Spinner goes to stderr** — stdout stays clean for piping even with `--wait`.
 
@@ -90,8 +90,10 @@ hinto templates article --json
 # 4. Generate an article and wait for completion
 hinto generate start --video <videoId> --template <templateId> --wait --json
 
-# 5. Publish the project (synchronous — returns immediately)
+# 5. Publish the project (async — returns a jobId immediately)
 hinto publish now --json
+# → { "jobId": "...", "type": "publish", "status": "pending", ... }
+# Poll: hinto generate status <jobId>
 ```
 
 ## Category Routing

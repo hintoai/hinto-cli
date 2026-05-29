@@ -138,7 +138,7 @@ hinto articles create-empty [--title "..."] [--folder <id>] [--json]
 
 ### `hinto articles update <id>`
 
-Update an article's title, slug, or SEO fields.
+Update an article's title, slug, or SEO fields. **Does not update article content (body text)** — there is no `--content` flag. To re-generate content via AI, use `hinto articles regenerate <id>` instead.
 
 ```bash
 hinto articles update <id> [--title "..."] [--slug "..."] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--json]
