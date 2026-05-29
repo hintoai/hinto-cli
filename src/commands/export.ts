@@ -13,11 +13,12 @@ export function registerExport(program: Command, client: AxiosInstance): void {
     .description('Export an article')
     .option('--format <fmt>', 'Output format: md (default) or html', 'md')
     .option('--out <path>', 'Save to file instead of stdout')
-    .action(async (id: string, opts: { format: string; out?: string }) => {
+    .option('--lang <code>', 'Export a translated version by language code (e.g. fr, de)')
+    .action(async (id: string, opts: { format: string; out?: string; lang?: string }) => {
       try {
         // API accepts 'markdown' not 'md'
         const apiFormat = (opts.format === 'md' ? 'markdown' : opts.format) as 'markdown' | 'html';
-        const content = await api.article(id, apiFormat);
+        const content = await api.article(id, apiFormat, opts.lang);
         if (opts.out) {
           fs.writeFileSync(opts.out, content, 'utf-8');
           process.stdout.write(`Saved to ${opts.out}\n`);

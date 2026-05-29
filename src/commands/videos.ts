@@ -115,7 +115,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
 
         // Step 1: get presigned URL
         process.stderr.write('Requesting presigned upload URL...\n');
-        const { videoId, uploadUrl } = await api.uploadPresigned(filename, contentType);
+        const { videoId, uploadUrl, key: s3Key } = await api.uploadPresigned(filename, contentType);
 
         // Step 2: PUT file to S3
         process.stderr.write(`Uploading ${filename}...\n`);
@@ -129,7 +129,6 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
 
         // Step 3: complete upload
         process.stderr.write('Completing upload...\n');
-        const s3Key = `videos/original/${videoId}${ext}`
         const result = await api.uploadComplete(videoId, s3Key, filename);
 
         if (opts.json) return printJson(result);

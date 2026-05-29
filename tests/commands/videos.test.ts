@@ -116,19 +116,21 @@ describe('videosApi.delete', () => {
 });
 
 describe('videosApi.uploadPresigned', () => {
-  it('requests a presigned URL', async () => {
+  it('requests a presigned URL and returns key from server', async () => {
     nock(BASE_URL)
       .post('/api/external/v2/videos/upload/presigned', { filename: 'video.mp4', contentType: 'video/mp4' })
       .reply(200, {
         videoId: 'v-new',
         uploadUrl: 'https://s3.example.com/upload',
         s3Url: 'https://s3.example.com/video.mp4',
+        key: 'videos/original/v-new.mp4',
         expiresIn: 3600,
       });
 
     const result = await api.uploadPresigned('video.mp4', 'video/mp4');
     expect(result.videoId).toBe('v-new');
     expect(result.uploadUrl).toBe('https://s3.example.com/upload');
+    expect(result.key).toBe('videos/original/v-new.mp4');
   });
 });
 

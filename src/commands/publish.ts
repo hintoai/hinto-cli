@@ -12,9 +12,11 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
     .command('now')
     .description('Publish the project (synchronous)')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { json?: boolean }) => {
+    .option('--callback-url <url>', 'Webhook URL to call when the job completes')
+    .option('--callback-secret <secret>', 'Secret to include in the webhook callback')
+    .action(async (opts: { json?: boolean; callbackUrl?: string; callbackSecret?: string }) => {
       try {
-        const data = await api.now();
+        const data = await api.now(opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
         process.stdout.write(`Publish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
@@ -24,9 +26,11 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
     .command('republish')
     .description('Republish the project after content changes')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { json?: boolean }) => {
+    .option('--callback-url <url>', 'Webhook URL to call when the job completes')
+    .option('--callback-secret <secret>', 'Secret to include in the webhook callback')
+    .action(async (opts: { json?: boolean; callbackUrl?: string; callbackSecret?: string }) => {
       try {
-        const data = await api.republish();
+        const data = await api.republish(opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
         process.stdout.write(`Republish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }

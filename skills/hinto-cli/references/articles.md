@@ -373,12 +373,14 @@ Returns `404` if the translation does not exist. Returns `400 INVALID_LANGUAGE` 
 Queue translation of a single article into a target language.
 
 ```bash
-hinto articles trigger-translate <id> --lang <code> [--json]
+hinto articles trigger-translate <id> --lang <code> [--callback-url <url>] [--callback-secret <secret>] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--lang <code>` | Yes | Target language code (e.g. `fr`, `de`, `es`) |
+| `--callback-url <url>` | No | URL to POST a webhook to when the translation job completes or fails |
+| `--callback-secret <secret>` | No | HMAC-SHA256 signing secret for the callback webhook. Requires `--callback-url`. |
 
 Plain: `Translation triggered. Job ID: <uuid>`
 

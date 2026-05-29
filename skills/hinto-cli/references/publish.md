@@ -1,61 +1,76 @@
 # Publish Reference
 
-Publishing operations are **synchronous** — they complete inline and return the result directly. There is no `jobId` and `--wait` has no effect (the CLI's `--wait` path expects a jobId that isn't returned and will fail silently).
-
 ## Commands
 
 ### `hinto publish now`
 
-Publish the project. Creates a snapshot of all current content and makes it live.
+Publish the project. Creates a snapshot of all current content and makes it live. This is an **async** operation — the CLI returns a Job ID immediately and the publish runs in the background.
 
 ```bash
-hinto publish now [--json]
+hinto publish now [--callback-url <url>] [--callback-secret <secret>] [--json]
 ```
 
-**`--json` response (200):**
+| Flag | Required | Description |
+|---|---|---|
+| `--callback-url <url>` | No | URL to POST a webhook to when the publish job completes or fails |
+| `--callback-secret <secret>` | No | HMAC-SHA256 signing secret for the callback webhook. Requires `--callback-url`. |
+
+**Plain output:**
+```
+Publish job started. Job ID: <uuid>
+Poll status: hinto generate status <uuid>
+```
+
+**`--json` response (202):**
 ```json
 {
-  "message": "Project published successfully",
-  "slug": "my-docs",
-  "publicationId": "uuid",
-  "articlesCount": 12,
-  "foldersCount": 3
+  "jobId": "uuid",
+  "type": "publish",
+  "status": "pending",
+  "output": null,
+  "error": null,
+  "createdAt": "2026-05-29T10:00:00Z",
+  "completedAt": null
 }
 ```
 
-> **CLI note:** The `--wait` flag is accepted but has no effect — publish is synchronous. Do not use `--wait`.
+Poll `hinto generate status <jobId>` to track completion. When the job finishes, `output` will contain the publish result (slug, articlesCount, etc.).
 
 ---
 
 ### `hinto publish republish`
 
-Push updated content to an already-published project. Returns immediately. If no content has changed since the last publication, returns `hasChanges: false` without doing anything.
+Push updated content to an already-published project. This is an **async** operation — the CLI returns a Job ID immediately and the republish runs in the background.
 
 ```bash
-hinto publish republish [--json]
+hinto publish republish [--callback-url <url>] [--callback-secret <secret>] [--json]
 ```
 
-**`--json` response — changes detected (200):**
+| Flag | Required | Description |
+|---|---|---|
+| `--callback-url <url>` | No | URL to POST a webhook to when the republish job completes or fails |
+| `--callback-secret <secret>` | No | HMAC-SHA256 signing secret for the callback webhook. Requires `--callback-url`. |
+
+**Plain output:**
+```
+Republish job started. Job ID: <uuid>
+Poll status: hinto generate status <uuid>
+```
+
+**`--json` response (202):**
 ```json
 {
-  "message": "Project republished successfully",
-  "hasChanges": true,
-  "slug": "my-docs",
-  "publicationId": "uuid",
-  "articlesCount": 12,
-  "foldersCount": 3
+  "jobId": "uuid",
+  "type": "publish",
+  "status": "pending",
+  "output": null,
+  "error": null,
+  "createdAt": "2026-05-29T10:00:00Z",
+  "completedAt": null
 }
 ```
 
-**`--json` response — no changes (200):**
-```json
-{
-  "message": "No changes detected since last publication",
-  "hasChanges": false
-}
-```
-
-> **CLI note:** Same as `now` — `--wait` has no effect.
+Poll `hinto generate status <jobId>` to track completion. When the job finishes, `output` will contain the republish result (slug, articlesCount, etc.).
 
 ---
 

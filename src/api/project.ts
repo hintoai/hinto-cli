@@ -38,8 +38,11 @@ export const projectApi = (client: AxiosInstance) => ({
   listLanguages: () =>
     client.get<{ languages: Language[] }>('/project/languages').then(r => r.data),
 
-  retranslate: (code: string) =>
-    client.post<import('./generate').Job>(`/project/languages/${code}/retranslate`).then(r => r.data),
+  retranslate: (code: string, callbackUrl?: string, callbackSecret?: string) =>
+    client.post<import('./generate').Job>(`/project/languages/${code}/retranslate`, {
+      ...(callbackUrl ? { callbackUrl } : {}),
+      ...(callbackSecret ? { callbackSecret } : {}),
+    }).then(r => r.data),
 
   addLanguage: (languageCode: string) =>
     client.post<{ languageCode: string; message: string }>('/project/languages', { languageCode }).then(r => r.data),

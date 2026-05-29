@@ -71,9 +71,11 @@ export function registerProject(program: Command, client: AxiosInstance): void {
     .description('Retranslate all articles to a language')
     .requiredOption('--lang <code>', 'Language code (e.g. fr, de, es)')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { lang: string; json?: boolean }) => {
+    .option('--callback-url <url>', 'Webhook URL to call when the job completes')
+    .option('--callback-secret <secret>', 'Secret to include in the webhook callback')
+    .action(async (opts: { lang: string; json?: boolean; callbackUrl?: string; callbackSecret?: string }) => {
       try {
-        const data = await api.retranslate(opts.lang);
+        const data = await api.retranslate(opts.lang, opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
         process.stdout.write(`Retranslation queued. Job ID: ${data.jobId}\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }

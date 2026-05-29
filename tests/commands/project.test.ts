@@ -161,4 +161,41 @@ describe('projectApi.retranslate', () => {
     const result = await api.retranslate('de');
     expect(result.jobId).toBe('job-def-456');
   });
+
+  it('sends callbackUrl and callbackSecret in request body when provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/project/languages/fr/retranslate', {
+        callbackUrl: 'https://example.com/hook',
+        callbackSecret: 'mysecret',
+      })
+      .reply(202, {
+        jobId: 'job-callback-789',
+        type: 'retranslate',
+        status: 'pending',
+        output: null,
+        error: null,
+        createdAt: '2026-01-01T00:00:00Z',
+        completedAt: null,
+      });
+
+    const result = await api.retranslate('fr', 'https://example.com/hook', 'mysecret');
+    expect(result.jobId).toBe('job-callback-789');
+  });
+
+  it('omits callbackUrl and callbackSecret from body when not provided', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/project/languages/es/retranslate', {})
+      .reply(202, {
+        jobId: 'job-no-callback',
+        type: 'retranslate',
+        status: 'pending',
+        output: null,
+        error: null,
+        createdAt: '2026-01-01T00:00:00Z',
+        completedAt: null,
+      });
+
+    const result = await api.retranslate('es');
+    expect(result.jobId).toBe('job-no-callback');
+  });
 });

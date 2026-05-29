@@ -15,11 +15,17 @@ export interface PublishStatus extends PublishStatusResponse {
 }
 
 export const publishApi = (client: AxiosInstance) => ({
-  now: () =>
-    client.post<import('./generate').Job>('/publish').then(r => r.data),
+  now: (callbackUrl?: string, callbackSecret?: string) =>
+    client.post<import('./generate').Job>('/publish', {
+      ...(callbackUrl ? { callbackUrl } : {}),
+      ...(callbackSecret ? { callbackSecret } : {}),
+    }).then(r => r.data),
 
-  republish: () =>
-    client.post<import('./generate').Job>('/publish/republish').then(r => r.data),
+  republish: (callbackUrl?: string, callbackSecret?: string) =>
+    client.post<import('./generate').Job>('/publish/republish', {
+      ...(callbackUrl ? { callbackUrl } : {}),
+      ...(callbackSecret ? { callbackSecret } : {}),
+    }).then(r => r.data),
 
   status: () =>
     client.get<PublishStatusResponse>('/publish/status').then(r => ({
