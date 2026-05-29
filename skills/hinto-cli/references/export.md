@@ -62,20 +62,21 @@ Prints: `Folder exported to getting-started.pdf`
 Export the full project as a ZIP archive in markdown format.
 
 ```bash
-hinto export project --out <path>
+hinto export project --out <path> [--format markdown|html|pdf|llm-text]
 ```
 
-| Flag | Required | Description |
-|---|---|---|
-| `--out <path>` | Yes | Output `.zip` file path |
+| Flag | Required | Default | Description |
+|---|---|---|---|
+| `--out <path>` | Yes | — | Output `.zip` file path |
+| `--format <fmt>` | No | `markdown` | Export format: `markdown`, `html`, `pdf`, or `llm-text` |
 
 ```bash
 hinto export project --out full-export.zip
+hinto export project --out export.zip --format html
+hinto export project --out export.zip --format llm-text
 ```
 
-Prints: `Project exported to full-export.zip`
-
-> **Note:** The CLI exports in markdown format (the API default). The API also supports `pdf`, `html`, and `llm-text` formats but these are not exposed as CLI flags — call the API directly to use them.
+Prints: `Project exported to <path>`
 
 ---
 

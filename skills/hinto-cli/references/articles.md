@@ -42,8 +42,12 @@ The list response does **not** include `content` or `format` — use `hinto arti
 Get a single article with full content.
 
 ```bash
-hinto articles get <id> [--json]
+hinto articles get <id> [--format markdown|html] [--json]
 ```
+
+| Flag | Default | Description |
+|---|---|---|
+| `--format <fmt>` | `markdown` | Return content as `markdown` or `html` |
 
 **`--json` response:**
 ```json
@@ -62,8 +66,6 @@ hinto articles get <id> [--json]
   }
 }
 ```
-
-Add `?format=html` to get HTML content instead of markdown (not exposed as a CLI flag — use the API directly).
 
 ---
 
@@ -96,15 +98,15 @@ hinto articles create --title "..." --content @article.md [--folder <id>] [--jso
 Update an article's title, slug, or SEO fields.
 
 ```bash
-hinto articles update <id> [--title "..."] [--slug "..."] [--json]
+hinto articles update <id> [--title "..."] [--slug "..."] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--title <title>` | No | New title |
 | `--slug <slug>` | No | New URL slug |
-
-> **Note:** The API also accepts `meta_description` and `meta_keywords` but the CLI does not expose them as flags.
+| `--meta-description <text>` | No | SEO meta description |
+| `--meta-keywords <keywords>` | No | Comma-separated SEO keywords |
 
 **`--json` response:**
 ```json
