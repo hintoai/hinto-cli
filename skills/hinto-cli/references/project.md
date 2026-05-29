@@ -44,7 +44,7 @@ hinto project update --name "New Name" [--json]
 
 | Flag | Required | Description |
 |---|---|---|
-| `--name <name>` | Yes | New project name |
+| `--name <name>` | No | New project name |
 
 **`--json` response:**
 ```json
@@ -135,12 +135,14 @@ Plain output columns: `Code`, `Label`, `Translated`, `Total`, `Translating`.
 Re-queue translation of all articles into a specific language. Useful after bulk content updates. Returns immediately with a count of queued jobs.
 
 ```bash
-hinto project retranslate --lang <code> [--json]
+hinto project retranslate --lang <code> [--callback-url <url>] [--callback-secret <secret>] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--lang <code>` | Yes | Language code to retranslate (e.g. `fr`, `de`, `es`) |
+| `--callback-url <url>` | No | URL to POST a webhook to when queuing completes |
+| `--callback-secret <secret>` | No | HMAC-SHA256 signing secret. Requires `--callback-url`. |
 
 Plain: `Retranslation queued. Job ID: <uuid>`
 

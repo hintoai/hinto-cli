@@ -9,12 +9,13 @@ Export commands write content directly to disk (or stdout for article text). The
 Export a single article as markdown or HTML.
 
 ```bash
-hinto export article <id> [--format md|html] [--out <path>]
+hinto export article <id> [--format md|html] [--lang <code>] [--out <path>]
 ```
 
 | Flag | Required | Default | Description |
 |---|---|---|---|
 | `--format <fmt>` | No | `md` | Output format: `md` (markdown) or `html` |
+| `--lang <code>` | No | — | Export a specific translation by language code (e.g. `fr`, `de`) |
 | `--out <path>` | No | stdout | Write to file instead of printing to stdout |
 
 `md` is mapped to `markdown` automatically before the API call. Valid API formats: `markdown`, `html`.

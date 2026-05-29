@@ -57,4 +57,27 @@ describe('exportApi.article', () => {
     const result = await api.article('article-2', 'markdown');
     expect(result).toBe('# Article content');
   });
+
+  it('returns a Buffer for pdf format', async () => {
+    const pdfBytes = Buffer.from('%PDF-1.4 fake pdf content');
+    nock(BASE_URL)
+      .get('/api/external/v2/export/articles/article-1')
+      .query({ format: 'pdf' })
+      .reply(200, pdfBytes, { 'content-type': 'application/pdf' });
+
+    const result = await api.article('article-1', 'pdf');
+    expect(Buffer.isBuffer(result)).toBe(true);
+    expect((result as Buffer).toString()).toContain('%PDF');
+  });
+
+  it('sends pdf format query param', async () => {
+    const pdfBytes = Buffer.from('%PDF-1.4 fake pdf content');
+    nock(BASE_URL)
+      .get('/api/external/v2/export/articles/article-3')
+      .query({ format: 'pdf' })
+      .reply(200, pdfBytes, { 'content-type': 'application/pdf' });
+
+    const result = await api.article('article-3', 'pdf');
+    expect(Buffer.isBuffer(result)).toBe(true);
+  });
 });
