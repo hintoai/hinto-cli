@@ -7,7 +7,7 @@ export interface Job {
   output: unknown | null;
   error?: string | null;
   createdAt: string;
-  completedAt?: string | null;
+  completedAt: string | null;
 }
 
 export const generateApi = (client: AxiosInstance) => ({

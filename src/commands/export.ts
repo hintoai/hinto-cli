@@ -42,7 +42,7 @@ export function registerExport(program: Command, client: AxiosInstance): void {
 
   exportCmd
     .command('folder <id>')
-    .description('Export a folder as zip')
+    .description('Export a folder as PDF')
     .requiredOption('--out <path>', 'Output zip file path')
     .action(async (id: string, opts: { out: string }) => {
       try {

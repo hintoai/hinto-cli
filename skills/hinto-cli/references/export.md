@@ -6,19 +6,21 @@ Export commands write content directly to disk (or stdout for article text). The
 
 ### `hinto export article <id>`
 
-Export a single article as markdown or HTML.
+Export a single article as markdown, HTML, or PDF.
 
 ```bash
-hinto export article <id> [--format md|html] [--lang <code>] [--out <path>]
+hinto export article <id> [--format md|html|pdf] [--lang <code>] [--out <path>]
 ```
 
 | Flag | Required | Default | Description |
 |---|---|---|---|
-| `--format <fmt>` | No | `md` | Output format: `md` (markdown) or `html` |
+| `--format <fmt>` | No | `md` | Output format: `md` (markdown), `html`, or `pdf`. For `pdf`, `--out` is required. |
 | `--lang <code>` | No | — | Export a specific translation by language code (e.g. `fr`, `de`) |
 | `--out <path>` | No | stdout | Write to file instead of printing to stdout |
 
-`md` is mapped to `markdown` automatically before the API call. Valid API formats: `markdown`, `html`.
+`md` is mapped to `markdown` automatically before the API call. Valid API formats: `markdown`, `html`, `pdf`.
+
+> **Note:** `--format pdf` requires `--out <path>` — binary PDF output cannot be printed to stdout.
 
 ```bash
 # Print markdown to stdout

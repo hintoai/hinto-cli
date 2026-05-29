@@ -77,7 +77,8 @@ export function registerProject(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.retranslate(opts.lang, opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
-        process.stdout.write(`Retranslation queued. Job ID: ${data.jobId}\n`);
+        const queued = (data.output as { queued?: number } | null)?.queued ?? 0
+        process.stdout.write(`Retranslation queued. ${queued} articles enqueued.\n`);
       } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
     });
 
