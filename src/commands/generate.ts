@@ -4,10 +4,12 @@ import { generateApi } from '../api/generate';
 import { pollJob } from '../poll';
 import { printJson, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
+import { registerGenerateBatch } from './generate-batch';
 
 export function registerGenerate(program: Command, client: AxiosInstance): void {
   const generate = program.command('generate').description('Generate content from videos');
   const api = generateApi(client);
+  registerGenerateBatch(generate, client);
 
   generate
     .command('start')
