@@ -7,7 +7,9 @@ export function printJson(data: unknown): void {
 
 export function printTable(headers: string[], rows: string[][]): void {
   const table = new Table({ head: headers.map((h) => chalk.bold(h)) });
-  rows.forEach((row) => table.push(row));
+  rows.forEach((row) => {
+    table.push(row);
+  });
   process.stdout.write(`${table.toString()}\n`);
 }
 

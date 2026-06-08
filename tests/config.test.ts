@@ -1,6 +1,4 @@
 import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import { CONFIG_PATH, type HintoConfig, loadConfig, saveConfig } from '../src/config';
 
 const TEST_CONFIG: HintoConfig = {
