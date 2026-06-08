@@ -12,13 +12,15 @@ describe('createClient interceptor — text/arraybuffer error parsing', () => {
 
     nock(BASE_URL)
       .get('/api/external/v2/export/test')
-      .reply(400, JSON.stringify({ error: { code: 'INVALID_FORMAT', message: 'Unsupported format' } }), {
-        'Content-Type': 'application/json',
-      });
+      .reply(
+        400,
+        JSON.stringify({ error: { code: 'INVALID_FORMAT', message: 'Unsupported format' } }),
+        {
+          'Content-Type': 'application/json',
+        },
+      );
 
-    await expect(
-      client.get('/export/test', { responseType: 'text' })
-    ).rejects.toMatchObject({
+    await expect(client.get('/export/test', { responseType: 'text' })).rejects.toMatchObject({
       name: 'CliError',
       code: 'INVALID_FORMAT',
       message: 'Unsupported format',
@@ -27,21 +29,21 @@ describe('createClient interceptor — text/arraybuffer error parsing', () => {
 
   it('parses JSON error from an arraybuffer response body', async () => {
     const client = createClient('test_key', BASE_URL);
-    const errorBody = JSON.stringify({ error: { code: 'INVALID_FORMAT', message: 'Unsupported format' } });
-
-    nock(BASE_URL)
-      .get('/api/external/v2/export/test')
-      .reply(400, Buffer.from(errorBody), {
-        'Content-Type': 'application/json',
-      });
-
-    await expect(
-      client.get('/export/test', { responseType: 'arraybuffer' })
-    ).rejects.toMatchObject({
-      name: 'CliError',
-      code: 'INVALID_FORMAT',
-      message: 'Unsupported format',
+    const errorBody = JSON.stringify({
+      error: { code: 'INVALID_FORMAT', message: 'Unsupported format' },
     });
+
+    nock(BASE_URL).get('/api/external/v2/export/test').reply(400, Buffer.from(errorBody), {
+      'Content-Type': 'application/json',
+    });
+
+    await expect(client.get('/export/test', { responseType: 'arraybuffer' })).rejects.toMatchObject(
+      {
+        name: 'CliError',
+        code: 'INVALID_FORMAT',
+        message: 'Unsupported format',
+      },
+    );
   });
 
   it('falls through to UNKNOWN_ERROR when body is not valid JSON', async () => {
@@ -51,9 +53,7 @@ describe('createClient interceptor — text/arraybuffer error parsing', () => {
       .get('/api/external/v2/export/test')
       .reply(400, 'Bad Request', { 'Content-Type': 'text/plain' });
 
-    await expect(
-      client.get('/export/test', { responseType: 'text' })
-    ).rejects.toMatchObject({
+    await expect(client.get('/export/test', { responseType: 'text' })).rejects.toMatchObject({
       name: 'CliError',
       code: 'UNKNOWN_ERROR',
     });

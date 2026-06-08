@@ -1,10 +1,10 @@
-import { Command } from 'commander';
-import { AxiosInstance } from 'axios';
 import fs from 'fs';
 import path from 'path';
+import type { AxiosInstance } from 'axios';
+import type { Command } from 'commander';
 import { articlesApi } from '../api/articles';
-import { printJson, printTable, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
+import { printJson, printKeyValue, printTable } from '../output';
 
 function resolveContent(raw: string): string {
   if (!raw.startsWith('@')) return raw;
@@ -33,7 +33,13 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         if (opts.json) return printJson(data);
         printTable(
           ['ID', 'Title', 'Slug', 'Folder', 'Updated'],
-          data.articles.map(a => [String(a.id), a.title, a.slug ?? '(none)', a.folderId != null ? String(a.folderId) : '—', a.updatedAt])
+          data.articles.map((a) => [
+            String(a.id),
+            a.title,
+            a.slug ?? '(none)',
+            a.folderId != null ? String(a.folderId) : '—',
+            a.updatedAt,
+          ]),
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
@@ -47,7 +53,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .option('--json', 'Output as JSON')
     .action(async (id: string, opts: { format: string; json?: boolean }) => {
       try {
-        const fmt = opts.format === 'html' ? 'html' : 'markdown'
+        const fmt = opts.format === 'html' ? 'html' : 'markdown';
         const data = await api.get(id, fmt);
         if (opts.json) return printJson(data);
         printKeyValue(data);
@@ -104,24 +110,42 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .option('--meta-description <text>', 'SEO meta description')
     .option('--meta-keywords <keywords>', 'Comma-separated SEO keywords')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { title?: string; slug?: string; metaDescription?: string; metaKeywords?: string; json?: boolean }) => {
-      try {
-        if (!opts.title && !opts.slug && !opts.metaDescription && !opts.metaKeywords) {
-          exitWithError('Provide at least one field to update: --title, --slug, --meta-description, or --meta-keywords');
-          return;
+    .action(
+      async (
+        id: string,
+        opts: {
+          title?: string;
+          slug?: string;
+          metaDescription?: string;
+          metaKeywords?: string;
+          json?: boolean;
+        },
+      ) => {
+        try {
+          if (!opts.title && !opts.slug && !opts.metaDescription && !opts.metaKeywords) {
+            exitWithError(
+              'Provide at least one field to update: --title, --slug, --meta-description, or --meta-keywords',
+            );
+            return;
+          }
+          const data = await api.update(id, {
+            ...(opts.title !== undefined && { title: opts.title }),
+            ...(opts.slug !== undefined && { slug: opts.slug }),
+            ...(opts.metaDescription !== undefined && { metaDescription: opts.metaDescription }),
+            ...(opts.metaKeywords !== undefined && {
+              metaKeywords: opts.metaKeywords
+                .split(',')
+                .map((k) => k.trim())
+                .filter(Boolean),
+            }),
+          });
+          if (opts.json) return printJson(data);
+          printKeyValue(data as unknown as Record<string, unknown>);
+        } catch (e: unknown) {
+          exitWithError(e instanceof Error ? e.message : String(e));
         }
-        const data = await api.update(id, {
-          ...(opts.title !== undefined && { title: opts.title }),
-          ...(opts.slug !== undefined && { slug: opts.slug }),
-          ...(opts.metaDescription !== undefined && { metaDescription: opts.metaDescription }),
-          ...(opts.metaKeywords !== undefined && { metaKeywords: opts.metaKeywords.split(',').map(k => k.trim()).filter(Boolean) }),
-        });
-        if (opts.json) return printJson(data);
-        printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) {
-        exitWithError(e instanceof Error ? e.message : String(e));
-      }
-    });
+      },
+    );
 
   articles
     .command('delete <id>')
@@ -172,15 +196,20 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .option('--callback-url <url>', 'URL to receive a webhook when the job completes')
     .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { callbackUrl?: string; callbackSecret?: string; json?: boolean }) => {
-      try {
-        const data = await api.regenerate(id, opts.callbackUrl, opts.callbackSecret);
-        if (opts.json) return printJson(data);
-        printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) {
-        exitWithError(e instanceof Error ? e.message : String(e));
-      }
-    });
+    .action(
+      async (
+        id: string,
+        opts: { callbackUrl?: string; callbackSecret?: string; json?: boolean },
+      ) => {
+        try {
+          const data = await api.regenerate(id, opts.callbackUrl, opts.callbackSecret);
+          if (opts.json) return printJson(data);
+          printKeyValue(data as unknown as Record<string, unknown>);
+        } catch (e: unknown) {
+          exitWithError(e instanceof Error ? e.message : String(e));
+        }
+      },
+    );
 
   articles
     .command('versions <id>')
@@ -190,7 +219,15 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.listVersions(id);
         if (opts.json) return printJson(data);
-        printTable(['Version ID', 'Version #', 'Created', 'Auto-save'], data.versions.map(v => [v.id, String(v.versionNumber), v.createdAt, v.isAutoSave ? 'yes' : 'no']));
+        printTable(
+          ['Version ID', 'Version #', 'Created', 'Auto-save'],
+          data.versions.map((v) => [
+            v.id,
+            String(v.versionNumber),
+            v.createdAt,
+            v.isAutoSave ? 'yes' : 'no',
+          ]),
+        );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
@@ -221,7 +258,13 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         if (opts.json) return printJson(data);
         printTable(
           ['Language', 'Status', 'Title', 'Has Content', 'Updated'],
-          data.translations.map(t => [t.languageCode, t.status, t.title ?? '—', t.hasContent ? 'yes' : 'no', t.updatedAt])
+          data.translations.map((t) => [
+            t.languageCode,
+            t.status,
+            t.title ?? '—',
+            t.hasContent ? 'yes' : 'no',
+            t.updatedAt,
+          ]),
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
@@ -232,7 +275,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .command('translate <id>')
     .description('Get a specific translation')
     .requiredOption('--lang <code>', 'Language code (e.g. en, fr)')
-    .option('--format <format>', 'Content format: markdown or html', /^(markdown|html)$/, 'markdown')
+    .option(
+      '--format <format>',
+      'Content format: markdown or html',
+      /^(markdown|html)$/,
+      'markdown',
+    )
     .option('--json', 'Output as JSON')
     .action(async (id: string, opts: { lang: string; format?: string; json?: boolean }) => {
       try {
@@ -252,13 +300,23 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .option('--callback-url <url>', 'URL to receive a webhook when the job completes')
     .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--json', 'Output as JSON')
-    .action(async (id: string, opts: { lang: string; callbackUrl?: string; callbackSecret?: string; json?: boolean }) => {
-      try {
-        const data = await api.triggerTranslate(id, opts.lang, opts.callbackUrl, opts.callbackSecret);
-        if (opts.json) return printJson(data);
-        process.stdout.write(`Translation triggered. Job ID: ${data.jobId}\n`);
-      } catch (e: unknown) {
-        exitWithError(e instanceof Error ? e.message : String(e));
-      }
-    });
+    .action(
+      async (
+        id: string,
+        opts: { lang: string; callbackUrl?: string; callbackSecret?: string; json?: boolean },
+      ) => {
+        try {
+          const data = await api.triggerTranslate(
+            id,
+            opts.lang,
+            opts.callbackUrl,
+            opts.callbackSecret,
+          );
+          if (opts.json) return printJson(data);
+          process.stdout.write(`Translation triggered. Job ID: ${data.jobId}\n`);
+        } catch (e: unknown) {
+          exitWithError(e instanceof Error ? e.message : String(e));
+        }
+      },
+    );
 }

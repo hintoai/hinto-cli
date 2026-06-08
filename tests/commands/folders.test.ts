@@ -10,7 +10,9 @@ afterEach(() => nock.cleanAll());
 
 describe('foldersApi.list', () => {
   it('returns folders', async () => {
-    nock(BASE_URL).get('/api/external/v2/folders').reply(200, { folders: [{ id: 'f1', name: 'Blog' }] });
+    nock(BASE_URL)
+      .get('/api/external/v2/folders')
+      .reply(200, { folders: [{ id: 'f1', name: 'Blog' }] });
     const result = await api.list();
     expect(result.folders[0].id).toBe('f1');
   });
@@ -18,7 +20,9 @@ describe('foldersApi.list', () => {
 
 describe('foldersApi.create', () => {
   it('creates a folder', async () => {
-    nock(BASE_URL).post('/api/external/v2/folders', { name: 'News' }).reply(201, { id: 'f2', name: 'News' });
+    nock(BASE_URL)
+      .post('/api/external/v2/folders', { name: 'News' })
+      .reply(201, { id: 'f2', name: 'News' });
     const result = await api.create('News');
     expect(result.name).toBe('News');
   });

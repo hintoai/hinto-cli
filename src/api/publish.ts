@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 
 interface PublishStatusResponse {
   isPublished: boolean;
@@ -16,23 +16,26 @@ export interface PublishStatus extends PublishStatusResponse {
 
 export const publishApi = (client: AxiosInstance) => ({
   now: (callbackUrl?: string, callbackSecret?: string) =>
-    client.post<import('./generate').Job>('/publish', {
-      ...(callbackUrl ? { callbackUrl } : {}),
-      ...(callbackSecret ? { callbackSecret } : {}),
-    }).then(r => r.data),
+    client
+      .post<import('./generate').Job>('/publish', {
+        ...(callbackUrl ? { callbackUrl } : {}),
+        ...(callbackSecret ? { callbackSecret } : {}),
+      })
+      .then((r) => r.data),
 
   republish: (callbackUrl?: string, callbackSecret?: string) =>
-    client.post<import('./generate').Job>('/publish/republish', {
-      ...(callbackUrl ? { callbackUrl } : {}),
-      ...(callbackSecret ? { callbackSecret } : {}),
-    }).then(r => r.data),
+    client
+      .post<import('./generate').Job>('/publish/republish', {
+        ...(callbackUrl ? { callbackUrl } : {}),
+        ...(callbackSecret ? { callbackSecret } : {}),
+      })
+      .then((r) => r.data),
 
   status: () =>
-    client.get<PublishStatusResponse>('/publish/status').then(r => ({
+    client.get<PublishStatusResponse>('/publish/status').then((r) => ({
       ...r.data,
       status: (r.data.isPublished ? 'published' : 'unpublished') as 'published' | 'unpublished',
     })),
 
-  unpublish: () =>
-    client.delete<{ message: string }>('/publish').then(r => r.data),
+  unpublish: () => client.delete<{ message: string }>('/publish').then((r) => r.data),
 });

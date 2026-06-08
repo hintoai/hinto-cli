@@ -1,14 +1,26 @@
-# @hinto/cli
+# @hintoai/cli
 
 Command-line interface for the [Hinto AI](https://hinto.ai) API. Manage videos, articles, folders, templates, and publishing from your terminal or from AI agents and scripts.
 
 ## Installation
 
 ```bash
-npm install -g @hinto/cli
+npm install -g @hintoai/cli
 ```
 
 Requires Node.js 18+.
+
+### Use it from an AI agent (Claude Code, Cursor, …)
+
+Install the bundled skill into any supported agent with the universal [skills CLI](https://github.com/vercel-labs/skills):
+
+```bash
+npx skills add hintoai/hinto-cli
+# target specific agents:
+npx skills add hintoai/hinto-cli -a claude-code -a cursor
+```
+
+The skill bootstraps the CLI itself (`npm install -g @hintoai/cli`) on first use, so this one command is enough to go from zero to a working agent integration.
 
 ## Authentication
 

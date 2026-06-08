@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 
 interface JobStatus {
   jobId: string;
@@ -11,7 +11,7 @@ export async function pollJob(
   client: AxiosInstance,
   jobId: string,
   intervalMs = 2000,
-  timeoutMs = 300_000
+  timeoutMs = 300_000,
 ): Promise<unknown> {
   process.stderr.write(`Waiting for job ${jobId}…\n`);
   const deadline = Date.now() + timeoutMs;
@@ -35,5 +35,5 @@ export async function pollJob(
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

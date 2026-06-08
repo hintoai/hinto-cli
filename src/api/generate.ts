@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 
 export interface Job {
   jobId: string;
@@ -12,24 +12,29 @@ export interface Job {
 
 export const generateApi = (client: AxiosInstance) => ({
   start: (videoId: string, templateId?: number, callbackUrl?: string, callbackSecret?: string) =>
-    client.post<Job>(
-      '/generate',
-      {
+    client
+      .post<Job>('/generate', {
         videoId,
         ...(templateId !== undefined ? { templateId } : {}),
         ...(callbackUrl ? { callbackUrl } : {}),
         ...(callbackSecret ? { callbackSecret } : {}),
-      }
-    ).then(r => r.data),
+      })
+      .then((r) => r.data),
 
-  status: (jobId: string) =>
-    client.get<Job>(`/generate/${jobId}`).then(r => r.data),
+  status: (jobId: string) => client.get<Job>(`/generate/${jobId}`).then((r) => r.data),
 
-  structure: (videoId: string, templateId?: number, callbackUrl?: string, callbackSecret?: string) =>
-    client.post<Job>('/generate/structure', {
-      videoId,
-      ...(templateId !== undefined ? { templateId } : {}),
-      ...(callbackUrl ? { callbackUrl } : {}),
-      ...(callbackSecret ? { callbackSecret } : {}),
-    }).then(r => r.data),
+  structure: (
+    videoId: string,
+    templateId?: number,
+    callbackUrl?: string,
+    callbackSecret?: string,
+  ) =>
+    client
+      .post<Job>('/generate/structure', {
+        videoId,
+        ...(templateId !== undefined ? { templateId } : {}),
+        ...(callbackUrl ? { callbackUrl } : {}),
+        ...(callbackSecret ? { callbackSecret } : {}),
+      })
+      .then((r) => r.data),
 });

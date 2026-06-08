@@ -43,7 +43,9 @@ describe('projectApi.listLanguages', () => {
     expect(result.languages[1].code).toBe('fr');
     expect(result.languages[1].label).toBe('French');
     // Verify that languageCode is not present (it was the old broken field name)
-    expect((result.languages[0] as unknown as Record<string, unknown>).languageCode).toBeUndefined();
+    expect(
+      (result.languages[0] as unknown as Record<string, unknown>).languageCode,
+    ).toBeUndefined();
   });
 
   it('returns translatedArticles, totalArticles and isTranslating', async () => {
@@ -72,12 +74,10 @@ describe('projectApi.listLanguages', () => {
 
 describe('projectApi.addLanguage', () => {
   it('posts languageCode in body and returns confirmation', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/project/languages', { languageCode: 'fr' })
-      .reply(201, {
-        languageCode: 'fr',
-        message: 'Language added and translation jobs queued',
-      });
+    nock(BASE_URL).post('/api/external/v2/project/languages', { languageCode: 'fr' }).reply(201, {
+      languageCode: 'fr',
+      message: 'Language added and translation jobs queued',
+    });
 
     const result = await api.addLanguage('fr');
     expect(result.languageCode).toBe('fr');
@@ -85,12 +85,10 @@ describe('projectApi.addLanguage', () => {
   });
 
   it('posts the correct language code', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/project/languages', { languageCode: 'de' })
-      .reply(201, {
-        languageCode: 'de',
-        message: 'Language added and translation jobs queued',
-      });
+    nock(BASE_URL).post('/api/external/v2/project/languages', { languageCode: 'de' }).reply(201, {
+      languageCode: 'de',
+      message: 'Language added and translation jobs queued',
+    });
 
     const result = await api.addLanguage('de');
     expect(result.languageCode).toBe('de');
@@ -126,17 +124,15 @@ describe('projectApi.get', () => {
 
 describe('projectApi.retranslate', () => {
   it('posts to retranslate endpoint and returns a Job object', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/project/languages/fr/retranslate')
-      .reply(202, {
-        jobId: 'job-abc-123',
-        type: 'retranslate',
-        status: 'pending',
-        output: null,
-        error: null,
-        createdAt: '2026-01-01T00:00:00Z',
-        completedAt: null,
-      });
+    nock(BASE_URL).post('/api/external/v2/project/languages/fr/retranslate').reply(202, {
+      jobId: 'job-abc-123',
+      type: 'retranslate',
+      status: 'pending',
+      output: null,
+      error: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      completedAt: null,
+    });
 
     const result = await api.retranslate('fr');
     expect(result.jobId).toBe('job-abc-123');
@@ -146,17 +142,15 @@ describe('projectApi.retranslate', () => {
   });
 
   it('posts to retranslate endpoint with the correct language code', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/project/languages/de/retranslate')
-      .reply(202, {
-        jobId: 'job-def-456',
-        type: 'retranslate',
-        status: 'pending',
-        output: null,
-        error: null,
-        createdAt: '2026-01-01T00:00:00Z',
-        completedAt: null,
-      });
+    nock(BASE_URL).post('/api/external/v2/project/languages/de/retranslate').reply(202, {
+      jobId: 'job-def-456',
+      type: 'retranslate',
+      status: 'pending',
+      output: null,
+      error: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      completedAt: null,
+    });
 
     const result = await api.retranslate('de');
     expect(result.jobId).toBe('job-def-456');
@@ -183,17 +177,15 @@ describe('projectApi.retranslate', () => {
   });
 
   it('omits callbackUrl and callbackSecret from body when not provided', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/project/languages/es/retranslate', {})
-      .reply(202, {
-        jobId: 'job-no-callback',
-        type: 'retranslate',
-        status: 'pending',
-        output: null,
-        error: null,
-        createdAt: '2026-01-01T00:00:00Z',
-        completedAt: null,
-      });
+    nock(BASE_URL).post('/api/external/v2/project/languages/es/retranslate', {}).reply(202, {
+      jobId: 'job-no-callback',
+      type: 'retranslate',
+      status: 'pending',
+      output: null,
+      error: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      completedAt: null,
+    });
 
     const result = await api.retranslate('es');
     expect(result.jobId).toBe('job-no-callback');

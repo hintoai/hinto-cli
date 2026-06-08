@@ -18,13 +18,20 @@ This skill covers all Hinto terminal workflows: installation, authentication, ev
 
 ## Installation
 
-```bash
-# 1. Install the CLI globally
-npm install -g @hinto/cli
+This skill drives the `hinto` CLI. Before running any command, make sure the CLI is installed — if `hinto` is not on PATH, install it first:
 
-# 2. Copy this skill to your Claude skills directory
-cp -r <hinto-cli-repo>/skills/hinto-cli ~/.claude/skills/hinto-cli
+```bash
+# Install (or update) the CLI globally
+npm install -g @hintoai/cli
+
+# Verify
+hinto --version
 ```
+
+Then authenticate (see below). If a `hinto` command fails with "command not found", re-run the install step above.
+
+> Installing this skill itself (for any agent) is done with the universal skills CLI:
+> `npx skills add hintoai/hinto-cli`
 
 ## Authentication
 

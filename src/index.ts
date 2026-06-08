@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { loadConfig } from './config';
 import { createClient } from './api/client';
-import { exitWithError } from './errors';
-import { registerInit } from './commands/init';
-import { registerVideos } from './commands/videos';
 import { registerArticles } from './commands/articles';
+import { registerExport } from './commands/export';
 import { registerFolders } from './commands/folders';
 import { registerGenerate } from './commands/generate';
+import { registerInit } from './commands/init';
 import { registerProject } from './commands/project';
 import { registerPublish } from './commands/publish';
 import { registerTemplates } from './commands/templates';
-import { registerExport } from './commands/export';
+import { registerVideos } from './commands/videos';
+import { loadConfig } from './config';
+import { exitWithError } from './errors';
 
 const program = new Command();
 
@@ -28,8 +28,11 @@ registerInit(program);
 // works on all subcommands. The client's interceptor returns a helpful
 // UNAUTHORIZED message when a command is actually invoked without a valid key.
 const config = (() => {
-  try { return loadConfig(); }
-  catch { return { apiKey: process.env.HINTO_API_KEY ?? '', baseUrl: 'https://app.hinto.ai' }; }
+  try {
+    return loadConfig();
+  } catch {
+    return { apiKey: process.env.HINTO_API_KEY ?? '', baseUrl: 'https://app.hinto.ai' };
+  }
 })();
 
 const apiUrl = (() => {

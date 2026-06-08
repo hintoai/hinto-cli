@@ -21,9 +21,13 @@ const mockJob = (jobId: string, type: string) => ({
 describe('publishApi.status', () => {
   it('returns publish status', async () => {
     nock(BASE_URL).get('/api/external/v2/publish/status').reply(200, {
-      isPublished: true, publishedAt: '2026-01-01', slug: 'my-docs',
-      url: 'https://my-docs.hintoai.com', publicationId: 'pub-1',
-      articlesCount: 5, foldersCount: 2,
+      isPublished: true,
+      publishedAt: '2026-01-01',
+      slug: 'my-docs',
+      url: 'https://my-docs.hintoai.com',
+      publicationId: 'pub-1',
+      articlesCount: 5,
+      foldersCount: 2,
     });
     const result = await api.status();
     expect(result.status).toBe('published');
@@ -42,7 +46,10 @@ describe('publishApi.now', () => {
 
   it('sends callbackUrl and callbackSecret in request body when provided', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/publish', { callbackUrl: 'https://example.com/hook', callbackSecret: 'secret123' })
+      .post('/api/external/v2/publish', {
+        callbackUrl: 'https://example.com/hook',
+        callbackSecret: 'secret123',
+      })
       .reply(202, mockJob('job-publish-2', 'publish'));
     const result = await api.now('https://example.com/hook', 'secret123');
     expect(result.jobId).toBe('job-publish-2');
@@ -59,7 +66,9 @@ describe('publishApi.now', () => {
 
 describe('publishApi.republish', () => {
   it('returns a Job object with jobId', async () => {
-    nock(BASE_URL).post('/api/external/v2/publish/republish').reply(202, mockJob('job-republish-1', 'republish'));
+    nock(BASE_URL)
+      .post('/api/external/v2/publish/republish')
+      .reply(202, mockJob('job-republish-1', 'republish'));
     const result = await api.republish();
     expect(result.jobId).toBe('job-republish-1');
     expect(result.type).toBe('republish');
@@ -68,7 +77,10 @@ describe('publishApi.republish', () => {
 
   it('sends callbackUrl and callbackSecret in request body when provided', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/publish/republish', { callbackUrl: 'https://example.com/hook', callbackSecret: 'mysecret' })
+      .post('/api/external/v2/publish/republish', {
+        callbackUrl: 'https://example.com/hook',
+        callbackSecret: 'mysecret',
+      })
       .reply(202, mockJob('job-republish-2', 'republish'));
     const result = await api.republish('https://example.com/hook', 'mysecret');
     expect(result.jobId).toBe('job-republish-2');

@@ -12,7 +12,9 @@ describe('CliError', () => {
 describe('exitWithError', () => {
   it('writes to stderr and calls process.exit(1)', () => {
     const stderrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => { throw new Error('exit'); });
+    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {
+      throw new Error('exit');
+    });
 
     expect(() => exitWithError('Something went wrong')).toThrow('exit');
     expect(stderrSpy).toHaveBeenCalledWith(expect.stringContaining('Something went wrong'));

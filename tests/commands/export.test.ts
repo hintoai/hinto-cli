@@ -10,9 +10,7 @@ afterEach(() => nock.cleanAll());
 
 describe('exportApi.article', () => {
   it('fetches article content by id', async () => {
-    nock(BASE_URL)
-      .get('/api/external/v2/export/articles/article-1')
-      .reply(200, '# Hello World');
+    nock(BASE_URL).get('/api/external/v2/export/articles/article-1').reply(200, '# Hello World');
 
     const result = await api.article('article-1');
     expect(result).toBe('# Hello World');

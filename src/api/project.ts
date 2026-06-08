@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 
 export interface Project {
   id: string;
@@ -26,24 +26,26 @@ export interface Language {
 }
 
 export const projectApi = (client: AxiosInstance) => ({
-  get: () =>
-    client.get<{ project: Project }>('/project').then(r => r.data),
+  get: () => client.get<{ project: Project }>('/project').then((r) => r.data),
 
   update: (body: { name?: string }) =>
-    client.patch<{ project: Project }>('/project', body).then(r => r.data),
+    client.patch<{ project: Project }>('/project', body).then((r) => r.data),
 
-  structure: () =>
-    client.get<unknown>('/project/structure').then(r => r.data),
+  structure: () => client.get<unknown>('/project/structure').then((r) => r.data),
 
   listLanguages: () =>
-    client.get<{ languages: Language[] }>('/project/languages').then(r => r.data),
+    client.get<{ languages: Language[] }>('/project/languages').then((r) => r.data),
 
   retranslate: (code: string, callbackUrl?: string, callbackSecret?: string) =>
-    client.post<import('./generate').Job>(`/project/languages/${code}/retranslate`, {
-      ...(callbackUrl ? { callbackUrl } : {}),
-      ...(callbackSecret ? { callbackSecret } : {}),
-    }).then(r => r.data),
+    client
+      .post<import('./generate').Job>(`/project/languages/${code}/retranslate`, {
+        ...(callbackUrl ? { callbackUrl } : {}),
+        ...(callbackSecret ? { callbackSecret } : {}),
+      })
+      .then((r) => r.data),
 
   addLanguage: (languageCode: string) =>
-    client.post<{ languageCode: string; message: string }>('/project/languages', { languageCode }).then(r => r.data),
+    client
+      .post<{ languageCode: string; message: string }>('/project/languages', { languageCode })
+      .then((r) => r.data),
 });

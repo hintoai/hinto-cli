@@ -1,6 +1,6 @@
 import nock from 'nock';
-import { createClient } from '../../src/api/client';
 import { articlesApi } from '../../src/api/articles';
+import { createClient } from '../../src/api/client';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -55,9 +55,7 @@ describe('articlesApi.create', () => {
 
 describe('articlesApi.delete', () => {
   it('calls DELETE', async () => {
-    nock(BASE_URL)
-      .delete('/api/external/v2/articles/1')
-      .reply(204);
+    nock(BASE_URL).delete('/api/external/v2/articles/1').reply(204);
 
     await expect(api.delete('1')).resolves.not.toThrow();
   });
@@ -76,17 +74,15 @@ describe('articlesApi.duplicate', () => {
 
 describe('articlesApi.triggerTranslate', () => {
   it('posts to translations endpoint and returns a Job object', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/articles/123/translations/fr')
-      .reply(202, {
-        jobId: 'job-translate-123',
-        type: 'translate_article',
-        status: 'pending',
-        output: null,
-        error: null,
-        createdAt: '2026-01-01T00:00:00Z',
-        completedAt: null,
-      });
+    nock(BASE_URL).post('/api/external/v2/articles/123/translations/fr').reply(202, {
+      jobId: 'job-translate-123',
+      type: 'translate_article',
+      status: 'pending',
+      output: null,
+      error: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      completedAt: null,
+    });
 
     const result = await api.triggerTranslate('123', 'fr');
     expect(result.jobId).toBe('job-translate-123');
@@ -96,7 +92,9 @@ describe('articlesApi.triggerTranslate', () => {
 
   it('includes callbackUrl in request body when provided', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/articles/123/translations/de', { callbackUrl: 'https://cb.example.com' })
+      .post('/api/external/v2/articles/123/translations/de', {
+        callbackUrl: 'https://cb.example.com',
+      })
       .reply(202, {
         jobId: 'job-translate-cb',
         type: 'translate_article',
@@ -112,17 +110,15 @@ describe('articlesApi.triggerTranslate', () => {
   });
 
   it('sends empty body when no callback fields provided', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/articles/123/translations/es', {})
-      .reply(202, {
-        jobId: 'job-translate-no-cb',
-        type: 'translate_article',
-        status: 'pending',
-        output: null,
-        error: null,
-        createdAt: '2026-01-01T00:00:00Z',
-        completedAt: null,
-      });
+    nock(BASE_URL).post('/api/external/v2/articles/123/translations/es', {}).reply(202, {
+      jobId: 'job-translate-no-cb',
+      type: 'translate_article',
+      status: 'pending',
+      output: null,
+      error: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      completedAt: null,
+    });
 
     const result = await api.triggerTranslate('123', 'es');
     expect(result.jobId).toBe('job-translate-no-cb');
@@ -192,9 +188,7 @@ const mockTranslation = {
 
 describe('articlesApi.getTranslation', () => {
   it('fetches translation without format param by default', async () => {
-    nock(BASE_URL)
-      .get('/api/external/v2/articles/1/translations/fr')
-      .reply(200, mockTranslation);
+    nock(BASE_URL).get('/api/external/v2/articles/1/translations/fr').reply(200, mockTranslation);
 
     const result = await api.getTranslation('1', 'fr');
     expect(result.languageCode).toBe('fr');
@@ -235,9 +229,7 @@ const mockArticleDetail = {
 
 describe('articlesApi.createEmpty', () => {
   it('creates an empty article with no arguments', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/articles/empty', {})
-      .reply(201, mockArticleDetail);
+    nock(BASE_URL).post('/api/external/v2/articles/empty', {}).reply(201, mockArticleDetail);
 
     const result = await api.createEmpty({});
     expect(result.id).toBe(99);
@@ -263,9 +255,7 @@ describe('articlesApi.createEmpty', () => {
   });
 
   it('omits optional fields when not provided', async () => {
-    nock(BASE_URL)
-      .post('/api/external/v2/articles/empty', {})
-      .reply(201, mockArticleDetail);
+    nock(BASE_URL).post('/api/external/v2/articles/empty', {}).reply(201, mockArticleDetail);
 
     const result = await api.createEmpty({});
     expect(result.id).toBe(99);

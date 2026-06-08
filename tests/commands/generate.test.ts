@@ -20,7 +20,9 @@ const mockJob = (jobId: string) => ({
 
 describe('generateApi.start', () => {
   it('starts a generation job with templateId', async () => {
-    nock(BASE_URL).post('/api/external/v2/generate', { videoId: 'v1', templateId: 42 }).reply(202, mockJob('j1'));
+    nock(BASE_URL)
+      .post('/api/external/v2/generate', { videoId: 'v1', templateId: 42 })
+      .reply(202, mockJob('j1'));
     const result = await api.start('v1', 42);
     expect(result.jobId).toBe('j1');
   });
@@ -44,7 +46,9 @@ describe('generateApi.start', () => {
   });
 
   it('omits callback fields when not provided', async () => {
-    nock(BASE_URL).post('/api/external/v2/generate', { videoId: 'v1', templateId: 5 }).reply(202, mockJob('j4'));
+    nock(BASE_URL)
+      .post('/api/external/v2/generate', { videoId: 'v1', templateId: 5 })
+      .reply(202, mockJob('j4'));
     const result = await api.start('v1', 5);
     expect(result.jobId).toBe('j4');
   });
@@ -53,7 +57,11 @@ describe('generateApi.start', () => {
 describe('generateApi.status', () => {
   it('returns job status', async () => {
     nock(BASE_URL).get('/api/external/v2/generate/j1').reply(200, {
-      jobId: 'j1', type: 'generate', status: 'completed', output: {}, createdAt: '2026-01-01',
+      jobId: 'j1',
+      type: 'generate',
+      status: 'completed',
+      output: {},
+      createdAt: '2026-01-01',
     });
     const result = await api.status('j1');
     expect(result.status).toBe('completed');

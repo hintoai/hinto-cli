@@ -1,6 +1,6 @@
-import { Command } from 'commander';
-import { AxiosInstance } from 'axios';
 import fs from 'fs';
+import type { AxiosInstance } from 'axios';
+import type { Command } from 'commander';
 import { exportApi } from '../api/export';
 import { exitWithError } from '../errors';
 
@@ -17,11 +17,16 @@ export function registerExport(program: Command, client: AxiosInstance): void {
     .action(async (id: string, opts: { format: string; out?: string; lang?: string }) => {
       try {
         // API accepts 'markdown' not 'md'
-        const apiFormat = (opts.format === 'md' ? 'markdown' : opts.format) as 'markdown' | 'html' | 'pdf';
+        const apiFormat = (opts.format === 'md' ? 'markdown' : opts.format) as
+          | 'markdown'
+          | 'html'
+          | 'pdf';
         const isPdf = apiFormat === 'pdf';
 
         if (isPdf && !opts.out) {
-          exitWithError('--out <path> is required for PDF export (binary output cannot be printed to stdout)');
+          exitWithError(
+            '--out <path> is required for PDF export (binary output cannot be printed to stdout)',
+          );
           return;
         }
 
@@ -35,9 +40,11 @@ export function registerExport(program: Command, client: AxiosInstance): void {
           }
           process.stdout.write(`Saved to ${opts.out}\n`);
         } else {
-          process.stdout.write((data as string) + '\n');
+          process.stdout.write(`${data as string}\n`);
         }
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   exportCmd
@@ -49,20 +56,28 @@ export function registerExport(program: Command, client: AxiosInstance): void {
         const data = await api.folder(id);
         fs.writeFileSync(opts.out, data);
         process.stdout.write(`Folder exported to ${opts.out}\n`);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   exportCmd
     .command('project')
     .description('Export the full project as zip')
     .requiredOption('--out <path>', 'Output zip file path')
-    .option('--format <fmt>', 'Export format: markdown (default), html, pdf, or llm-text', 'markdown')
+    .option(
+      '--format <fmt>',
+      'Export format: markdown (default), html, pdf, or llm-text',
+      'markdown',
+    )
     .action(async (opts: { out: string; format: string }) => {
       try {
-        const fmt = opts.format as 'markdown' | 'html' | 'pdf' | 'llm-text'
+        const fmt = opts.format as 'markdown' | 'html' | 'pdf' | 'llm-text';
         const data = await api.project(fmt);
         fs.writeFileSync(opts.out, data);
         process.stdout.write(`Project exported to ${opts.out}\n`);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 }

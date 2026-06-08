@@ -1,6 +1,6 @@
 import nock from 'nock';
-import { pollJob } from '../src/poll';
 import { createClient } from '../src/api/client';
+import { pollJob } from '../src/poll';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
