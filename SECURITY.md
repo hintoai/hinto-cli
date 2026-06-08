@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-Email **security@hinto.ai** with details. Do not open a public issue for
+Email **contact@hintoai.com** with details. Do not open a public issue for
 security reports. We aim to acknowledge within 3 business days.
 
 ## Handling of credentials
