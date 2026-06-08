@@ -13,7 +13,7 @@
     "node": ">=20"
   },
   "license": "MIT",
-  "homepage": "https://github.com/hintoai/hinto-cli#readme",
+  "homepage": "https://hintoai.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hintoai/hinto-cli.git"

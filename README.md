@@ -4,7 +4,9 @@
 [![CI](https://github.com/hintoai/hinto-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/hintoai/hinto-cli/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-Command-line interface for the [Hinto AI](https://hinto.ai) API. Manage videos, articles, folders, templates, and publishing from your terminal or from AI agents and scripts.
+Command-line interface for [**Hinto AI**](https://hintoai.com) — turn videos into articles, docs, and published content. Manage videos, articles, folders, templates, and publishing from your terminal or from AI agents and scripts.
+
+> New to Hinto AI? Create a project and grab your API key at **[hintoai.com](https://hintoai.com)**.
 
 ## Installation
 
@@ -427,3 +429,14 @@ cp -r skills/hinto-cli/. ~/.claude/skills/hinto-cli/
 2. The usage examples in this `README.md`
 
 Then copy and commit together so the repo and the local skill stay in sync.
+
+---
+
+## About Hinto AI
+
+[Hinto AI](https://hintoai.com) turns videos into SEO-ready articles, documentation, and published content sites. This CLI is the terminal interface to the [Hinto AI API](https://hintoai.com).
+
+- 🌐 Website: **[hintoai.com](https://hintoai.com)**
+- 📦 npm: [@hintoai/cli](https://www.npmjs.com/package/@hintoai/cli)
+- 🤖 Use from an AI agent: `npx skills add hintoai/hinto-cli`
+- 📄 License: [MIT](./LICENSE)
