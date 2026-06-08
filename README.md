@@ -6,7 +6,7 @@
 
 Command-line interface for [**Hinto AI**](https://hintoai.com) — turn videos into articles, docs, and published content. Manage videos, articles, folders, templates, and publishing from your terminal or from AI agents and scripts.
 
-> New to Hinto AI? Create a project at **[hintoai.com](https://hintoai.com)**, then grab a per-project API key from the project's **Settings → API Keys & Webhooks** in the [app](https://app.hinto.ai).
+> New to Hinto AI? Create a project at **[hintoai.com](https://hintoai.com)**, then grab a per-project API key from the project's **Settings → API Keys & Webhooks** in the [app](https://app.hintoai.com).
 
 ## Installation
 
@@ -30,7 +30,7 @@ The skill bootstraps the CLI itself (`npm install -g @hintoai/cli`) on first use
 
 ## Authentication
 
-**Get your API key** from the project it belongs to — keys are per-project, not account-wide: open the project in the [Hinto app](https://app.hinto.ai) → **Settings** → **API Keys & Webhooks** → **New Api Key**.
+**Get your API key** from the project it belongs to — keys are per-project, not account-wide: open the project in the [Hinto app](https://app.hintoai.com) → **Settings** → **API Keys & Webhooks** → **New Api Key**.
 
 Run `init` once with your API key to store credentials locally:
 
@@ -129,7 +129,7 @@ Templates are automatically scoped to your project type.
       "name": "Tutorial",
       "description": "Step-by-step guide format",
       "requires_video": true,
-      "image_url": "https://cdn.hinto.ai/templates/tutorial.png",
+      "image_url": "https://cdn.hintoai.com/templates/tutorial.png",
       "sort_order": 1
     }
   ]
