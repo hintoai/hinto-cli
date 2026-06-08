@@ -1,6 +1,6 @@
 {
   "name": "@hintoai/cli",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Hinto AI CLI — manage videos, articles, and publishing via the Hinto API",
   "main": "dist/index.js",
   "bin": {
