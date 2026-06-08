@@ -1,12 +1,14 @@
 {
   "name": "@hintoai/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Hinto AI CLI — manage videos, articles, and publishing via the Hinto API",
   "main": "dist/index.js",
   "bin": {
     "hinto": "./dist/index.js"
   },
-  "files": ["dist/"],
+  "files": [
+    "dist/"
+  ],
   "engines": {
     "node": ">=18"
   },
@@ -19,7 +21,15 @@
   "bugs": {
     "url": "https://github.com/hintoai/hinto-cli/issues"
   },
-  "keywords": ["hinto", "cli", "video", "articles", "publishing", "ai", "agent-skill"],
+  "keywords": [
+    "hinto",
+    "cli",
+    "video",
+    "articles",
+    "publishing",
+    "ai",
+    "agent-skill"
+  ],
   "publishConfig": {
     "access": "public",
     "provenance": true
