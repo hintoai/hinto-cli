@@ -36,4 +36,10 @@ describe('saveConfig / loadConfig', () => {
     const loaded = loadConfig();
     expect(loaded.apiKey).toBe('env_key_override');
   });
+
+  it('writes the config file with 0600 permissions', () => {
+    saveConfig(TEST_CONFIG);
+    const mode = fs.statSync(CONFIG_PATH).mode & 0o777;
+    expect(mode).toBe(0o600);
+  });
 });
