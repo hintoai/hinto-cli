@@ -1,5 +1,13 @@
 # @hintoai/cli
 
+## 0.4.0
+
+### Minor Changes
+
+- 143ddb9: `hinto articles update` now supports `--content <md|@file>` to replace an
+  article's body, so you no longer need to delete + recreate to change body text.
+  Requires the API release that added content updates to `PUT /articles/:id`.
+
 ## 0.3.5
 
 ### Patch Changes
