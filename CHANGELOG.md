@@ -1,5 +1,12 @@
 # @hintoai/cli
 
+## 0.3.1
+
+### Patch Changes
+
+- b3bbbdb: Point the package `homepage` to hintoai.com and add an "About Hinto AI" section
+  with site links to the README.
+
 ## 0.3.0
 
 ### Minor Changes
