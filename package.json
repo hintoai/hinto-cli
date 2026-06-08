@@ -58,7 +58,7 @@
     "@biomejs/biome": "1.9.4",
     "@changesets/cli": "^2.31.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20.0.0",
+    "@types/node": "^25.9.2",
     "jest": "^30.4.2",
     "nock": "^13.5.0",
     "ts-jest": "^29.4.11",
