@@ -2,6 +2,7 @@
 import { Command } from 'commander';
 import { createClient } from './api/client';
 import { registerArticles } from './commands/articles';
+import { registerCompletion } from './commands/completion';
 import { registerExport } from './commands/export';
 import { registerFolders } from './commands/folders';
 import { registerGenerate } from './commands/generate';
@@ -25,8 +26,9 @@ program
   .version(version)
   .option('--api-url <url>', 'Override the Hinto base URL');
 
-// init doesn't need auth — register first
+// init and completion don't need auth — register first
 registerInit(program);
+registerCompletion(program);
 
 // Load config eagerly. If missing, fall back to empty key so --help still
 // works on all subcommands. The client's interceptor returns a helpful
