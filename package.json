@@ -1,5 +1,5 @@
 {
-  "name": "@hinto/cli",
+  "name": "@hintoai/cli",
   "version": "0.1.0",
   "description": "Hinto AI CLI — manage videos, articles, and publishing via the Hinto API",
   "main": "dist/index.js",
@@ -12,11 +12,39 @@
   "engines": {
     "node": ">=18"
   },
+  "license": "MIT",
+  "homepage": "https://github.com/hintoai/hinto-cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hintoai/hinto-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hintoai/hinto-cli/issues"
+  },
+  "keywords": [
+    "hinto",
+    "cli",
+    "video",
+    "articles",
+    "publishing",
+    "ai",
+    "agent-skill"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "validate:skill": "node scripts/validate-skill.mjs",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "npm run build && changeset publish",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
