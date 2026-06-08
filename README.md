@@ -1,5 +1,9 @@
 # @hintoai/cli
 
+[![npm version](https://img.shields.io/npm/v/@hintoai/cli.svg)](https://www.npmjs.com/package/@hintoai/cli)
+[![CI](https://github.com/hintoai/hinto-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/hintoai/hinto-cli/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 Command-line interface for the [Hinto AI](https://hinto.ai) API. Manage videos, articles, folders, templates, and publishing from your terminal or from AI agents and scripts.
 
 ## Installation
@@ -31,6 +35,30 @@ hinto init --key <your-api-key>
 ```
 
 Credentials are stored in `~/.hinto/config.json` with `0600` permissions (owner-read only). You can override the stored key at any time with the `HINTO_API_KEY` environment variable — the env var always takes precedence.
+
+## Quickstart
+
+```bash
+npm install -g @hintoai/cli
+hinto init --key <your-api-key>
+hinto videos upload --file ./demo.mp4 --json
+hinto templates article --json
+hinto generate start --video <videoId> --template <templateId> --wait --json
+hinto publish now --json
+```
+
+## Shell completions
+
+```bash
+# bash (add to ~/.bashrc)
+eval "$(hinto completion bash)"
+
+# zsh (add to ~/.zshrc)
+eval "$(hinto completion zsh)"
+
+# fish
+hinto completion fish | source
+```
 
 ## Global flags
 
