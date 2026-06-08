@@ -1,5 +1,13 @@
 # @hintoai/cli
 
+## 0.3.2
+
+### Patch Changes
+
+- fa0185d: Skill: make the npm package name (`@hintoai/cli`) unmissable and add explicit
+  upgrade instructions, so agents stop guessing the non-existent `@hinto/cli` when
+  asked to install or upgrade.
+
 ## 0.3.1
 
 ### Patch Changes
