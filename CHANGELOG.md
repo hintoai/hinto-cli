@@ -1,5 +1,18 @@
 # @hintoai/cli
 
+## 0.3.5
+
+### Patch Changes
+
+- 59f8378: Add CLAUDE.md (canonical contributor/agent working guide) and AGENTS.md pointer,
+  documenting repo layout, conventions, the add-a-command checklist, the
+  Changesets + OIDC release pipeline and its org-policy workarounds, and the
+  skill-distribution model.
+- fa0aa88: Isolate config-file tests from the real `~/.hinto/config.json` and from each other,
+  fixing intermittent CI flakiness (parallel test files racing on the shared config
+  path). `config.ts` now resolves its path lazily via `configPath()` and honors a
+  `HINTO_CONFIG_DIR` override; tests point it at a per-worker temp dir.
+
 ## 0.3.4
 
 ### Patch Changes
