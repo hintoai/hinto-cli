@@ -1,6 +1,6 @@
-import fs from 'fs';
 import type { AxiosInstance } from 'axios';
 import type { Command } from 'commander';
+import fs from 'fs';
 import { exportApi } from '../api/export';
 import { exitWithError } from '../errors';
 

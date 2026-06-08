@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosError } from 'axios';
+import axios, { type AxiosError, type AxiosInstance } from 'axios';
 import { CliError } from '../errors';
 
 export function createClient(apiKey: string, baseUrl: string): AxiosInstance {

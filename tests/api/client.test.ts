@@ -1,6 +1,5 @@
 import nock from 'nock';
 import { createClient } from '../../src/api/client';
-import { CliError } from '../../src/errors';
 
 const BASE_URL = 'https://app.hinto.ai';
 

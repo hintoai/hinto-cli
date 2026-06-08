@@ -1,8 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import type { AxiosInstance } from 'axios';
 import axios from 'axios';
 import type { Command } from 'commander';
+import * as fs from 'fs';
+import * as path from 'path';
 import { videosApi } from '../api/videos';
 import { exitWithError } from '../errors';
 import { printJson, printKeyValue, printTable } from '../output';

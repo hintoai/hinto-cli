@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import type { AxiosInstance } from 'axios';
 import type { Command } from 'commander';
+import fs from 'fs';
+import path from 'path';
 import { articlesApi } from '../api/articles';
 import { exitWithError } from '../errors';
 import { printJson, printKeyValue, printTable } from '../output';

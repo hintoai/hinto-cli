@@ -21,10 +21,10 @@ _hinto() {
   cur="\${COMP_WORDS[COMP_CWORD]}"
   groups="${GROUPS.join(' ')}"
   flags="${GLOBAL_FLAGS.join(' ')}"
-  if [ "\$COMP_CWORD" -eq 1 ]; then
-    COMPREPLY=( \$(compgen -W "\$groups" -- "\$cur") )
+  if [ "$COMP_CWORD" -eq 1 ]; then
+    COMPREPLY=( $(compgen -W "$groups" -- "$cur") )
   else
-    COMPREPLY=( \$(compgen -W "\$flags" -- "\$cur") )
+    COMPREPLY=( $(compgen -W "$flags" -- "$cur") )
   fi
 }
 complete -F _hinto hinto
