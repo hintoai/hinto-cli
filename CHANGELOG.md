@@ -1,5 +1,13 @@
 # @hintoai/cli
 
+## 0.3.3
+
+### Patch Changes
+
+- 9708b2c: Document where to get the API key: keys are per-project, created at Project
+  Settings → API Keys & Webhooks → New Api Key in the Hinto app. Fixes agents/users
+  looking for a non-existent account-level key page.
+
 ## 0.3.2
 
 ### Patch Changes
