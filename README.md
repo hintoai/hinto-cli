@@ -6,7 +6,7 @@
 
 Command-line interface for [**Hinto AI**](https://hintoai.com) — turn videos into articles, docs, and published content. Manage videos, articles, folders, templates, and publishing from your terminal or from AI agents and scripts.
 
-> New to Hinto AI? Create a project and grab your API key at **[hintoai.com](https://hintoai.com)**.
+> New to Hinto AI? Create a project at **[hintoai.com](https://hintoai.com)**, then grab a per-project API key from the project's **Settings → API Keys & Webhooks** in the [app](https://app.hinto.ai).
 
 ## Installation
 
@@ -29,6 +29,8 @@ npx skills add hintoai/hinto-cli -a claude-code -a cursor
 The skill bootstraps the CLI itself (`npm install -g @hintoai/cli`) on first use, so this one command is enough to go from zero to a working agent integration.
 
 ## Authentication
+
+**Get your API key** from the project it belongs to — keys are per-project, not account-wide: open the project in the [Hinto app](https://app.hinto.ai) → **Settings** → **API Keys & Webhooks** → **New Api Key**.
 
 Run `init` once with your API key to store credentials locally:
 

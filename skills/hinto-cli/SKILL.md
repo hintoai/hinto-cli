@@ -47,6 +47,17 @@ Then authenticate (see below). If a `hinto` command fails with "command not foun
 
 ## Authentication
 
+### Where to get the API key
+
+API keys are **per project** (not account-wide) — each key is scoped to a single project, and the CLI acts on whichever project the key belongs to. To create one:
+
+1. Open the project in the Hinto app (`https://app.hinto.ai`).
+2. Click **Settings** (top bar) to open **Project Settings**.
+3. Go to **API Keys & Webhooks** → **API Keys** tab.
+4. Click **New Api Key** and copy the generated key.
+
+### Configuring the key
+
 Prefer the environment variable — it works in CI and overrides the config file:
 
 ```bash
