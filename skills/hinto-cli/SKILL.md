@@ -51,7 +51,7 @@ Then authenticate (see below). If a `hinto` command fails with "command not foun
 
 API keys are **per project** (not account-wide) — each key is scoped to a single project, and the CLI acts on whichever project the key belongs to. To create one:
 
-1. Open the project in the Hinto app (`https://app.hinto.ai`).
+1. Open the project in the Hinto app (`https://app.hintoai.com`).
 2. Click **Settings** (top bar) to open **Project Settings**.
 3. Go to **API Keys & Webhooks** → **API Keys** tab.
 4. Click **New Api Key** and copy the generated key.
@@ -74,9 +74,9 @@ hinto init --key hinto_...
 To target staging or a self-hosted instance, use `--api-url`:
 
 ```bash
-hinto init --key hinto_... --api-url https://staging.hinto.ai
+hinto init --key hinto_... --api-url https://staging.hintoai.com
 # or per-command:
-hinto articles list --api-url https://staging.hinto.ai
+hinto articles list --api-url https://staging.hintoai.com
 ```
 
 ## Global Flags

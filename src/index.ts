@@ -37,7 +37,7 @@ const config = (() => {
   try {
     return loadConfig();
   } catch {
-    return { apiKey: process.env.HINTO_API_KEY ?? '', baseUrl: 'https://app.hinto.ai' };
+    return { apiKey: process.env.HINTO_API_KEY ?? '', baseUrl: 'https://app.hintoai.com' };
   }
 })();
 
