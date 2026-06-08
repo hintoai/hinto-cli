@@ -1,5 +1,7 @@
 # Contributing to @hintoai/cli
 
+> For the full architecture, conventions, release pipeline, and gotchas, see **[CLAUDE.md](./CLAUDE.md)** — it's the canonical working guide (for humans and AI agents alike).
+
 ## Setup
 
 ```bash
