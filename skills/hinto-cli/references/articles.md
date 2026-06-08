@@ -138,18 +138,21 @@ hinto articles create-empty [--title "..."] [--folder <id>] [--json]
 
 ### `hinto articles update <id>`
 
-Update an article's title, slug, or SEO fields. **Does not update article content (body text)** — there is no `--content` flag. To re-generate content via AI, use `hinto articles regenerate <id>` instead.
+Update an article's title, slug, body content, or SEO fields. Use `--content` to replace the body with Markdown (string or `@filepath`). To re-generate content from the source video via AI instead, use `hinto articles regenerate <id>`.
 
 ```bash
-hinto articles update <id> [--title "..."] [--slug "..."] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--json]
+hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body" | --content @body.md] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--title <title>` | No | New title |
 | `--slug <slug>` | No | New URL slug |
+| `--content <md>` | No | New Markdown body (string or `@filepath`) — replaces the body |
 | `--meta-description <text>` | No | SEO meta description |
 | `--meta-keywords <keywords>` | No | Comma-separated SEO keywords |
+
+> Updating `--content` replaces the article body, snapshots a version, and re-translates any existing translations. Requires API ≥ the release that added content updates. At least one field is required.
 
 **`--json` response:** the full article object (same shape as `hinto articles get`).
 
