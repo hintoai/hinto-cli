@@ -23,9 +23,11 @@ jobs:
           token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
-          cache: npm
+          node-version: 24
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      # Trusted Publishing (OIDC) needs npm >= 11.5.1; ensure a current npm.
+      - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run build
       - name: Create release PR or publish
@@ -36,7 +38,6 @@ jobs:
           commit: "chore: version packages"
           title: "chore: version packages"
         env:
+          # No NPM_TOKEN: publishing authenticates via OIDC Trusted Publishing.
+          # Provenance is automatic under OIDC. The PAT is only for the version PR.
           GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
