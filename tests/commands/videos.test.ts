@@ -13,8 +13,16 @@ describe('videosApi.list', () => {
     nock(BASE_URL)
       .get('/api/external/v2/videos')
       .reply(200, {
-        videos: [{ videoId: 'v1', filename: 'video.mp4', durationSeconds: 120, status: 'ready', createdAt: '2026-01-01' }],
-        pagination: { limit: 20, offset: 0, count: 1 }
+        videos: [
+          {
+            videoId: 'v1',
+            filename: 'video.mp4',
+            durationSeconds: 120,
+            status: 'ready',
+            createdAt: '2026-01-01',
+          },
+        ],
+        pagination: { limit: 20, offset: 0, count: 1 },
       });
 
     const result = await api.list();
@@ -49,7 +57,10 @@ describe('videosApi.import', () => {
 
   it('includes name when provided', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/videos/import', { url: 'https://example.com/video.mp4', name: 'My Video' })
+      .post('/api/external/v2/videos/import', {
+        url: 'https://example.com/video.mp4',
+        name: 'My Video',
+      })
       .reply(202, mockImportJob('j-name'));
 
     const result = await api.import('https://example.com/video.mp4', 'My Video');
@@ -64,7 +75,11 @@ describe('videosApi.import', () => {
       })
       .reply(202, mockImportJob('j-cb'));
 
-    const result = await api.import('https://example.com/video.mp4', undefined, 'https://cb.example.com');
+    const result = await api.import(
+      'https://example.com/video.mp4',
+      undefined,
+      'https://cb.example.com',
+    );
     expect(result.jobId).toBe('j-cb');
   });
 
@@ -77,7 +92,12 @@ describe('videosApi.import', () => {
       })
       .reply(202, mockImportJob('j-cb-secret'));
 
-    const result = await api.import('https://example.com/video.mp4', undefined, 'https://cb.example.com', 'my-secret');
+    const result = await api.import(
+      'https://example.com/video.mp4',
+      undefined,
+      'https://cb.example.com',
+      'my-secret',
+    );
     expect(result.jobId).toBe('j-cb-secret');
   });
 
@@ -86,7 +106,12 @@ describe('videosApi.import', () => {
       .post('/api/external/v2/videos/import', { url: 'https://example.com/video.mp4' })
       .reply(202, mockImportJob('j-no-opts'));
 
-    const result = await api.import('https://example.com/video.mp4', undefined, undefined, undefined);
+    const result = await api.import(
+      'https://example.com/video.mp4',
+      undefined,
+      undefined,
+      undefined,
+    );
     expect(result.jobId).toBe('j-no-opts');
   });
 
@@ -100,16 +125,19 @@ describe('videosApi.import', () => {
       })
       .reply(202, mockImportJob('j-all'));
 
-    const result = await api.import('https://example.com/video.mp4', 'All Options', 'https://cb.example.com', 'all-secret');
+    const result = await api.import(
+      'https://example.com/video.mp4',
+      'All Options',
+      'https://cb.example.com',
+      'all-secret',
+    );
     expect(result.jobId).toBe('j-all');
   });
 });
 
 describe('videosApi.delete', () => {
   it('calls DELETE endpoint', async () => {
-    nock(BASE_URL)
-      .delete('/api/external/v2/videos/v1')
-      .reply(200, { deleted: true });
+    nock(BASE_URL).delete('/api/external/v2/videos/v1').reply(200, { deleted: true });
 
     await expect(api.delete('v1')).resolves.not.toThrow();
   });
@@ -118,7 +146,10 @@ describe('videosApi.delete', () => {
 describe('videosApi.uploadPresigned', () => {
   it('requests a presigned URL and returns key from server', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/videos/upload/presigned', { filename: 'video.mp4', contentType: 'video/mp4' })
+      .post('/api/external/v2/videos/upload/presigned', {
+        filename: 'video.mp4',
+        contentType: 'video/mp4',
+      })
       .reply(200, {
         videoId: 'v-new',
         uploadUrl: 'https://s3.example.com/upload',
@@ -137,7 +168,11 @@ describe('videosApi.uploadPresigned', () => {
 describe('videosApi.uploadComplete', () => {
   it('completes the upload', async () => {
     nock(BASE_URL)
-      .post('/api/external/v2/videos/upload/complete', { key: 'videos/original/v-new.mp4', fileId: 'v-new', filename: 'video.mp4' })
+      .post('/api/external/v2/videos/upload/complete', {
+        key: 'videos/original/v-new.mp4',
+        fileId: 'v-new',
+        filename: 'video.mp4',
+      })
       .reply(200, { videoId: 'v-new' });
 
     const result = await api.uploadComplete('v-new', 'videos/original/v-new.mp4', 'video.mp4');
@@ -147,9 +182,13 @@ describe('videosApi.uploadComplete', () => {
 
 describe('videosApi.get', () => {
   it('returns a video with camelCase fields', async () => {
-    nock(BASE_URL)
-      .get('/api/external/v2/videos/v1')
-      .reply(200, { videoId: 'v1', filename: 'video.mp4', status: 'ready', durationSeconds: 120, createdAt: '2026-01-01' });
+    nock(BASE_URL).get('/api/external/v2/videos/v1').reply(200, {
+      videoId: 'v1',
+      filename: 'video.mp4',
+      status: 'ready',
+      durationSeconds: 120,
+      createdAt: '2026-01-01',
+    });
 
     const result = await api.get('v1');
     expect(result.videoId).toBe('v1');
@@ -160,9 +199,13 @@ describe('videosApi.get', () => {
   });
 
   it('handles optional fields', async () => {
-    nock(BASE_URL)
-      .get('/api/external/v2/videos/v2')
-      .reply(200, { videoId: 'v2', filename: null, status: 'processing', durationSeconds: null, createdAt: '2026-01-02' });
+    nock(BASE_URL).get('/api/external/v2/videos/v2').reply(200, {
+      videoId: 'v2',
+      filename: null,
+      status: 'processing',
+      durationSeconds: null,
+      createdAt: '2026-01-02',
+    });
 
     const result = await api.get('v2');
     expect(result.videoId).toBe('v2');

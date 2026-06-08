@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { loadConfig, saveConfig, CONFIG_PATH, HintoConfig } from '../src/config';
+import { CONFIG_PATH, type HintoConfig, loadConfig, saveConfig } from '../src/config';
 
 const TEST_CONFIG: HintoConfig = {
   apiKey: 'test_key_123',
@@ -35,5 +35,11 @@ describe('saveConfig / loadConfig', () => {
     process.env.HINTO_API_KEY = 'env_key_override';
     const loaded = loadConfig();
     expect(loaded.apiKey).toBe('env_key_override');
+  });
+
+  it('writes the config file with 0600 permissions', () => {
+    saveConfig(TEST_CONFIG);
+    const mode = fs.statSync(CONFIG_PATH).mode & 0o777;
+    expect(mode).toBe(0o600);
   });
 });

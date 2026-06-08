@@ -1,0 +1,5 @@
+{
+  "name": "hinto",
+  "description": "Hinto AI skills — drive videos, articles, and publishing from the terminal via the Hinto CLI.",
+  "skills": [{ "source": "./skills/hinto-cli" }]
+}

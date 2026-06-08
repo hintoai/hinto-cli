@@ -1,8 +1,8 @@
-import { Command } from 'commander';
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
+import type { Command } from 'commander';
 import { publishApi } from '../api/publish';
-import { printJson, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
+import { printJson, printKeyValue } from '../output';
 
 export function registerPublish(program: Command, client: AxiosInstance): void {
   const publish = program.command('publish').description('Publish your project');
@@ -18,8 +18,12 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.now(opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
-        process.stdout.write(`Publish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+        process.stdout.write(
+          `Publish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`,
+        );
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   publish
@@ -32,8 +36,12 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.republish(opts.callbackUrl, opts.callbackSecret);
         if (opts.json) return printJson(data);
-        process.stdout.write(`Republish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+        process.stdout.write(
+          `Republish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`,
+        );
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   publish
@@ -45,7 +53,9 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
         const data = await api.status();
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   publish
@@ -57,6 +67,8 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
         const data = await api.unpublish();
         if (opts.json) return printJson(data);
         process.stdout.write(`${data.message}\n`);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 }

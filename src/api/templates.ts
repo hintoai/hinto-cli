@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 
 export interface Template {
   id: number;
@@ -11,8 +11,8 @@ export interface Template {
 
 export const templatesApi = (client: AxiosInstance) => ({
   articleTemplates: () =>
-    client.get<{ templates: Template[] }>('/templates/article').then(r => r.data),
+    client.get<{ templates: Template[] }>('/templates/article').then((r) => r.data),
 
   structureTemplates: () =>
-    client.get<{ templates: Template[] }>('/templates/structure').then(r => r.data),
+    client.get<{ templates: Template[] }>('/templates/structure').then((r) => r.data),
 });

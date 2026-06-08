@@ -1,8 +1,8 @@
-import { Command } from 'commander';
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
+import type { Command } from 'commander';
 import { foldersApi } from '../api/folders';
-import { printJson, printTable, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
+import { printJson, printKeyValue, printTable } from '../output';
 
 export function registerFolders(program: Command, client: AxiosInstance): void {
   const folders = program.command('folders').description('Manage folders');
@@ -16,8 +16,17 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
       try {
         const data = await api.list();
         if (opts.json) return printJson(data);
-        printTable(['ID', 'Name', 'Parent'], data.folders.map(f => [String(f.id), f.name, f.parentId != null ? String(f.parentId) : '—']));
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+        printTable(
+          ['ID', 'Name', 'Parent'],
+          data.folders.map((f) => [
+            String(f.id),
+            f.name,
+            f.parentId != null ? String(f.parentId) : '—',
+          ]),
+        );
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   folders
@@ -29,7 +38,9 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
         const data = await api.get(id);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   folders
@@ -43,7 +54,9 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
         const data = await api.create(opts.name, opts.parent);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   folders
@@ -56,7 +69,9 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
         const data = await api.update(id, opts.name);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   folders
@@ -68,7 +83,9 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
         await api.delete(id);
         if (opts.json) return printJson({ deleted: true });
         process.stdout.write(`Folder ${id} deleted.\n`);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 
   folders
@@ -81,6 +98,8 @@ export function registerFolders(program: Command, client: AxiosInstance): void {
         const data = await api.move(id, opts.parent ?? null);
         if (opts.json) return printJson(data);
         printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) { exitWithError(e instanceof Error ? e.message : String(e)); }
+      } catch (e: unknown) {
+        exitWithError(e instanceof Error ? e.message : String(e));
+      }
     });
 }

@@ -1,11 +1,11 @@
-import { Command } from 'commander';
-import { AxiosInstance } from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+import type { AxiosInstance } from 'axios';
 import axios from 'axios';
+import type { Command } from 'commander';
 import { videosApi } from '../api/videos';
-import { printJson, printTable, printKeyValue } from '../output';
 import { exitWithError } from '../errors';
+import { printJson, printKeyValue, printTable } from '../output';
 
 export function registerVideos(program: Command, client: AxiosInstance): void {
   const videos = program.command('videos').description('Manage videos');
@@ -23,7 +23,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         if (opts.json) return printJson(data);
         printTable(
           ['Video ID', 'Filename', 'Status', 'Created'],
-          data.videos.map(v => [v.videoId, v.filename ?? '—', v.status, v.createdAt])
+          data.videos.map((v) => [v.videoId, v.filename ?? '—', v.status, v.createdAt]),
         );
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
@@ -38,15 +38,23 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
     .option('--callback-url <url>', 'URL to receive a webhook when the import job completes')
     .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { url: string; name?: string; callbackUrl?: string; callbackSecret?: string; json?: boolean }) => {
-      try {
-        const data = await api.import(opts.url, opts.name, opts.callbackUrl, opts.callbackSecret);
-        if (opts.json) return printJson(data);
-        printKeyValue(data as unknown as Record<string, unknown>);
-      } catch (e: unknown) {
-        exitWithError(e instanceof Error ? e.message : String(e));
-      }
-    });
+    .action(
+      async (opts: {
+        url: string;
+        name?: string;
+        callbackUrl?: string;
+        callbackSecret?: string;
+        json?: boolean;
+      }) => {
+        try {
+          const data = await api.import(opts.url, opts.name, opts.callbackUrl, opts.callbackSecret);
+          if (opts.json) return printJson(data);
+          printKeyValue(data as unknown as Record<string, unknown>);
+        } catch (e: unknown) {
+          exitWithError(e instanceof Error ? e.message : String(e));
+        }
+      },
+    );
 
   videos
     .command('get <videoId>')
@@ -123,8 +131,8 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         const { size } = fs.statSync(filePath);
         await axios.put(uploadUrl, fileStream, {
           headers: { 'Content-Type': contentType, 'Content-Length': size },
-          maxBodyLength: Infinity,
-          maxContentLength: Infinity,
+          maxBodyLength: Number.POSITIVE_INFINITY,
+          maxContentLength: Number.POSITIVE_INFINITY,
         });
 
         // Step 3: complete upload

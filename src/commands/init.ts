@@ -1,10 +1,10 @@
-import { Command } from 'commander';
 import chalk from 'chalk';
+import type { Command } from 'commander';
 import { saveConfig } from '../config';
 
 export function runInit(apiKey: string, baseUrl: string): void {
   saveConfig({ apiKey, baseUrl });
-  process.stdout.write(chalk.green(`✓ Authenticated. Config saved to ~/.hinto/config.json\n`));
+  process.stdout.write(chalk.green('✓ Authenticated. Config saved to ~/.hinto/config.json\n'));
 }
 
 export function registerInit(program: Command): void {
