@@ -107,6 +107,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .description('Update an article')
     .option('--title <title>', 'New title')
     .option('--slug <slug>', 'New slug')
+    .option('--content <content>', 'New Markdown content (string or @filepath) — replaces the body')
     .option('--meta-description <text>', 'SEO meta description')
     .option('--meta-keywords <keywords>', 'Comma-separated SEO keywords')
     .option('--json', 'Output as JSON')
@@ -116,21 +117,29 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         opts: {
           title?: string;
           slug?: string;
+          content?: string;
           metaDescription?: string;
           metaKeywords?: string;
           json?: boolean;
         },
       ) => {
         try {
-          if (!opts.title && !opts.slug && !opts.metaDescription && !opts.metaKeywords) {
+          if (
+            !opts.title &&
+            !opts.slug &&
+            !opts.content &&
+            !opts.metaDescription &&
+            !opts.metaKeywords
+          ) {
             exitWithError(
-              'Provide at least one field to update: --title, --slug, --meta-description, or --meta-keywords',
+              'Provide at least one field to update: --title, --slug, --content, --meta-description, or --meta-keywords',
             );
             return;
           }
           const data = await api.update(id, {
             ...(opts.title !== undefined && { title: opts.title }),
             ...(opts.slug !== undefined && { slug: opts.slug }),
+            ...(opts.content !== undefined && { content: resolveContent(opts.content) }),
             ...(opts.metaDescription !== undefined && { metaDescription: opts.metaDescription }),
             ...(opts.metaKeywords !== undefined && {
               metaKeywords: opts.metaKeywords

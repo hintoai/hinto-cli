@@ -64,7 +64,13 @@ export const articlesApi = (client: AxiosInstance) => ({
 
   update: (
     id: string,
-    body: { title?: string; slug?: string; metaDescription?: string; metaKeywords?: string[] },
+    body: {
+      title?: string;
+      slug?: string;
+      content?: string;
+      metaDescription?: string;
+      metaKeywords?: string[];
+    },
   ) => client.put<ArticleDetail>(`/articles/${id}`, body).then((r) => r.data),
 
   delete: (id: string) => client.delete(`/articles/${id}`).then((r) => r.data),
