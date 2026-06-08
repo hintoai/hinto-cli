@@ -37,7 +37,7 @@ const config = (() => {
 
 const apiUrl = (() => {
   const idx = process.argv.indexOf('--api-url');
-  return idx !== -1 ? process.argv[idx + 1] : config.baseUrl;
+  return idx !== -1 ? (process.argv[idx + 1] ?? config.baseUrl) : config.baseUrl;
 })();
 
 const client = createClient(config.apiKey, apiUrl);
