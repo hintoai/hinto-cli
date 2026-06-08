@@ -18,14 +18,26 @@ This skill covers all Hinto terminal workflows: installation, authentication, ev
 
 ## Installation
 
-This skill drives the `hinto` CLI. Before running any command, make sure the CLI is installed — if `hinto` is not on PATH, install it first:
+This skill drives the `hinto` CLI.
+
+> **Package name:** the command is `hinto`, but the npm package is **`@hintoai/cli`**.
+> Do **not** guess `@hinto/cli` or `hinto` — those do not exist and will 404.
+> Always install, upgrade, and reference the package as `@hintoai/cli`.
+
+Before running any command, make sure the CLI is installed — if `hinto` is not on PATH, install it first:
 
 ```bash
-# Install (or update) the CLI globally
+# Install the CLI globally
 npm install -g @hintoai/cli
 
 # Verify
 hinto --version
+```
+
+**To upgrade** to the latest version, run:
+
+```bash
+npm install -g @hintoai/cli@latest
 ```
 
 Then authenticate (see below). If a `hinto` command fails with "command not found", re-run the install step above.
