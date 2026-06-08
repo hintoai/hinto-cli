@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { type HintoConfig, configPath, loadConfig, saveConfig } from '../src/config';
+import { configPath, type HintoConfig, loadConfig, saveConfig } from '../src/config';
 
 const TEST_CONFIG: HintoConfig = {
   apiKey: 'test_key_123',
