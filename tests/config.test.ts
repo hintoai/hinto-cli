@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { CONFIG_PATH, type HintoConfig, loadConfig, saveConfig } from '../src/config';
+import { configPath, type HintoConfig, loadConfig, saveConfig } from '../src/config';
 
 const TEST_CONFIG: HintoConfig = {
   apiKey: 'test_key_123',
@@ -7,12 +7,12 @@ const TEST_CONFIG: HintoConfig = {
 };
 
 beforeEach(() => {
-  if (fs.existsSync(CONFIG_PATH)) fs.unlinkSync(CONFIG_PATH);
+  if (fs.existsSync(configPath())) fs.unlinkSync(configPath());
   delete process.env.HINTO_API_KEY;
 });
 
 afterEach(() => {
-  if (fs.existsSync(CONFIG_PATH)) fs.unlinkSync(CONFIG_PATH);
+  if (fs.existsSync(configPath())) fs.unlinkSync(configPath());
   delete process.env.HINTO_API_KEY;
 });
 
@@ -37,7 +37,7 @@ describe('saveConfig / loadConfig', () => {
 
   it('writes the config file with 0600 permissions', () => {
     saveConfig(TEST_CONFIG);
-    const mode = fs.statSync(CONFIG_PATH).mode & 0o777;
+    const mode = fs.statSync(configPath()).mode & 0o777;
     expect(mode).toBe(0o600);
   });
 });
