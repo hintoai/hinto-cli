@@ -51,9 +51,9 @@ function fishScript(): string {
   const groupLines = GROUPS.map(
     (g) => `complete -c hinto -n "__fish_use_subcommand" -a "${g}"`,
   ).join('\n');
-  const flagLines = GLOBAL_FLAGS.map(
-    (f) => `complete -c hinto -l "${f.replace(/^--/, '')}"`,
-  ).join('\n');
+  const flagLines = GLOBAL_FLAGS.map((f) => `complete -c hinto -l "${f.replace(/^--/, '')}"`).join(
+    '\n',
+  );
   return `# hinto fish completion\n${groupLines}\n${flagLines}\n`;
 }
 

@@ -10,7 +10,9 @@ function run(args: string[]): string {
 test('completion bash emits a bash completion script', () => {
   const out = run(['completion', 'bash']);
   expect(out).toContain('complete -F _hinto hinto');
-  expect(out).toContain('videos articles folders generate project publish templates export init completion');
+  expect(out).toContain(
+    'videos articles folders generate project publish templates export init completion',
+  );
 });
 
 test('completion zsh emits a zsh completion block', () => {
