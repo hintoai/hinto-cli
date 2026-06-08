@@ -13,12 +13,16 @@ import { registerVideos } from './commands/videos';
 import { loadConfig } from './config';
 import { exitWithError } from './errors';
 
+// Read version from package.json so `hinto --version` never drifts from the
+// published package version (package.json sits one level above dist/index.js).
+const { version } = require('../package.json') as { version: string };
+
 const program = new Command();
 
 program
   .name('hinto')
   .description('Hinto AI CLI — manage videos, articles, and publishing')
-  .version('0.1.0')
+  .version(version)
   .option('--api-url <url>', 'Override the Hinto base URL');
 
 // init doesn't need auth — register first
