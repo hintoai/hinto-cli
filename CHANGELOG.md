@@ -1,5 +1,13 @@
 # @hintoai/cli
 
+## 0.5.0
+
+### Minor Changes
+
+- 9822725: Add `--wait` flag to `hinto videos upload`
+
+  Blocks until the uploaded video finishes server-side processing and reaches `ready` status (polls every 3s, 10 min timeout). Without `--wait` the command returns immediately as before.
+
 ## 0.4.0
 
 ### Minor Changes
