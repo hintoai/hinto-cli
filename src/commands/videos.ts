@@ -5,8 +5,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { videosApi } from '../api/videos';
 import { exitWithError } from '../errors';
-import { pollVideoReady } from '../poll';
 import { printJson, printKeyValue, printTable } from '../output';
+import { pollVideoReady } from '../poll';
 
 export function registerVideos(program: Command, client: AxiosInstance): void {
   const videos = program.command('videos').description('Manage videos');
@@ -146,7 +146,9 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         }
 
         if (opts.json) return printJson(result);
-        process.stdout.write(`Uploaded: videoId=${result.videoId}  status=${opts.wait ? 'ready' : 'pending'}\n`);
+        process.stdout.write(
+          `Uploaded: videoId=${result.videoId}  status=${opts.wait ? 'ready' : 'pending'}\n`,
+        );
         if (!opts.wait) process.stdout.write(`Track: hinto videos status ${result.videoId}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
