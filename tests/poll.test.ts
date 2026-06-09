@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { createClient } from '../src/api/client';
-import { pollJob } from '../src/poll';
+import { pollJob, pollVideoReady } from '../src/poll';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -45,5 +45,42 @@ describe('pollJob', () => {
 
     const result = await pollJob(client, 'job-456', 10, 5000);
     expect(result).toEqual({ done: true });
+  });
+});
+
+describe('pollVideoReady', () => {
+  it('resolves when video becomes ready', async () => {
+    nock(BASE_URL)
+      .get('/api/external/v2/videos/v1/status')
+      .reply(200, { videoId: 'v1', status: 'processing' })
+      .get('/api/external/v2/videos/v1/status')
+      .reply(200, { videoId: 'v1', status: 'ready' });
+
+    await expect(pollVideoReady(client, 'v1', 10, 5000)).resolves.toBeUndefined();
+  });
+
+  it('resolves immediately when already ready', async () => {
+    nock(BASE_URL)
+      .get('/api/external/v2/videos/v1/status')
+      .reply(200, { videoId: 'v1', status: 'ready' });
+
+    await expect(pollVideoReady(client, 'v1', 10, 5000)).resolves.toBeUndefined();
+  });
+
+  it('rejects when video processing fails', async () => {
+    nock(BASE_URL)
+      .get('/api/external/v2/videos/v1/status')
+      .reply(200, { videoId: 'v1', status: 'failed' });
+
+    await expect(pollVideoReady(client, 'v1', 10, 5000)).rejects.toThrow('processing failed');
+  });
+
+  it('rejects on timeout', async () => {
+    nock(BASE_URL)
+      .get('/api/external/v2/videos/v1/status')
+      .reply(200, { videoId: 'v1', status: 'processing' })
+      .persist();
+
+    await expect(pollVideoReady(client, 'v1', 10, 50)).rejects.toThrow('timed out');
   });
 });

@@ -368,6 +368,8 @@ When an error occurs with `--json`, stdout is always empty and the error message
 
 Commands that start background jobs — `generate start`, `publish now`, `publish republish`, `project retranslate` — default to fire-and-forget: they print the job metadata and return exit 0 immediately. Pass `--wait` to poll until the job completes (or fails) and print its output.
 
+`hinto videos upload` also supports `--wait`: blocks until the uploaded video finishes server-side processing and reaches `ready` status (polls every 3s, 10 min timeout). Without `--wait`, the upload returns immediately with the `videoId` but the video may still be processing.
+
 ## Environment variables
 
 | Variable | Description |

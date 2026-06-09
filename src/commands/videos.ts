@@ -6,6 +6,7 @@ import * as path from 'path';
 import { videosApi } from '../api/videos';
 import { exitWithError } from '../errors';
 import { printJson, printKeyValue, printTable } from '../output';
+import { pollVideoReady } from '../poll';
 
 export function registerVideos(program: Command, client: AxiosInstance): void {
   const videos = program.command('videos').description('Manage videos');
@@ -102,8 +103,9 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
     .command('upload')
     .description('Upload a video file from disk (3-step presigned flow)')
     .requiredOption('--file <path>', 'Path to the video file')
+    .option('--wait', 'Wait until the video is ready for generation')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { file: string; json?: boolean }) => {
+    .action(async (opts: { file: string; wait?: boolean; json?: boolean }) => {
       try {
         const filePath = path.resolve(opts.file);
         if (!fs.existsSync(filePath)) {
@@ -139,9 +141,15 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         process.stderr.write('Completing upload...\n');
         const result = await api.uploadComplete(videoId, s3Key, filename);
 
+        if (opts.wait) {
+          await pollVideoReady(client, result.videoId);
+        }
+
         if (opts.json) return printJson(result);
-        process.stdout.write(`Uploaded: videoId=${result.videoId}  status=pending\n`);
-        process.stdout.write(`Track: hinto videos status ${result.videoId}\n`);
+        process.stdout.write(
+          `Uploaded: videoId=${result.videoId}  status=${opts.wait ? 'ready' : 'pending'}\n`,
+        );
+        if (!opts.wait) process.stdout.write(`Track: hinto videos status ${result.videoId}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }

@@ -71,25 +71,27 @@ After import, poll `hinto generate status <jobId>` until the job is `completed`.
 Upload a local video file to Hinto using the presigned S3 flow.
 
 ```bash
-hinto videos upload --file <path> [--json]
+hinto videos upload --file <path> [--wait] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--file <path>` | Yes | Path to the local video file (`.mp4`, `.mov`, `.webm`, `.avi`, `.mkv`) |
+| `--wait` | No | Block until the video is `ready` for generation (polls every 3s, timeout 10 min) |
 
 ```bash
-# Upload a local file
-hinto videos upload --file ./recording.mp4
-
-# With JSON output
+# Upload and return immediately (video will still be processing)
 hinto videos upload --file ./recording.mp4 --json
 # → { "videoId": "..." }
+
+# Upload and wait until ready for generation
+hinto videos upload --file ./recording.mp4 --wait --json
+# → { "videoId": "..." }  (only returns when status is ready)
 ```
 
 The CLI automatically detects content type from the file extension. Progress messages go to stderr; result goes to stdout.
 
-After upload, the video enters `pending` → `processing` → `ready` pipeline. Poll with:
+After upload, the video enters `pending` → `processing` → `ready` pipeline. Use `--wait` to block until ready, or poll manually:
 ```bash
 hinto videos status <videoId>
 ```
