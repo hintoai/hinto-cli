@@ -98,6 +98,52 @@ When this skill is active:
 4. **Check auth first** — if a command returns `UNAUTHORIZED`, verify `HINTO_API_KEY` is set or `hinto init` has been run.
 5. **Spinner goes to stderr** — stdout stays clean for piping even with `--wait`.
 
+**Interaction patterns:**
+
+6. **Ask vs. auto** — only prompt the user when there's a real choice (2+ options). With 0–1 options, proceed and state what you used.
+7. **Confirm destructive actions** — before `articles delete` and `publish unpublish`, confirm with the user, stating exactly what will be removed or taken offline. Never run them speculatively.
+8. **Output discipline** — end every task with: the command(s) run + result, any `jobId` for async work not waited on, links (`editUrl` / `previewUrl` when available), and the next verification step.
+
+## Orientation — start here
+
+Run these first to ground yourself in the project the key targets (the key is **per project** — you act on exactly one):
+
+```bash
+hinto project get --json          # name, type, isPublished, custom domain
+hinto project structure --json    # folders + articles tree
+hinto publish status --json       # is it live, and at what URL
+```
+
+If results don't match the user's expectation, the key likely targets a different project — the user must supply the correct key; you cannot switch projects.
+
+## Scopes
+
+Each API key carries scopes. Operations fail with `INSUFFICIENT_SCOPE` (403) when a scope is missing:
+
+| Scope | Allows |
+|---|---|
+| `read` | get / list / status / structure / languages / versions / translations |
+| `write` | create / update / delete / move / duplicate / restore / add-language |
+| `generate` | generate start / structure, regenerate, retranslate, trigger-translate |
+| `publish` | publish now / republish / unpublish |
+
+Recovery: tell the user which scope is missing — a new key with that scope must be created in the app UI.
+
+## ID & state gotchas
+
+- Article and folder ids are **integers**; job ids are **uuids**.
+- `slug` and `previewUrl` are **null until published** (and for articles not in the current publication snapshot).
+- A video must be **`ready`** before `generate start` / `generate structure`.
+- `generate structure` produces **empty stubs**, not full articles — see `references/product-behavior.md`.
+- Rate limit: **60 req/min** per key (`RATE_LIMITED` 429 → wait `Retry-After`). Generation can return `QUOTA_EXCEEDED`.
+
+## What the CLI cannot do (app UI only)
+
+Do **not** invent commands for these — they live in the Hinto web app:
+- Creating a project or an API key
+- Workspace / billing management
+- Branding and publishing-settings editing not exposed by a documented command
+
 ## Core Workflow: Upload → Generate → Publish
 
 ```bash
@@ -120,6 +166,9 @@ hinto templates article --json
 # 4. Generate an article and wait for completion
 hinto generate start --video <videoId> --template <templateId> --wait --json
 
+# 4b. Hand the user a link to the new article (editUrl always present; previewUrl when published)
+hinto articles get <articleId> --json   # → includes editUrl + previewUrl
+
 # 5. Publish the project (async — returns a jobId immediately)
 hinto publish now --json
 # → { "jobId": "...", "type": "publish", "status": "pending", ... }
@@ -140,6 +189,9 @@ Read the reference file for the relevant command group:
 | Publish, republish, unpublish | `references/publish.md` |
 | Browse available templates | `references/templates.md` |
 | Export articles, folders, or full project | `references/export.md` |
+| Turn a video into content (one article vs. structure) | `references/content-from-video.md` |
+| Common task recipes (upload→generate→publish, edit→republish, add images) | `references/recipes.md` |
+| Product behavior (versioning/restore, stubs/auto-generate, images, translations) | `references/product-behavior.md` |
 
 ## Output Checklist
 
