@@ -15,7 +15,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # Use a PAT so the version-PR is created by a real user. The org policy
           # blocks the Actions bot (GITHUB_TOKEN) from creating PRs; a PAT is not
