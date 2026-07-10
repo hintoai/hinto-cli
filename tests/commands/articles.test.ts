@@ -301,3 +301,22 @@ describe('articlesApi.update', () => {
     expect(result.slug).toBe('new-slug');
   });
 });
+
+describe('articlesApi.setTranslation', () => {
+  it('PUTs translation content and returns the saved translation', async () => {
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/42/translations/es', {
+        title: 'Título',
+        content: '# Hola',
+        metaKeywords: ['a', 'b'],
+      })
+      .reply(200, { languageCode: 'es', status: 'manual', title: 'Título' });
+
+    const result = await api.setTranslation('42', 'es', {
+      title: 'Título',
+      content: '# Hola',
+      metaKeywords: ['a', 'b'],
+    });
+    expect(result.status).toBe('manual');
+  });
+});

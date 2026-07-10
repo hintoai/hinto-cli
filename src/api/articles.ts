@@ -131,4 +131,33 @@ export const articlesApi = (client: AxiosInstance) => ({
         ...(callbackSecret ? { callbackSecret } : {}),
       })
       .then((r) => r.data),
+
+  setTranslation: (
+    id: string,
+    lang: string,
+    body: {
+      title: string;
+      content: string;
+      metaDescription?: string;
+      metaKeywords?: string[];
+      slug?: string;
+      jsonLd?: object;
+    },
+  ) =>
+    client
+      .put<{
+        languageCode: string;
+        status: string;
+        title: string | null;
+        slug: string | null;
+        format: string;
+        content: string | null;
+        metadata: {
+          metaDescription: string | null;
+          metaKeywords: string[] | null;
+          jsonLd: unknown;
+          updatedAt: string | null;
+        };
+      }>(`/articles/${id}/translations/${lang}`, body)
+      .then((r) => r.data),
 });

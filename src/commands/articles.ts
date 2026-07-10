@@ -328,4 +328,60 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         }
       },
     );
+
+  articles
+    .command('set-translation <id>')
+    .description('Upload a locally-produced translation for an article (status: manual)')
+    .requiredOption('--lang <code>', 'Target language code (e.g. es, fr, de)')
+    .requiredOption('--title <title>', 'Translated title')
+    .requiredOption('--content <content>', 'Translated markdown string or @filepath')
+    .option('--meta-description <text>', 'Translated meta description')
+    .option('--meta-keywords <list>', 'Comma-separated translated keywords')
+    .option('--faq-jsonld <content>', 'Translated JSON-LD as a JSON string or @filepath')
+    .option('--slug <slug>', 'Localized slug (omit to keep the existing slug)')
+    .option('--json', 'Output as JSON')
+    .action(
+      async (
+        id: string,
+        opts: {
+          lang: string;
+          title: string;
+          content: string;
+          metaDescription?: string;
+          metaKeywords?: string;
+          faqJsonld?: string;
+          slug?: string;
+          json?: boolean;
+        },
+      ) => {
+        try {
+          const body: {
+            title: string;
+            content: string;
+            metaDescription?: string;
+            metaKeywords?: string[];
+            slug?: string;
+            jsonLd?: object;
+          } = {
+            title: opts.title,
+            content: resolveContent(opts.content),
+          };
+          if (opts.metaDescription) body.metaDescription = opts.metaDescription;
+          if (opts.metaKeywords) {
+            body.metaKeywords = opts.metaKeywords
+              .split(',')
+              .map((k) => k.trim())
+              .filter(Boolean);
+          }
+          if (opts.slug) body.slug = opts.slug;
+          if (opts.faqJsonld) body.jsonLd = JSON.parse(resolveContent(opts.faqJsonld));
+
+          const data = await api.setTranslation(id, opts.lang, body);
+          if (opts.json) return printJson(data);
+          printKeyValue(data as unknown as Record<string, unknown>);
+        } catch (e: unknown) {
+          exitWithError(e instanceof Error ? e.message : String(e));
+        }
+      },
+    );
 }
