@@ -123,9 +123,11 @@ Each API key carries scopes. Operations fail with `INSUFFICIENT_SCOPE` (403) whe
 | Scope | Allows |
 |---|---|
 | `read` | get / list / status / structure / languages / versions / translations |
-| `write` | create / update / delete / move / duplicate / restore / add-language |
+| `write` | create / update / delete / move / duplicate / restore / add-language / set-translation |
 | `generate` | generate start / structure, regenerate, retranslate, trigger-translate |
 | `publish` | publish now / republish / unpublish |
+
+> The per-article translation route (`translate <id>`, `trigger-translate`, `set-translation`) is `generate`-gated, so those need `generate` — and `set-translation` needs `write` **on top of** `generate`. Project API keys created in the app carry all scopes by default, so this only matters for minimally-scoped keys.
 
 Recovery: tell the user which scope is missing — a new key with that scope must be created in the app UI.
 

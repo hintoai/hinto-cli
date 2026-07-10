@@ -37,6 +37,27 @@ hinto publish republish --json                         # async
 ```
 Side effects of `update --content`: it snapshots a **version** and **re-translates** any existing translations (async). See `product-behavior.md`.
 
+## 4b. Push a locally-produced translation (manual)
+
+Translate an article yourself and upload the result, instead of using Hinto's
+auto-translator. The pushed translation is marked `status: manual` so the
+auto-translator won't overwrite it.
+
+```bash
+# Language must be configured on the project first (once):
+hinto project add-language --code es --json
+
+hinto articles set-translation <id> --lang es \
+  --title "…" --content @translations/es/FINAL_ARTICLE.md \
+  --meta-description "…" --meta-keywords "kw1,kw2" \
+  --faq-jsonld @translations/es/faq-jsonld.json --json   # → status: manual
+
+hinto articles translate <id> --lang es --json           # verify it round-tripped
+hinto publish republish --json                           # async → serve the localized page
+```
+`--content` is Markdown, `--faq-jsonld` is JSON; both accept `@filepath`. Omit
+`--slug` to keep the existing localized slug.
+
 ## 5. Add images to article text
 
 There is **no image-upload command**. Reference **already-hosted, publicly reachable** image URLs with Markdown image syntax in the content:

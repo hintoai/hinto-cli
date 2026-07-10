@@ -402,11 +402,53 @@ Plain: `Translation triggered. Job ID: <uuid>`
 
 ---
 
+### `hinto articles set-translation <id>`
+
+Upload a locally-produced translation for an article. Unlike `trigger-translate`
+(which queues Hinto's own translator), this writes **your** translated content
+directly and marks it `status: manual` so the auto-translator won't overwrite it.
+Use it when you translate an article yourself and want to push the result back.
+
+```bash
+hinto articles set-translation <id> --lang <code> \
+  --title <title> --content <markdown|@file> \
+  [--meta-description <text>] [--meta-keywords <a,b,c>] \
+  [--faq-jsonld <json|@file>] [--slug <slug>] [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--lang <code>` | Yes | Target language code (e.g. `es`, `fr`, `de`). Must be configured on the project. |
+| `--title <title>` | Yes | Translated title |
+| `--content <content>` | Yes | Translated **Markdown** body, as a string or `@filepath`. Converted to the article block format server-side. |
+| `--meta-description <text>` | No | Translated meta description |
+| `--meta-keywords <list>` | No | Comma-separated translated keywords → stored as an array |
+| `--faq-jsonld <content>` | No | Translated FAQ/structured-data **JSON**, as a string or `@filepath` |
+| `--slug <slug>` | No | Localized slug. **Omit to keep the existing slug** — when a language is added, Hinto auto-creates the translation row with a slug; omitting preserves it (no URL churn). |
+
+Requires **both** the `write` and `generate` scopes — the `translations` route is
+`generate`-gated and this write additionally checks `write`. (Project API keys
+created in the app include all scopes by default.) Confirm the response shows
+`"status": "manual"`. Read it back with `hinto articles translate <id> --lang <code>`.
+
+**Example — push a translated article + FAQ from files:**
+```bash
+hinto articles set-translation 51 --lang es \
+  --title "8 mejores alternativas a Loom (2026)" \
+  --content @translations/es/FINAL_ARTICLE.md \
+  --meta-description "Compara las mejores alternativas a Loom…" \
+  --meta-keywords "alternativas a loom,competidores de loom" \
+  --faq-jsonld @translations/es/faq-jsonld.json --json
+```
+
+---
+
 ## Errors
 
 | Error code | HTTP | Meaning |
 |---|---|---|
 | `ARTICLE_NOT_FOUND` | 404 | Article ID does not exist in this project |
-| `INSUFFICIENT_SCOPE` | 403 | `read` for get/list; `write` for create/update/delete/move/restore; `generate` for regenerate |
+| `INSUFFICIENT_SCOPE` | 403 | `read` for get/list; `write` for create/update/delete/move/restore/set-translation; `generate` for regenerate/trigger-translate |
 | `INVALID_LANGUAGE` | 400 | Language code is not recognized |
+| `LANGUAGE_NOT_CONFIGURED` | 400 | Language is valid but not added to the project (set-translation / trigger-translate) |
 | `RATE_LIMITED` | 429 | 60 req/min per API key — retry after `Retry-After` seconds |
