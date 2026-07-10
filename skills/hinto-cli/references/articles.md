@@ -426,8 +426,10 @@ hinto articles set-translation <id> --lang <code> \
 | `--faq-jsonld <content>` | No | Translated FAQ/structured-data **JSON**, as a string or `@filepath` |
 | `--slug <slug>` | No | Localized slug. **Omit to keep the existing slug** — when a language is added, Hinto auto-creates the translation row with a slug; omitting preserves it (no URL churn). |
 
-Requires the `write` scope. Confirm the response shows `"status": "manual"`. Read
-it back with `hinto articles translate <id> --lang <code>`.
+Requires **both** the `write` and `generate` scopes — the `translations` route is
+`generate`-gated and this write additionally checks `write`. (Project API keys
+created in the app include all scopes by default.) Confirm the response shows
+`"status": "manual"`. Read it back with `hinto articles translate <id> --lang <code>`.
 
 **Example — push a translated article + FAQ from files:**
 ```bash

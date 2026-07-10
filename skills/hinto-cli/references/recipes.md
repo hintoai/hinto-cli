@@ -45,7 +45,7 @@ auto-translator won't overwrite it.
 
 ```bash
 # Language must be configured on the project first (once):
-hinto project add-language --lang es --json
+hinto project add-language --code es --json
 
 hinto articles set-translation <id> --lang es \
   --title "…" --content @translations/es/FINAL_ARTICLE.md \
