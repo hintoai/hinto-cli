@@ -123,7 +123,7 @@ Each API key carries scopes. Operations fail with `INSUFFICIENT_SCOPE` (403) whe
 | Scope | Allows |
 |---|---|
 | `read` | get / list / status / structure / languages / versions / translations |
-| `write` | create / update / delete / move / duplicate / restore / add-language |
+| `write` | create / update / delete / move / duplicate / restore / add-language / set-translation |
 | `generate` | generate start / structure, regenerate, retranslate, trigger-translate |
 | `publish` | publish now / republish / unpublish |
 
