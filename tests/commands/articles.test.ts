@@ -1,6 +1,8 @@
+import { Command } from 'commander';
 import nock from 'nock';
 import { articlesApi } from '../../src/api/articles';
 import { createClient } from '../../src/api/client';
+import { registerArticles } from '../../src/commands/articles';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -318,5 +320,131 @@ describe('articlesApi.setTranslation', () => {
       metaKeywords: ['a', 'b'],
     });
     expect(result.status).toBe('manual');
+    expect(result.title).toBe('Título');
+  });
+});
+
+describe('set-translation command (CLI option parsing)', () => {
+  function buildProgram(): Command {
+    const program = new Command();
+    registerArticles(program, client);
+    return program;
+  }
+
+  async function runSetTranslation(args: string[]): Promise<void> {
+    const program = buildProgram();
+    await program.parseAsync(['node', 'hinto', 'articles', 'set-translation', ...args]);
+  }
+
+  let stdoutSpy: jest.SpiedFunction<typeof process.stdout.write>;
+
+  beforeEach(() => {
+    stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+  });
+
+  afterEach(() => {
+    stdoutSpy.mockRestore();
+  });
+
+  it('omits slug from the request body when --slug is not provided', async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/42/translations/es', (body) => {
+        capturedBody = body;
+        return true;
+      })
+      .reply(200, { languageCode: 'es', status: 'manual', title: 'Título' });
+
+    await runSetTranslation([
+      '42',
+      '--lang',
+      'es',
+      '--title',
+      'Título',
+      '--content',
+      '# Hola',
+      '--json',
+    ]);
+
+    expect(capturedBody).toBeDefined();
+    expect('slug' in (capturedBody as Record<string, unknown>)).toBe(false);
+  });
+
+  it('includes slug in the request body when --slug is provided', async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/42/translations/es', (body) => {
+        capturedBody = body;
+        return true;
+      })
+      .reply(200, { languageCode: 'es', status: 'manual', title: 'Título' });
+
+    await runSetTranslation([
+      '42',
+      '--lang',
+      'es',
+      '--title',
+      'Título',
+      '--content',
+      '# Hola',
+      '--slug',
+      'titulo-es',
+      '--json',
+    ]);
+
+    expect(capturedBody).toBeDefined();
+    expect((capturedBody as Record<string, unknown>).slug).toBe('titulo-es');
+  });
+
+  it('trims and filters empty entries when parsing --meta-keywords', async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/42/translations/es', (body) => {
+        capturedBody = body;
+        return true;
+      })
+      .reply(200, { languageCode: 'es', status: 'manual', title: 'Título' });
+
+    await runSetTranslation([
+      '42',
+      '--lang',
+      'es',
+      '--title',
+      'Título',
+      '--content',
+      '# Hola',
+      '--meta-keywords',
+      'a, ,b',
+      '--json',
+    ]);
+
+    expect(capturedBody).toBeDefined();
+    expect((capturedBody as Record<string, unknown>).metaKeywords).toEqual(['a', 'b']);
+  });
+
+  it('parses an inline --faq-jsonld JSON string into the jsonLd field', async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/42/translations/es', (body) => {
+        capturedBody = body;
+        return true;
+      })
+      .reply(200, { languageCode: 'es', status: 'manual', title: 'Título' });
+
+    await runSetTranslation([
+      '42',
+      '--lang',
+      'es',
+      '--title',
+      'Título',
+      '--content',
+      '# Hola',
+      '--faq-jsonld',
+      '{"@type":"FAQPage"}',
+      '--json',
+    ]);
+
+    expect(capturedBody).toBeDefined();
+    expect((capturedBody as Record<string, unknown>).jsonLd).toEqual({ '@type': 'FAQPage' });
   });
 });
