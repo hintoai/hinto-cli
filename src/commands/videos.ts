@@ -12,10 +12,14 @@ import { uploadFileMultipart } from '../upload';
 /** Mirrors MAX_UPLOAD_BYTES in web-client/src/lib/video-upload.ts — the Gemini Files API ceiling. */
 const MAX_UPLOAD_BYTES = 2_000_000_000;
 /**
- * Above this, chunk. Below it, one PUT completes well inside the ~100s proxy
- * window, and the single-shot path is the one already proven in the field.
+ * Above this, chunk.
+ *
+ * Deliberately small. A single-shot PUT must finish inside the ~100s gateway
+ * window on a slow uplink, and 0.73 MB/s has been measured in practice — at
+ * which 50 MiB already takes ~72s. 16 MiB takes ~23s there, leaving room for
+ * links several times slower.
  */
-const MULTIPART_THRESHOLD_BYTES = 50 * 1024 * 1024;
+const MULTIPART_THRESHOLD_BYTES = 16 * 1024 * 1024;
 
 export function registerVideos(program: Command, client: AxiosInstance): void {
   const videos = program.command('videos').description('Manage videos');
@@ -113,7 +117,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
     .description('Upload a video file from disk (chunked for large files)')
     .requiredOption('--file <path>', 'Path to the video file')
     .option('--wait', 'Wait until the video is ready for generation')
-    .option('--part-size <bytes>', 'Override the chunk size (advanced)')
+    .option('--part-size <bytes>', 'Override the chunk size in bytes (advanced)')
     .option('--json', 'Output as JSON')
     .action(async (opts: { file: string; wait?: boolean; partSize?: string; json?: boolean }) => {
       try {
@@ -146,11 +150,17 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
           return;
         }
 
-        const threshold = opts.partSize ? Number(opts.partSize) : MULTIPART_THRESHOLD_BYTES;
+        // --part-size overrides the slice size and forces the chunked path, so a
+        // small file can exercise multipart without needing a large fixture.
+        const partSizeOverride = opts.partSize ? Number(opts.partSize) : undefined;
+        if (partSizeOverride !== undefined && (!Number.isFinite(partSizeOverride) || partSizeOverride <= 0)) {
+          exitWithError('--part-size must be a positive number of bytes');
+          return;
+        }
 
         let videoId: string;
 
-        if (size > threshold) {
+        if (partSizeOverride !== undefined || size > MULTIPART_THRESHOLD_BYTES) {
           // Chunked path. A single PUT of the whole file times out at the
           // Cloudflare proxy (~100s) for anything that takes longer than that
           // to transfer, which is what produced the HTTP 524 reports.
@@ -164,6 +174,7 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
             contentType,
             fileSize: size,
             api,
+            partSizeOverride,
             onProgress: (uploadedBytes, totalBytes) => {
               const pct = Math.floor((uploadedBytes / totalBytes) * 100);
               if (pct !== lastPct) {

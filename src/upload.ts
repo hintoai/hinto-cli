@@ -42,12 +42,33 @@ export interface MultipartUploadOptions {
   onProgress?: (uploadedBytes: number, totalBytes: number) => void;
   /** Overridable so tests do not sleep. */
   retryDelayMs?: number;
+  /**
+   * Slice size override, in bytes. Defaults to the partSize the server returns.
+   * The client owns the slicing arithmetic, so it also derives the part count —
+   * the server's partCount is advisory.
+   */
+  partSizeOverride?: number;
 }
 
-/** Parts uploaded at once. Three keeps a slow link saturated without a huge resident set. */
-const CONCURRENCY = 3;
+/**
+ * Parts uploaded at once.
+ *
+ * Keep this LOW. On a saturated uplink, concurrency does not add throughput — it
+ * divides it, which multiplies how long each individual request stays open, and
+ * the gateway in front of storage abandons any single request at ~100s. The
+ * governing relationship is:
+ *
+ *   seconds per part = partSize / (uplink / CONCURRENCY)
+ *
+ * Measured against production on a 0.73 MB/s uplink: 50 MiB parts at concurrency
+ * 3 gave each stream ~0.24 MB/s, so one part took ~215s and every attempt died
+ * with HTTP 524 — the same failure this uploader exists to fix, one layer down.
+ * At 8 MiB and concurrency 2 the same link needs ~23s per part, and still only
+ * ~70s on a link three times slower.
+ */
+const CONCURRENCY = 2;
 /** Part URLs requested per sign call. Must not exceed the server's MAX_BATCH of 100. */
-const SIGN_BATCH = 20;
+const SIGN_BATCH = 50;
 const MAX_ATTEMPTS = 4;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -133,7 +154,12 @@ export async function uploadFileMultipart(
   const retryDelayMs = opts.retryDelayMs ?? 1000;
 
   const created = await api.multipartCreate(filename, contentType, fileSize);
-  const { videoId, key, uploadId, partSize, partCount } = created;
+  const { videoId, key, uploadId } = created;
+  // The client does the slicing, so it derives the count from the size it will
+  // actually use. Trusting the server's partCount while overriding partSize
+  // would upload the wrong number of parts.
+  const partSize = opts.partSizeOverride ?? created.partSize;
+  const partCount = Math.ceil(fileSize / partSize);
 
   const uploaded: UploadedPart[] = [];
   let uploadedBytes = 0;
