@@ -152,6 +152,9 @@ Do **not** invent commands for these — they live in the Hinto web app:
 # 1. Upload a local video file
 hinto videos upload --file ./video.mp4 --json
 # → { "videoId": "..." }
+# Files over 50 MB upload in chunks automatically — no extra flags. The maximum
+# is 2 GB, checked locally before the transfer starts, so an oversize file fails
+# immediately rather than after a long upload.
 
 # OR import from a URL (returns a Job object — poll until completed to get videoId)
 hinto videos import --url https://example.com/video.mp4 --json

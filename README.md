@@ -252,7 +252,17 @@ hinto videos get <videoId>
 hinto videos status <videoId>
 hinto videos import --url https://example.com/video.mp4
 hinto videos delete <videoId>
+hinto videos upload --file ./demo.mp4
+hinto videos upload --file ./demo.mp4 --wait     # block until ready
 ```
+
+Uploads over 50 MB are sent in chunks with automatic per-part retry, so a
+transient timeout no longer fails the whole transfer. The maximum file size is
+2 GB, checked locally before the transfer starts — an oversize file fails
+immediately rather than after a long upload.
+
+If the network drops mid-upload the CLI checks with the server before reporting
+failure, so an upload that actually completed is never reported as an error.
 
 ### `hinto generate`
 
