@@ -7,6 +7,15 @@ import { videosApi } from '../api/videos';
 import { exitWithError } from '../errors';
 import { printJson, printKeyValue, printTable } from '../output';
 import { pollVideoReady } from '../poll';
+import { uploadFileMultipart } from '../upload';
+
+/** Mirrors MAX_UPLOAD_BYTES in web-client/src/lib/video-upload.ts — the Gemini Files API ceiling. */
+const MAX_UPLOAD_BYTES = 2_000_000_000;
+/**
+ * Above this, chunk. Below it, one PUT completes well inside the ~100s proxy
+ * window, and the single-shot path is the one already proven in the field.
+ */
+const MULTIPART_THRESHOLD_BYTES = 50 * 1024 * 1024;
 
 export function registerVideos(program: Command, client: AxiosInstance): void {
   const videos = program.command('videos').description('Manage videos');
@@ -101,11 +110,12 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
 
   videos
     .command('upload')
-    .description('Upload a video file from disk (3-step presigned flow)')
+    .description('Upload a video file from disk (chunked for large files)')
     .requiredOption('--file <path>', 'Path to the video file')
     .option('--wait', 'Wait until the video is ready for generation')
+    .option('--part-size <bytes>', 'Override the chunk size (advanced)')
     .option('--json', 'Output as JSON')
-    .action(async (opts: { file: string; wait?: boolean; json?: boolean }) => {
+    .action(async (opts: { file: string; wait?: boolean; partSize?: string; json?: boolean }) => {
       try {
         const filePath = path.resolve(opts.file);
         if (!fs.existsSync(filePath)) {
@@ -122,34 +132,96 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
           '.mkv': 'video/x-matroska',
         };
         const contentType = contentTypeMap[ext] ?? 'video/mp4';
-
-        // Step 1: get presigned URL
-        process.stderr.write('Requesting presigned upload URL...\n');
-        const { videoId, uploadUrl, key: s3Key } = await api.uploadPresigned(filename, contentType);
-
-        // Step 2: PUT file to S3
-        process.stderr.write(`Uploading ${filename}...\n`);
-        const fileStream = fs.createReadStream(filePath);
         const { size } = fs.statSync(filePath);
-        await axios.put(uploadUrl, fileStream, {
-          headers: { 'Content-Type': contentType, 'Content-Length': size },
-          maxBodyLength: Number.POSITIVE_INFINITY,
-          maxContentLength: Number.POSITIVE_INFINITY,
-        });
 
-        // Step 3: complete upload
-        process.stderr.write('Completing upload...\n');
-        const result = await api.uploadComplete(videoId, s3Key, filename);
-
-        if (opts.wait) {
-          await pollVideoReady(client, result.videoId);
+        // Checked locally so an oversize file costs nothing. The ceiling comes
+        // from the Gemini Files API, which caps individual files at 2 GB — the
+        // server enforces the same number.
+        if (size > MAX_UPLOAD_BYTES) {
+          exitWithError(
+            `File too large (${Math.round(size / 1_000_000)} MB). Maximum is ${Math.round(
+              MAX_UPLOAD_BYTES / 1_000_000,
+            )} MB.`,
+          );
+          return;
         }
 
-        if (opts.json) return printJson(result);
+        const threshold = opts.partSize ? Number(opts.partSize) : MULTIPART_THRESHOLD_BYTES;
+
+        let videoId: string;
+
+        if (size > threshold) {
+          // Chunked path. A single PUT of the whole file times out at the
+          // Cloudflare proxy (~100s) for anything that takes longer than that
+          // to transfer, which is what produced the HTTP 524 reports.
+          process.stderr.write(
+            `Uploading ${filename} in chunks (${Math.round(size / 1_000_000)} MB)...\n`,
+          );
+          let lastPct = -1;
+          const result = await uploadFileMultipart({
+            filePath,
+            filename,
+            contentType,
+            fileSize: size,
+            api,
+            onProgress: (uploadedBytes, totalBytes) => {
+              const pct = Math.floor((uploadedBytes / totalBytes) * 100);
+              if (pct !== lastPct) {
+                lastPct = pct;
+                process.stderr.write(`\rUploading... ${pct}%`);
+              }
+            },
+          });
+          process.stderr.write('\n');
+          videoId = result.videoId;
+        } else {
+          process.stderr.write('Requesting presigned upload URL...\n');
+          const {
+            videoId: newVideoId,
+            uploadUrl,
+            key: s3Key,
+          } = await api.uploadPresigned(filename, contentType, size);
+
+          process.stderr.write(`Uploading ${filename}...\n`);
+          let putFailure: unknown;
+          try {
+            await axios.put(uploadUrl, fs.createReadStream(filePath), {
+              headers: { 'Content-Type': contentType, 'Content-Length': size },
+              maxBodyLength: Number.POSITIVE_INFINITY,
+              maxContentLength: Number.POSITIVE_INFINITY,
+            });
+          } catch (e: unknown) {
+            putFailure = e;
+          }
+
+          // A failed PUT does not mean the object is absent: the proxy in
+          // front of storage can abandon the response while the body keeps
+          // flowing to the origin. Completing is the check — it HEADs the
+          // object and 404s if it genuinely is not there. Without this the
+          // CLI reports errors for uploads that actually succeeded.
+          if (putFailure) {
+            process.stderr.write('Upload reported an error; verifying whether it landed...\n');
+          }
+          try {
+            const completed = await api.uploadComplete(newVideoId, s3Key, filename);
+            videoId = completed.videoId;
+          } catch (completeErr: unknown) {
+            if (putFailure) {
+              throw putFailure;
+            }
+            throw completeErr;
+          }
+        }
+
+        if (opts.wait) {
+          await pollVideoReady(client, videoId);
+        }
+
+        if (opts.json) return printJson({ videoId });
         process.stdout.write(
-          `Uploaded: videoId=${result.videoId}  status=${opts.wait ? 'ready' : 'pending'}\n`,
+          `Uploaded: videoId=${videoId}  status=${opts.wait ? 'ready' : 'pending'}\n`,
         );
-        if (!opts.wait) process.stdout.write(`Track: hinto videos status ${result.videoId}\n`);
+        if (!opts.wait) process.stdout.write(`Track: hinto videos status ${videoId}\n`);
       } catch (e: unknown) {
         exitWithError(e instanceof Error ? e.message : String(e));
       }
