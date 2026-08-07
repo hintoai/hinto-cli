@@ -153,7 +153,10 @@ export function registerVideos(program: Command, client: AxiosInstance): void {
         // --part-size overrides the slice size and forces the chunked path, so a
         // small file can exercise multipart without needing a large fixture.
         const partSizeOverride = opts.partSize ? Number(opts.partSize) : undefined;
-        if (partSizeOverride !== undefined && (!Number.isFinite(partSizeOverride) || partSizeOverride <= 0)) {
+        if (
+          partSizeOverride !== undefined &&
+          (!Number.isFinite(partSizeOverride) || partSizeOverride <= 0)
+        ) {
           exitWithError('--part-size must be a positive number of bytes');
           return;
         }
