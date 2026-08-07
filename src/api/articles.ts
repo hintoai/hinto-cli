@@ -23,6 +23,7 @@ export interface ArticleDetail {
     metaKeywords: string[] | null;
     jsonLd: string | null;
   };
+  brief: string | null;
 }
 
 export interface ArticleVersion {
@@ -32,6 +33,7 @@ export interface ArticleVersion {
   createdBy: string;
   changeDescription: string | null;
   isAutoSave: boolean;
+  briefAddition: string | null;
 }
 
 export interface ArticleTranslation {
@@ -59,7 +61,7 @@ export const articlesApi = (client: AxiosInstance) => ({
       .get<ArticleDetail>(`/articles/${id}`, { params: format ? { format } : undefined })
       .then((r) => r.data),
 
-  create: (body: { title: string; content?: string; folderId?: string }) =>
+  create: (body: { title: string; content?: string; folderId?: string; brief?: string }) =>
     client.post<ArticleDetail>('/articles', body).then((r) => r.data),
 
   update: (
@@ -70,6 +72,7 @@ export const articlesApi = (client: AxiosInstance) => ({
       content?: string;
       metaDescription?: string;
       metaKeywords?: string[];
+      brief?: string | null;
     },
   ) => client.put<ArticleDetail>(`/articles/${id}`, body).then((r) => r.data),
 
@@ -81,15 +84,19 @@ export const articlesApi = (client: AxiosInstance) => ({
   move: (id: string, folderId: string | null) =>
     client.patch<ArticleDetail>(`/articles/${id}/move`, { folderId }).then((r) => r.data),
 
-  regenerate: (id: string, callbackUrl?: string, callbackSecret?: string) =>
+  regenerate: (
+    id: string,
+    opts: { briefAddition?: string; callbackUrl?: string; callbackSecret?: string } = {},
+  ) =>
     client
       .post<import('./generate').Job>(`/articles/${id}/regenerate`, {
-        ...(callbackUrl ? { callbackUrl } : {}),
-        ...(callbackSecret ? { callbackSecret } : {}),
+        ...(opts.briefAddition ? { briefAddition: opts.briefAddition } : {}),
+        ...(opts.callbackUrl ? { callbackUrl: opts.callbackUrl } : {}),
+        ...(opts.callbackSecret ? { callbackSecret: opts.callbackSecret } : {}),
       })
       .then((r) => r.data),
 
-  createEmpty: (body: { title?: string; folderId?: number }) =>
+  createEmpty: (body: { title?: string; folderId?: number; brief?: string }) =>
     client.post<ArticleDetail>('/articles/empty', body).then((r) => r.data),
 
   listVersions: (id: string) =>

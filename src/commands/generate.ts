@@ -28,12 +28,12 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
         json?: boolean;
       }) => {
         try {
-          const data = await api.start(
-            opts.video,
-            opts.template ? Number(opts.template) : undefined,
-            opts.callbackUrl,
-            opts.callbackSecret,
-          );
+          const data = await api.start({
+            videoId: opts.video,
+            templateId: opts.template ? Number(opts.template) : undefined,
+            callbackUrl: opts.callbackUrl,
+            callbackSecret: opts.callbackSecret,
+          });
           if (opts.wait) {
             const output = await pollJob(client, data.jobId);
             if (opts.json) return printJson(output);

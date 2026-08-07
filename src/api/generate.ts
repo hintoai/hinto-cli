@@ -11,13 +11,20 @@ export interface Job {
 }
 
 export const generateApi = (client: AxiosInstance) => ({
-  start: (videoId: string, templateId?: number, callbackUrl?: string, callbackSecret?: string) =>
+  start: (opts: {
+    videoId: string;
+    templateId?: number;
+    brief?: string;
+    callbackUrl?: string;
+    callbackSecret?: string;
+  }) =>
     client
       .post<Job>('/generate', {
-        videoId,
-        ...(templateId !== undefined ? { templateId } : {}),
-        ...(callbackUrl ? { callbackUrl } : {}),
-        ...(callbackSecret ? { callbackSecret } : {}),
+        videoId: opts.videoId,
+        ...(opts.templateId !== undefined ? { templateId: opts.templateId } : {}),
+        ...(opts.brief ? { brief: opts.brief } : {}),
+        ...(opts.callbackUrl ? { callbackUrl: opts.callbackUrl } : {}),
+        ...(opts.callbackSecret ? { callbackSecret: opts.callbackSecret } : {}),
       })
       .then((r) => r.data),
 

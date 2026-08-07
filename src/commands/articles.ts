@@ -1,16 +1,9 @@
 import type { AxiosInstance } from 'axios';
 import type { Command } from 'commander';
-import fs from 'fs';
-import path from 'path';
 import { articlesApi } from '../api/articles';
 import { exitWithError } from '../errors';
+import { resolveInput } from '../input';
 import { printJson, printKeyValue, printTable } from '../output';
-
-function resolveContent(raw: string): string {
-  if (!raw.startsWith('@')) return raw;
-  const filePath = path.resolve(raw.slice(1));
-  return fs.readFileSync(filePath, 'utf-8');
-}
 
 export function registerArticles(program: Command, client: AxiosInstance): void {
   const articles = program.command('articles').description('Manage articles');
@@ -73,7 +66,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
       try {
         const data = await api.create({
           title: opts.title,
-          content: resolveContent(opts.content),
+          content: resolveInput(opts.content),
           folderId: opts.folder,
         });
         if (opts.json) return printJson(data);
@@ -139,7 +132,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
           const data = await api.update(id, {
             ...(opts.title !== undefined && { title: opts.title }),
             ...(opts.slug !== undefined && { slug: opts.slug }),
-            ...(opts.content !== undefined && { content: resolveContent(opts.content) }),
+            ...(opts.content !== undefined && { content: resolveInput(opts.content) }),
             ...(opts.metaDescription !== undefined && { metaDescription: opts.metaDescription }),
             ...(opts.metaKeywords !== undefined && {
               metaKeywords: opts.metaKeywords
@@ -211,7 +204,10 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
         opts: { callbackUrl?: string; callbackSecret?: string; json?: boolean },
       ) => {
         try {
-          const data = await api.regenerate(id, opts.callbackUrl, opts.callbackSecret);
+          const data = await api.regenerate(id, {
+            callbackUrl: opts.callbackUrl,
+            callbackSecret: opts.callbackSecret,
+          });
           if (opts.json) return printJson(data);
           printKeyValue(data as unknown as Record<string, unknown>);
         } catch (e: unknown) {
@@ -364,7 +360,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
             jsonLd?: object;
           } = {
             title: opts.title,
-            content: resolveContent(opts.content),
+            content: resolveInput(opts.content),
           };
           if (opts.metaDescription) body.metaDescription = opts.metaDescription;
           if (opts.metaKeywords) {
@@ -374,7 +370,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
               .filter(Boolean);
           }
           if (opts.slug) body.slug = opts.slug;
-          if (opts.faqJsonld) body.jsonLd = JSON.parse(resolveContent(opts.faqJsonld));
+          if (opts.faqJsonld) body.jsonLd = JSON.parse(resolveInput(opts.faqJsonld));
 
           const data = await api.setTranslation(id, opts.lang, body);
           if (opts.json) return printJson(data);
