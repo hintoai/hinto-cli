@@ -61,7 +61,10 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .requiredOption('--title <title>', 'Article title')
     .requiredOption('--content <content>', 'Markdown content string or @filepath')
     .option('--folder <id>', 'Folder ID')
-    .option('--brief <brief>', "The article's durable scope (string or @filepath)")
+    .option(
+      '--brief <brief>',
+      "The article's durable scope (string or @filepath) — stored but inert here, since create supplies content immediately",
+    )
     .option('--json', 'Output as JSON')
     .action(
       async (opts: {

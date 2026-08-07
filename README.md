@@ -177,13 +177,21 @@ hinto articles get <id> --json
 hinto articles create --title "Getting Started" --content "# Hello\n\nWorld."
 hinto articles create --title "From file" --content @path/to/article.md
 hinto articles create --title "In a folder" --content "..." --folder <folderId>
+hinto articles create --title "..." --content "..." --brief "Covers setup only, not troubleshooting."
+
+# create-empty needs no content — useful when a generation job will fill it in later
+hinto articles create-empty --title "Draft"
+hinto articles create-empty --title "Draft" --brief @path/to/brief.txt
 
 hinto articles update <id> --title "New Title"
 hinto articles update <id> --slug "new-slug"
+hinto articles update <id> --brief "Covers setup only, not troubleshooting."
+hinto articles update <id> --clear-brief
 
 hinto articles duplicate <id>
 hinto articles move <id> --folder <folderId>
 hinto articles regenerate <id>
+hinto articles regenerate <id> --brief-addition "Also cover the new pricing tiers."
 
 hinto articles versions <id>
 hinto articles restore <id> --vid <vId>
@@ -193,6 +201,20 @@ hinto articles translate <id> --lang fr
 
 hinto articles delete <id>
 ```
+
+`--brief` sets an article's durable scope (what it covers and must not cover, max
+4000 characters) and steers only the article's first generation — a run on an
+article that has no content yet. Once the article has content, a regeneration is
+an edit run and the brief is ignored: setting one at that point is stored but has
+no effect, with no error. `create-empty` and `generate start` are the commands
+where a brief actually steers generation, since the article has no content yet at
+that point; setting `--brief` on `articles create` is stored but inert, since
+`create` supplies content immediately. `--clear-brief` on `articles update` clears
+a stored brief.
+
+`--brief-addition` on `articles regenerate` is different: it is a one-shot change
+request for that single regeneration run, never appended to the durable brief.
+Past change requests are visible via `articles versions`.
 
 `articles list --json` — includes a `pagination` object:
 
@@ -212,7 +234,9 @@ hinto articles delete <id>
 }
 ```
 
-`articles get <id> --json` — note the `metadata` wrapper for SEO fields, and that `content` is the full rendered output in the requested format:
+`articles get <id> --json` — note the `metadata` wrapper for SEO fields, that
+`content` is the full rendered output in the requested format, and that `brief`
+is `null` when none is set:
 
 ```json
 {
@@ -227,8 +251,18 @@ hinto articles delete <id>
     "jsonLd": null,
     "createdAt": "2026-01-15T10:00:00Z",
     "updatedAt": "2026-05-01T14:32:00Z"
-  }
+  },
+  "brief": null
 }
+```
+
+`articles versions <id>` prints a **Change request** column, showing each run's
+`--brief-addition` (or `—` for runs that had none):
+
+```
+Version ID  Version #  Created                   Auto-save  Change request
+v_abc123    3          2026-05-16T10:02:34Z      no         Also cover the new pricing tiers.
+v_abc122    2          2026-05-10T09:11:02Z      no         —
 ```
 
 `articles create --json` — returns only the essentials (`slug` may be `null` immediately after creation); fetch with `articles get` if you need the full article:
@@ -278,6 +312,9 @@ hinto generate start --video <videoId> --template <templateId> --wait --json
 
 # without --template, server picks the default
 hinto generate start --video <videoId> --wait --json
+
+# scope the new article's durable brief — steers this first generation
+hinto generate start --video <videoId> --brief "Covers setup only, not troubleshooting."
 
 # check an existing job
 hinto generate status <jobId> --json
