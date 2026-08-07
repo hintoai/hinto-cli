@@ -1,6 +1,8 @@
+import { Command } from 'commander';
 import nock from 'nock';
 import { createClient } from '../../src/api/client';
 import { generateApi } from '../../src/api/generate';
+import { registerGenerate } from '../../src/commands/generate';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -144,5 +146,22 @@ describe('generateApi.start with a brief', () => {
 
     const result = await api.start({ videoId: 'v1', brief: 'Covers onboarding only.' });
     expect(result.jobId).toBe('j2');
+  });
+});
+
+describe('generate start --brief', () => {
+  it('sends the brief', async () => {
+    const scope = nock(BASE_URL)
+      .post('/api/external/v2/generate', { videoId: 'v1', brief: 'Covers onboarding only.' })
+      .reply(202, { jobId: 'j2', status: 'pending' });
+
+    const program = new Command();
+    registerGenerate(program, client);
+    await program.parseAsync(
+      ['generate', 'start', '--video', 'v1', '--brief', 'Covers onboarding only.', '--json'],
+      { from: 'user' },
+    );
+
+    expect(scope.isDone()).toBe(true);
   });
 });

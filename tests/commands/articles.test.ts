@@ -3,6 +3,7 @@ import nock from 'nock';
 import { articlesApi } from '../../src/api/articles';
 import { createClient } from '../../src/api/client';
 import { registerArticles } from '../../src/commands/articles';
+import * as errors from '../../src/errors';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -509,5 +510,71 @@ describe('articlesApi.update clearing a brief', () => {
 
     const result = await api.update('1', { brief: null });
     expect(result.brief).toBeNull();
+  });
+});
+
+describe('articles update --brief / --clear-brief', () => {
+  it('sends a trimmed brief', async () => {
+    const scope = nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { brief: 'Covers setup only.' })
+      .reply(200, { id: 1, title: 'T', brief: 'Covers setup only.' });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(
+      ['articles', 'update', '1', '--brief', 'Covers setup only.', '--json'],
+      { from: 'user' },
+    );
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it('sends brief: null for --clear-brief', async () => {
+    const scope = nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { brief: null })
+      .reply(200, { id: 1, title: 'T', brief: null });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--clear-brief', '--json'], {
+      from: 'user',
+    });
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it('rejects --brief together with --clear-brief', async () => {
+    const exitWithErrorSpy = jest
+      .spyOn(errors, 'exitWithError')
+      .mockImplementation(() => undefined as never);
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--brief', 'x', '--clear-brief'], {
+      from: 'user',
+    });
+
+    expect(exitWithErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('--brief and --clear-brief'),
+    );
+
+    exitWithErrorSpy.mockRestore();
+  });
+});
+
+describe('articles regenerate --brief-addition', () => {
+  it('sends the change request', async () => {
+    const scope = nock(BASE_URL)
+      .post('/api/external/v2/articles/1/regenerate', { briefAddition: 'Make step 3 longer.' })
+      .reply(202, { jobId: 'j1', status: 'pending' });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(
+      ['articles', 'regenerate', '1', '--brief-addition', 'Make step 3 longer.', '--json'],
+      { from: 'user' },
+    );
+
+    expect(scope.isDone()).toBe(true);
   });
 });
