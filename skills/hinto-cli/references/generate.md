@@ -22,13 +22,14 @@ Polling interval: 2 seconds. Timeout: 5 minutes (300s). On timeout the CLI exits
 Start an article generation job from a video. The video must be in `ready` status.
 
 ```bash
-hinto generate start --video <videoId> [--template <templateId>] [--callback-url <url>] [--callback-secret <secret>] [--wait] [--json]
+hinto generate start --video <videoId> [--template <templateId>] [--brief <brief>] [--callback-url <url>] [--callback-secret <secret>] [--wait] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--video <videoId>` | Yes | ID of a `ready` video |
 | `--template <templateId>` | No | Template ID from `hinto templates article` — auto-selected if omitted |
+| `--brief <brief>` | No | The new article's durable scope (string or `@filepath`, max 4000 chars) — steers this first generation. See `articles.md` → Briefs. |
 | `--callback-url <url>` | No | URL to POST a webhook to when the job completes or fails |
 | `--callback-secret <secret>` | No | HMAC-SHA256 signing secret; if set, the webhook includes `X-Hinto-Signature` so you can verify authenticity. Requires `--callback-url`. |
 | `--wait` | No | Block until the job completes |
@@ -123,6 +124,9 @@ hinto generate start --video <videoId> --wait --json
 
 # With explicit template
 hinto generate start --video <videoId> --template 5 --wait --json
+
+# Scoping the new article's durable brief
+hinto generate start --video <videoId> --brief "Covers refunds only. Does not cover cancellations."
 ```
 
 ---

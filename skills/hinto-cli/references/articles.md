@@ -9,7 +9,7 @@ Two fields exist for steering AI generation, and they have different lifetimes:
 
 **A change request is never added to the brief — deliberately.** Appending `--brief-addition` text to the stored brief would make every later run re-execute it: on one article, prose grew 2104 → 4573 characters on the run that asked for 2x, then 4573 → 8274 characters on the *next* run, which had only asked to fix a timestamp — the "make it 2x" request kept firing because it was sitting in the brief. Never write `--brief-addition` content into a stored `brief`, and never suggest the user do so.
 
-**A brief only steers a first generation.** A regeneration on an article that already has content is an *edit* run, and the brief is ignored for it. Setting `--brief` on an article that already has content is stored but **inert** — no error, no effect. The commands where a brief actually steers generation are `articles create-empty` (content is added later, via `regenerate`) and `generate start` (the article has no content until the job runs).
+**A brief only steers a first generation.** A regeneration on an article that already has content is an *edit* run, and the brief is ignored for it. Setting `--brief` on an article that already has content is stored but **inert** — no error, no effect. The commands where a brief actually steers generation are `articles create-empty` (content is added later, via `regenerate`), `generate start` (the article has no content until the job runs), or `articles update` while the article is still empty (e.g. a fresh structure stub — set `--brief` there, then `regenerate`).
 
 **Ceiling:** 4000 characters, for both `brief` and `--brief-addition`.
 
@@ -109,7 +109,7 @@ Create an article from markdown content.
 
 ```bash
 hinto articles create --title "..." --content "..." [--folder <id>] [--brief <brief>] [--json]
-hinto articles create --title "..." --content @article.md [--folder <id>] [--json]
+hinto articles create --title "..." --content @article.md [--folder <id>] [--brief <brief>] [--json]
 ```
 
 | Flag | Required | Description |
