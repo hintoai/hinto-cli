@@ -124,7 +124,7 @@ Each API key carries scopes. Operations fail with `INSUFFICIENT_SCOPE` (403) whe
 |---|---|
 | `read` | get / list / status / structure / languages / versions / translations |
 | `write` | create / update / delete / move / duplicate / restore / add-language / set-translation |
-| `generate` | generate start / structure, regenerate, retranslate, trigger-translate |
+| `generate` | generate start (`--brief` scopes the article's first generation) / structure, regenerate (`--brief-addition` for a one-shot change request — see `references/articles.md` → Briefs), retranslate, trigger-translate |
 | `publish` | publish now / republish / unpublish |
 
 > The per-article translation route (`translate <id>`, `trigger-translate`, `set-translation`) is `generate`-gated, so those need `generate` — and `set-translation` needs `write` **on top of** `generate`. Project API keys created in the app carry all scopes by default, so this only matters for minimally-scoped keys.

@@ -3,6 +3,7 @@ import nock from 'nock';
 import { articlesApi } from '../../src/api/articles';
 import { createClient } from '../../src/api/client';
 import { registerArticles } from '../../src/commands/articles';
+import * as errors from '../../src/errors';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -152,7 +153,7 @@ describe('articlesApi.regenerate', () => {
       .post('/api/external/v2/articles/1/regenerate', { callbackUrl: 'https://cb.example.com' })
       .reply(202, mockJob('j-regen-cb'));
 
-    const result = await api.regenerate('1', 'https://cb.example.com');
+    const result = await api.regenerate('1', { callbackUrl: 'https://cb.example.com' });
     expect(result.jobId).toBe('j-regen-cb');
   });
 
@@ -164,7 +165,10 @@ describe('articlesApi.regenerate', () => {
       })
       .reply(202, mockJob('j-regen-secret'));
 
-    const result = await api.regenerate('1', 'https://cb.example.com', 'regen-secret');
+    const result = await api.regenerate('1', {
+      callbackUrl: 'https://cb.example.com',
+      callbackSecret: 'regen-secret',
+    });
     expect(result.jobId).toBe('j-regen-secret');
   });
 
@@ -173,7 +177,7 @@ describe('articlesApi.regenerate', () => {
       .post('/api/external/v2/articles/1/regenerate', {})
       .reply(202, mockJob('j-regen-no-opts'));
 
-    const result = await api.regenerate('1', undefined, undefined);
+    const result = await api.regenerate('1', { callbackUrl: undefined, callbackSecret: undefined });
     expect(result.jobId).toBe('j-regen-no-opts');
   });
 });
@@ -446,5 +450,131 @@ describe('set-translation command (CLI option parsing)', () => {
 
     expect(capturedBody).toBeDefined();
     expect((capturedBody as Record<string, unknown>).jsonLd).toEqual({ '@type': 'FAQPage' });
+  });
+});
+
+describe('articlesApi.regenerate with a brief addition', () => {
+  it('sends briefAddition in the body', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/articles/1/regenerate', { briefAddition: 'Make step 3 longer.' })
+      .reply(202, {
+        jobId: 'j1',
+        type: 'generate_article',
+        status: 'pending',
+        createdAt: '2026-01-01',
+      });
+
+    const result = await api.regenerate('1', { briefAddition: 'Make step 3 longer.' });
+    expect(result.jobId).toBe('j1');
+  });
+});
+
+describe('articlesApi.createEmpty with a brief', () => {
+  it('sends brief in the body', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/articles/empty', { title: 'Scoped', brief: 'Covers setup only.' })
+      .reply(201, {
+        id: 3,
+        title: 'Scoped',
+        slug: null,
+        folderId: null,
+        format: 'markdown',
+        content: '',
+        brief: 'Covers setup only.',
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+        metadata: { metaDescription: null, metaKeywords: null, jsonLd: null },
+      });
+
+    const result = await api.createEmpty({ title: 'Scoped', brief: 'Covers setup only.' });
+    expect(result.brief).toBe('Covers setup only.');
+  });
+});
+
+describe('articlesApi.update clearing a brief', () => {
+  it('sends brief: null', async () => {
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { brief: null })
+      .reply(200, {
+        id: 1,
+        title: 'T',
+        slug: null,
+        folderId: null,
+        format: 'markdown',
+        content: '',
+        brief: null,
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+        metadata: { metaDescription: null, metaKeywords: null, jsonLd: null },
+      });
+
+    const result = await api.update('1', { brief: null });
+    expect(result.brief).toBeNull();
+  });
+});
+
+describe('articles update --brief / --clear-brief', () => {
+  it('sends a trimmed brief', async () => {
+    const scope = nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { brief: 'Covers setup only.' })
+      .reply(200, { id: 1, title: 'T', brief: 'Covers setup only.' });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(
+      ['articles', 'update', '1', '--brief', 'Covers setup only.', '--json'],
+      { from: 'user' },
+    );
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it('sends brief: null for --clear-brief', async () => {
+    const scope = nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { brief: null })
+      .reply(200, { id: 1, title: 'T', brief: null });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--clear-brief', '--json'], {
+      from: 'user',
+    });
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it('rejects --brief together with --clear-brief', async () => {
+    const exitWithErrorSpy = jest
+      .spyOn(errors, 'exitWithError')
+      .mockImplementation(() => undefined as never);
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--brief', 'x', '--clear-brief'], {
+      from: 'user',
+    });
+
+    expect(exitWithErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('--brief and --clear-brief'),
+    );
+
+    exitWithErrorSpy.mockRestore();
+  });
+});
+
+describe('articles regenerate --brief-addition', () => {
+  it('sends the change request', async () => {
+    const scope = nock(BASE_URL)
+      .post('/api/external/v2/articles/1/regenerate', { briefAddition: 'Make step 3 longer.' })
+      .reply(202, { jobId: 'j1', status: 'pending' });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(
+      ['articles', 'regenerate', '1', '--brief-addition', 'Make step 3 longer.', '--json'],
+      { from: 'user' },
+    );
+
+    expect(scope.isDone()).toBe(true);
   });
 });

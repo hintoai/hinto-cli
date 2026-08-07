@@ -2,6 +2,7 @@ import type { AxiosInstance } from 'axios';
 import type { Command } from 'commander';
 import { generateApi } from '../api/generate';
 import { exitWithError } from '../errors';
+import { resolveInput } from '../input';
 import { printJson, printKeyValue } from '../output';
 import { pollJob } from '../poll';
 
@@ -14,6 +15,7 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
     .description('Start a generation job')
     .requiredOption('--video <videoId>', 'Video ID to generate from')
     .option('--template <templateId>', 'Template ID (optional — server auto-selects if omitted)')
+    .option('--brief <brief>', "The new article's durable scope (string or @filepath)")
     .option('--callback-url <url>', 'URL to receive a webhook when the job completes')
     .option('--callback-secret <secret>', 'HMAC-SHA256 signing secret for the callback webhook')
     .option('--wait', 'Wait for completion')
@@ -22,18 +24,20 @@ export function registerGenerate(program: Command, client: AxiosInstance): void 
       async (opts: {
         video: string;
         template?: string;
+        brief?: string;
         callbackUrl?: string;
         callbackSecret?: string;
         wait?: boolean;
         json?: boolean;
       }) => {
         try {
-          const data = await api.start(
-            opts.video,
-            opts.template ? Number(opts.template) : undefined,
-            opts.callbackUrl,
-            opts.callbackSecret,
-          );
+          const data = await api.start({
+            videoId: opts.video,
+            templateId: opts.template ? Number(opts.template) : undefined,
+            ...(opts.brief !== undefined && { brief: resolveInput(opts.brief).trim() }),
+            callbackUrl: opts.callbackUrl,
+            callbackSecret: opts.callbackSecret,
+          });
           if (opts.wait) {
             const output = await pollJob(client, data.jobId);
             if (opts.json) return printJson(output);

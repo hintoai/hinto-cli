@@ -17,6 +17,7 @@ Logic the commands don't make obvious. Read this before promising outcomes to th
   - **On** → content generation is auto-queued for every new stub.
   - **Off** → stubs stay empty until you generate them.
 - To fill a stub manually: `hinto articles regenerate <id>` — it generates content from the stub's linked source video (each stub retains its `video_id`).
+- To scope a stub before filling it, set a durable brief first — `hinto articles update <id> --brief "..."` — then run `regenerate`. This works because the stub is still empty: a brief only steers a *first* generation, and setting one after content already exists is stored but inert. See `articles.md` → Briefs.
 - After a structure run, check `hinto project structure --json` and, if needed, `hinto articles get <id>` to see whether stubs have content yet.
 
 ## Images

@@ -1,6 +1,8 @@
+import { Command } from 'commander';
 import nock from 'nock';
 import { createClient } from '../../src/api/client';
 import { generateApi } from '../../src/api/generate';
+import { registerGenerate } from '../../src/commands/generate';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -23,13 +25,13 @@ describe('generateApi.start', () => {
     nock(BASE_URL)
       .post('/api/external/v2/generate', { videoId: 'v1', templateId: 42 })
       .reply(202, mockJob('j1'));
-    const result = await api.start('v1', 42);
+    const result = await api.start({ videoId: 'v1', templateId: 42 });
     expect(result.jobId).toBe('j1');
   });
 
   it('omits templateId when not provided', async () => {
     nock(BASE_URL).post('/api/external/v2/generate', { videoId: 'v1' }).reply(202, mockJob('j2'));
-    const result = await api.start('v1');
+    const result = await api.start({ videoId: 'v1' });
     expect(result.jobId).toBe('j2');
   });
 
@@ -41,7 +43,11 @@ describe('generateApi.start', () => {
         callbackSecret: 'my-secret',
       })
       .reply(202, mockJob('j3'));
-    const result = await api.start('v1', undefined, 'https://example.com/cb', 'my-secret');
+    const result = await api.start({
+      videoId: 'v1',
+      callbackUrl: 'https://example.com/cb',
+      callbackSecret: 'my-secret',
+    });
     expect(result.jobId).toBe('j3');
   });
 
@@ -49,7 +55,7 @@ describe('generateApi.start', () => {
     nock(BASE_URL)
       .post('/api/external/v2/generate', { videoId: 'v1', templateId: 5 })
       .reply(202, mockJob('j4'));
-    const result = await api.start('v1', 5);
+    const result = await api.start({ videoId: 'v1', templateId: 5 });
     expect(result.jobId).toBe('j4');
   });
 });
@@ -124,5 +130,38 @@ describe('generateApi.structure', () => {
       .reply(202, { ...mockJob('j-struct-all'), type: 'generate_structure' });
     const result = await api.structure('v1', 3, 'https://example.com/cb', 'all-opts-secret');
     expect(result.jobId).toBe('j-struct-all');
+  });
+});
+
+describe('generateApi.start with a brief', () => {
+  it('sends brief in the body', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/generate', { videoId: 'v1', brief: 'Covers onboarding only.' })
+      .reply(202, {
+        jobId: 'j2',
+        type: 'generate_article',
+        status: 'pending',
+        createdAt: '2026-01-01',
+      });
+
+    const result = await api.start({ videoId: 'v1', brief: 'Covers onboarding only.' });
+    expect(result.jobId).toBe('j2');
+  });
+});
+
+describe('generate start --brief', () => {
+  it('sends the brief', async () => {
+    const scope = nock(BASE_URL)
+      .post('/api/external/v2/generate', { videoId: 'v1', brief: 'Covers onboarding only.' })
+      .reply(202, { jobId: 'j2', status: 'pending' });
+
+    const program = new Command();
+    registerGenerate(program, client);
+    await program.parseAsync(
+      ['generate', 'start', '--video', 'v1', '--brief', 'Covers onboarding only.', '--json'],
+      { from: 'user' },
+    );
+
+    expect(scope.isDone()).toBe(true);
   });
 });
