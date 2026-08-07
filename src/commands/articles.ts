@@ -5,6 +5,15 @@ import { exitWithError } from '../errors';
 import { resolveInput } from '../input';
 import { printJson, printKeyValue, printTable } from '../output';
 
+// Change requests can be up to 4000 chars and may contain newlines, which shreds a
+// fixed-column table. Collapse newlines and truncate for display only — `--json`
+// output goes through printJson() directly and always carries the full value.
+function truncateForTable(value: string | null | undefined, maxLength = 60): string {
+  if (!value) return '—';
+  const collapsed = value.replace(/\s*\n+\s*/g, ' ').trim();
+  return collapsed.length > maxLength ? `${collapsed.slice(0, maxLength)}…` : collapsed;
+}
+
 export function registerArticles(program: Command, client: AxiosInstance): void {
   const articles = program.command('articles').description('Manage articles');
   const api = articlesApi(client);
@@ -274,7 +283,7 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
             String(v.versionNumber),
             v.createdAt,
             v.isAutoSave ? 'yes' : 'no',
-            v.briefAddition ?? '—',
+            truncateForTable(v.briefAddition),
           ]),
         );
       } catch (e: unknown) {

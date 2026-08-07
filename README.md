@@ -245,14 +245,15 @@ is `null` when none is set:
   "slug": "getting-started",
   "format": "markdown",
   "content": "# Getting Started\n\nWelcome to Hinto.",
+  "folderId": null,
   "metadata": {
     "metaDescription": null,
     "metaKeywords": null,
-    "jsonLd": null,
-    "createdAt": "2026-01-15T10:00:00Z",
-    "updatedAt": "2026-05-01T14:32:00Z"
+    "jsonLd": null
   },
-  "brief": null
+  "brief": null,
+  "createdAt": "2026-01-15T10:00:00Z",
+  "updatedAt": "2026-05-01T14:32:00Z"
 }
 ```
 

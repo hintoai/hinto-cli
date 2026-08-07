@@ -22,6 +22,9 @@ export const generateApi = (client: AxiosInstance) => ({
       .post<Job>('/generate', {
         videoId: opts.videoId,
         ...(opts.templateId !== undefined ? { templateId: opts.templateId } : {}),
+        // Truthiness guard: harmless while `brief` isn't nullable on this endpoint, but if it
+        // ever needs to carry `null` (to clear a value), this must become an `!== undefined`
+        // check — a truthy guard silently drops `null`.
         ...(opts.brief ? { brief: opts.brief } : {}),
         ...(opts.callbackUrl ? { callbackUrl: opts.callbackUrl } : {}),
         ...(opts.callbackSecret ? { callbackSecret: opts.callbackSecret } : {}),
