@@ -25,7 +25,7 @@ Use this when the user wants to turn a video into article(s). Lead with the avai
    ```bash
    hinto generate structure --video <videoId> --template <templateId> --wait --json
    ```
-   This creates **folders + empty article stubs** (AI-named). Tell the user these are stubs — content fills automatically only if the project has auto-generate enabled; otherwise fill each stub with `hinto articles regenerate <id>`. See `product-behavior.md`.
+   This creates **folders + empty article stubs** (AI-named). Tell the user these are stubs — content fills automatically only if the project has auto-generate enabled; otherwise fill each stub with `hinto articles regenerate <id>`. To scope a stub before filling it, set a durable brief first — `hinto articles update <id> --brief "..."` — then run `regenerate`; this works because the stub is still empty, so the brief actually steers that first generation (see `articles.md` → Briefs). See `product-behavior.md`.
 
 5. **If "A single article" is chosen:**
    **Menu 2 — "Which article template?"** (options = `templates article`, show `name` + `description`).

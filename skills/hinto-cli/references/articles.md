@@ -1,5 +1,37 @@
 # Articles Reference
 
+## Briefs
+
+Two fields exist for steering AI generation, and they have different lifetimes:
+
+- **`brief`** — an article's **durable scope**: what it covers and what it must not cover. It is stored on the article and persists until changed or cleared.
+- **`--brief-addition`** — a **one-shot change request** for a single regeneration run, e.g. "make step 3 longer." It is used for that run only.
+
+**A change request is never added to the brief — deliberately.** Appending `--brief-addition` text to the stored brief would make every later run re-execute it: on one article, prose grew 2104 → 4573 characters on the run that asked for 2x, then 4573 → 8274 characters on the *next* run, which had only asked to fix a timestamp — the "make it 2x" request kept firing because it was sitting in the brief. Never write `--brief-addition` content into a stored `brief`, and never suggest the user do so.
+
+**A brief only steers a first generation.** A regeneration on an article that already has content is an *edit* run, and the brief is ignored for it. Setting `--brief` on an article that already has content is stored but **inert** — no error, no effect. The commands where a brief actually steers generation are `articles create-empty` (content is added later, via `regenerate`) and `generate start` (the article has no content until the job runs).
+
+**Ceiling:** 4000 characters, for both `brief` and `--brief-addition`.
+
+**`--clear-brief`** (on `articles update`) clears a stored brief. Passing `--brief` and `--clear-brief` together is an error.
+
+**The two working patterns:**
+
+```bash
+# Scoped article, no video source
+hinto articles create-empty --title "Refund policy" --brief @brief.md
+hinto articles regenerate <id>
+
+# Scoped article from a video, one call
+hinto generate start --video <videoId> --brief "Covers refunds only. Does not cover cancellations."
+```
+
+**Read the trail before writing the next request** — don't guess what was already asked:
+
+```bash
+hinto articles versions <id>   # the Change request column shows what was already asked
+```
+
 ## Commands
 
 ### `hinto articles list`
@@ -64,7 +96,8 @@ hinto articles get <id> [--format markdown|html] [--json]
     "metaDescription": "Step-by-step guide.",
     "metaKeywords": ["nextjs", "deploy"],
     "jsonLd": null
-  }
+  },
+  "brief": null
 }
 ```
 
@@ -75,7 +108,7 @@ hinto articles get <id> [--format markdown|html] [--json]
 Create an article from markdown content.
 
 ```bash
-hinto articles create --title "..." --content "..." [--folder <id>] [--json]
+hinto articles create --title "..." --content "..." [--folder <id>] [--brief <brief>] [--json]
 hinto articles create --title "..." --content @article.md [--folder <id>] [--json]
 ```
 
@@ -84,6 +117,7 @@ hinto articles create --title "..." --content @article.md [--folder <id>] [--jso
 | `--title <title>` | Yes | Article title |
 | `--content <content>` | Yes | Markdown string, or `@filepath` to read from file |
 | `--folder <id>` | No | Place article in this folder |
+| `--brief <brief>` | No | The article's durable scope (string or `@filepath`, max 4000 chars) — stored but **inert** here, since `create` supplies content immediately. See [Briefs](#briefs). |
 
 **`@filepath` syntax:** prefix with `@` to read from a file, e.g. `--content @./article.md`
 
@@ -99,7 +133,8 @@ hinto articles create --title "..." --content @article.md [--folder <id>] [--jso
   "content": "# How to deploy Next.js\n\n...",
   "createdAt": "2026-05-26T10:00:00Z",
   "updatedAt": "2026-05-26T10:00:00Z",
-  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null }
+  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null },
+  "brief": null
 }
 ```
 
@@ -110,13 +145,14 @@ hinto articles create --title "..." --content @article.md [--folder <id>] [--jso
 Create an empty article with no content. Useful when you want to create a stub and fill in content later.
 
 ```bash
-hinto articles create-empty [--title "..."] [--folder <id>] [--json]
+hinto articles create-empty [--title "..."] [--folder <id>] [--brief <brief>] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
 | `--title <title>` | No | Article title (defaults to untitled if omitted) |
 | `--folder <id>` | No | Place article in this folder |
+| `--brief <brief>` | No | The article's durable scope (string or `@filepath`, max 4000 chars) — steers the first `regenerate` run, since the stub has no content yet. See [Briefs](#briefs). |
 
 **`--json` response (201):** the full article object (same shape as `hinto articles get`).
 
@@ -130,7 +166,8 @@ hinto articles create-empty [--title "..."] [--folder <id>] [--json]
   "content": "",
   "createdAt": "2026-05-26T11:00:00Z",
   "updatedAt": "2026-05-26T11:00:00Z",
-  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null }
+  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null },
+  "brief": null
 }
 ```
 
@@ -141,7 +178,7 @@ hinto articles create-empty [--title "..."] [--folder <id>] [--json]
 Update an article's title, slug, body content, or SEO fields. Use `--content` to replace the body with Markdown (string or `@filepath`). To re-generate content from the source video via AI instead, use `hinto articles regenerate <id>`.
 
 ```bash
-hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body" | --content @body.md] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--json]
+hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body" | --content @body.md] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--brief <brief> | --clear-brief] [--json]
 ```
 
 | Flag | Required | Description |
@@ -151,6 +188,8 @@ hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body
 | `--content <md>` | No | New Markdown body (string or `@filepath`) — replaces the body |
 | `--meta-description <text>` | No | SEO meta description |
 | `--meta-keywords <keywords>` | No | Comma-separated SEO keywords |
+| `--brief <brief>` | No | Replace the article's durable scope (string or `@filepath`, max 4000 chars). Only steers generation while the article has no content — see [Briefs](#briefs). Cannot be combined with `--clear-brief`. |
+| `--clear-brief` | No | Clear the article's stored brief. Cannot be combined with `--brief`. |
 
 > Updating `--content` replaces the article body, snapshots a version, and re-translates any existing translations. Requires API ≥ the release that added content updates. At least one field is required.
 
@@ -166,7 +205,8 @@ hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body
   "content": "# New Title\n\n...",
   "createdAt": "2026-05-26T10:00:00Z",
   "updatedAt": "2026-05-26T10:00:00Z",
-  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null }
+  "metadata": { "metaDescription": null, "metaKeywords": null, "jsonLd": null },
+  "brief": null
 }
 ```
 
@@ -234,11 +274,12 @@ hinto articles move <id> [--folder <folderId>] [--json]
 Re-run AI generation on an existing article. Returns immediately with a `jobId`.
 
 ```bash
-hinto articles regenerate <id> [--callback-url <url>] [--callback-secret <secret>] [--json]
+hinto articles regenerate <id> [--brief-addition <text>] [--callback-url <url>] [--callback-secret <secret>] [--json]
 ```
 
 | Flag | Required | Description |
 |---|---|---|
+| `--brief-addition <text>` | No | A one-shot change request for this run only (string or `@filepath`, max 4000 chars) — never added to the durable `brief`. See [Briefs](#briefs). |
 | `--callback-url <url>` | No | URL to POST a webhook to when the job completes or fails |
 | `--callback-secret <secret>` | No | HMAC-SHA256 signing secret for the callback webhook. Requires `--callback-url`. |
 
@@ -278,11 +319,14 @@ hinto articles versions <id> [--json]
       "createdAt": "2026-05-26T10:00:00Z",
       "createdBy": "user-uuid",
       "changeDescription": null,
-      "isAutoSave": false
+      "isAutoSave": false,
+      "briefAddition": "Also cover the new pricing tiers."
     }
   ]
 }
 ```
+
+`briefAddition` is the `--brief-addition` text passed to `regenerate` for that run, or `null` if none was given. It is never written back into the article's stored `brief` — see [Briefs](#briefs). The plain-text table prints it as the **Change request** column (`—` when `null`).
 
 Use the version `id` as the `--vid` value in `hinto articles restore`.
 
@@ -451,4 +495,6 @@ hinto articles set-translation 51 --lang es \
 | `INSUFFICIENT_SCOPE` | 403 | `read` for get/list; `write` for create/update/delete/move/restore/set-translation; `generate` for regenerate/trigger-translate |
 | `INVALID_LANGUAGE` | 400 | Language code is not recognized |
 | `LANGUAGE_NOT_CONFIGURED` | 400 | Language is valid but not added to the project (set-translation / trigger-translate) |
+| `INVALID_BRIEF` | 400 | `brief` is not a string, or exceeds 4000 characters (create / create-empty / update / generate start). See [Briefs](#briefs). |
+| `INVALID_BRIEF_ADDITION` | 400 | `--brief-addition` is not a string, or exceeds 4000 characters (regenerate only). See [Briefs](#briefs). |
 | `RATE_LIMITED` | 429 | 60 req/min per API key — retry after `Retry-After` seconds |
