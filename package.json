@@ -52,7 +52,7 @@
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
     "commander": "^15.0.0",
-    "ora": "^8.1.0"
+    "ora": "^9.4.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.16",
