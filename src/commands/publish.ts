@@ -3,6 +3,7 @@ import type { Command } from 'commander';
 import { publishApi } from '../api/publish';
 import { exitWithError } from '../errors';
 import { printJson, printKeyValue } from '../output';
+import { pollJob } from '../poll';
 
 export function registerPublish(program: Command, client: AxiosInstance): void {
   const publish = program.command('publish').description('Publish your project');
@@ -14,17 +15,31 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
     .option('--json', 'Output as JSON')
     .option('--callback-url <url>', 'Webhook URL to call when the job completes')
     .option('--callback-secret <secret>', 'Secret to include in the webhook callback')
-    .action(async (opts: { json?: boolean; callbackUrl?: string; callbackSecret?: string }) => {
-      try {
-        const data = await api.now(opts.callbackUrl, opts.callbackSecret);
-        if (opts.json) return printJson(data);
-        process.stdout.write(
-          `Publish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`,
-        );
-      } catch (e: unknown) {
-        exitWithError(e instanceof Error ? e.message : String(e));
-      }
-    });
+    .option('--wait', 'Wait for completion')
+    .action(
+      async (opts: {
+        json?: boolean;
+        callbackUrl?: string;
+        callbackSecret?: string;
+        wait?: boolean;
+      }) => {
+        try {
+          const data = await api.now(opts.callbackUrl, opts.callbackSecret);
+          if (opts.wait) {
+            const output = await pollJob(client, data.jobId);
+            if (opts.json) return printJson(output);
+            printKeyValue(output as Record<string, unknown>);
+          } else {
+            if (opts.json) return printJson(data);
+            process.stdout.write(
+              `Publish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`,
+            );
+          }
+        } catch (e: unknown) {
+          exitWithError(e instanceof Error ? e.message : String(e));
+        }
+      },
+    );
 
   publish
     .command('republish')
@@ -32,17 +47,31 @@ export function registerPublish(program: Command, client: AxiosInstance): void {
     .option('--json', 'Output as JSON')
     .option('--callback-url <url>', 'Webhook URL to call when the job completes')
     .option('--callback-secret <secret>', 'Secret to include in the webhook callback')
-    .action(async (opts: { json?: boolean; callbackUrl?: string; callbackSecret?: string }) => {
-      try {
-        const data = await api.republish(opts.callbackUrl, opts.callbackSecret);
-        if (opts.json) return printJson(data);
-        process.stdout.write(
-          `Republish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`,
-        );
-      } catch (e: unknown) {
-        exitWithError(e instanceof Error ? e.message : String(e));
-      }
-    });
+    .option('--wait', 'Wait for completion')
+    .action(
+      async (opts: {
+        json?: boolean;
+        callbackUrl?: string;
+        callbackSecret?: string;
+        wait?: boolean;
+      }) => {
+        try {
+          const data = await api.republish(opts.callbackUrl, opts.callbackSecret);
+          if (opts.wait) {
+            const output = await pollJob(client, data.jobId);
+            if (opts.json) return printJson(output);
+            printKeyValue(output as Record<string, unknown>);
+          } else {
+            if (opts.json) return printJson(data);
+            process.stdout.write(
+              `Republish job started. Job ID: ${data.jobId}\nPoll status: hinto generate status ${data.jobId}\n`,
+            );
+          }
+        } catch (e: unknown) {
+          exitWithError(e instanceof Error ? e.message : String(e));
+        }
+      },
+    );
 
   publish
     .command('status')

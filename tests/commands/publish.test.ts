@@ -1,6 +1,8 @@
+import { Command } from 'commander';
 import nock from 'nock';
 import { createClient } from '../../src/api/client';
 import { publishApi } from '../../src/api/publish';
+import { registerPublish } from '../../src/commands/publish';
 
 const BASE_URL = 'https://app.hinto.ai';
 const client = createClient('test_key', BASE_URL);
@@ -102,5 +104,85 @@ describe('publishApi.unpublish', () => {
     });
     const result = await api.unpublish();
     expect(result.message).toBe('Project unpublished successfully');
+  });
+});
+
+describe('publish now --wait', () => {
+  it('polls the job and prints the output on completion', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/publish')
+      .reply(202, mockJob('job-publish-wait', 'publish'));
+    nock(BASE_URL)
+      .get('/api/external/v2/generate/job-publish-wait')
+      .reply(200, {
+        jobId: 'job-publish-wait',
+        status: 'completed',
+        output: { published: true },
+        error: null,
+      });
+
+    const program = new Command();
+    registerPublish(program, client);
+    await program.parseAsync(['publish', 'now', '--wait', '--json'], { from: 'user' });
+
+    expect(nock.isDone()).toBe(true);
+  });
+
+  it('without --wait, prints the job ID and does not poll', async () => {
+    const scope = nock(BASE_URL)
+      .post('/api/external/v2/publish')
+      .reply(202, mockJob('job-publish-nowait', 'publish'));
+
+    const program = new Command();
+    registerPublish(program, client);
+    const writeSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    await program.parseAsync(['publish', 'now'], { from: 'user' });
+
+    expect(scope.isDone()).toBe(true);
+    expect(writeSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Publish job started. Job ID: job-publish-nowait'),
+    );
+    expect(nock.pendingMocks()).toEqual([]);
+    writeSpy.mockRestore();
+  });
+});
+
+describe('publish republish --wait', () => {
+  it('polls the job and prints the output on completion', async () => {
+    nock(BASE_URL)
+      .post('/api/external/v2/publish/republish')
+      .reply(202, mockJob('job-republish-wait', 'republish'));
+    nock(BASE_URL)
+      .get('/api/external/v2/generate/job-republish-wait')
+      .reply(200, {
+        jobId: 'job-republish-wait',
+        status: 'completed',
+        output: { published: true },
+        error: null,
+      });
+
+    const program = new Command();
+    registerPublish(program, client);
+    await program.parseAsync(['publish', 'republish', '--wait', '--json'], { from: 'user' });
+
+    expect(nock.isDone()).toBe(true);
+  });
+
+  it('without --wait, prints the job ID and does not poll', async () => {
+    const scope = nock(BASE_URL)
+      .post('/api/external/v2/publish/republish')
+      .reply(202, mockJob('job-republish-nowait', 'republish'));
+
+    const program = new Command();
+    registerPublish(program, client);
+    const writeSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    await program.parseAsync(['publish', 'republish'], { from: 'user' });
+
+    expect(scope.isDone()).toBe(true);
+    expect(writeSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Republish job started. Job ID: job-republish-nowait'),
+    );
+    expect(nock.pendingMocks()).toEqual([]);
+    writeSpy.mockRestore();
   });
 });
