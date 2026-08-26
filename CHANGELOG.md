@@ -1,5 +1,11 @@
 # @hintoai/cli
 
+## 0.9.0
+
+### Minor Changes
+
+- affac72: Add `--wait` to `publish now` and `publish republish` to block until the job completes and print its output, matching `generate start`/`generate structure`.
+
 ## 0.8.0
 
 ### Minor Changes
