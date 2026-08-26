@@ -63,6 +63,6 @@
     "nock": "^13.5.0",
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.0",
-    "typescript": "^5.5.0"
+    "typescript": "^6.0.3"
   }
 }
