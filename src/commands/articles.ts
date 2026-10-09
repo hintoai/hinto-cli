@@ -209,6 +209,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
               : opts.brief !== undefined && { brief: resolveInput(opts.brief).trim() }),
             ...(opts.clearJsonLd ? { jsonLd: null } : jsonLd !== undefined && { jsonLd }),
           });
+          // An API release without jsonLd support ignores the key and still answers 200.
+          if (jsonLd !== undefined && !data.metadata?.jsonLd) {
+            process.stderr.write(
+              'Warning: the server did not store the JSON-LD. It may predate jsonLd support on PUT /articles/:id.\n',
+            );
+          }
           if (opts.json) return printJson(data);
           printKeyValue(data as unknown as Record<string, unknown>);
         } catch (e: unknown) {

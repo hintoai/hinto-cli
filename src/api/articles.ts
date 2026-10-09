@@ -21,7 +21,7 @@ export interface ArticleDetail {
   metadata: {
     metaDescription: string | null;
     metaKeywords: string[] | null;
-    jsonLd: string | null;
+    jsonLd: Record<string, unknown> | null;
   };
   brief: string | null;
 }

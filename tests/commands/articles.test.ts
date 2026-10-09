@@ -622,6 +622,25 @@ describe('articles update --json-ld / --clear-json-ld', () => {
     expect(scope.isDone()).toBe(true);
   });
 
+  it('warns when the server answers without storing the JSON-LD (older API)', async () => {
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { jsonLd: schema })
+      .reply(200, { id: 1, title: 'T', metadata: { jsonLd: null } });
+    const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(
+      ['articles', 'update', '1', '--json-ld', JSON.stringify(schema), '--json'],
+      {
+        from: 'user',
+      },
+    );
+
+    expect(stderr).toHaveBeenCalledWith(expect.stringContaining('did not store the JSON-LD'));
+    stderr.mockRestore();
+  });
+
   it('sends jsonLd: null for --clear-json-ld', async () => {
     const scope = nock(BASE_URL)
       .put('/api/external/v2/articles/1', { jsonLd: null })
