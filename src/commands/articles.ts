@@ -132,6 +132,8 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
     .option('--meta-keywords <keywords>', 'Comma-separated SEO keywords')
     .option('--brief <brief>', "Replace the article's durable scope (string or @filepath)")
     .option('--clear-brief', "Clear the article's durable scope")
+    .option('--json-ld <content>', 'JSON-LD schema object as a JSON string or @filepath')
+    .option('--clear-json-ld', "Clear the article's custom JSON-LD schema")
     .option('--json', 'Output as JSON')
     .action(
       async (
@@ -144,6 +146,8 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
           metaKeywords?: string;
           brief?: string;
           clearBrief?: boolean;
+          jsonLd?: string;
+          clearJsonLd?: boolean;
           json?: boolean;
         },
       ) => {
@@ -152,6 +156,27 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
             exitWithError('--brief and --clear-brief cannot be used together');
             return;
           }
+          if (opts.jsonLd !== undefined && opts.clearJsonLd) {
+            exitWithError('--json-ld and --clear-json-ld cannot be used together');
+            return;
+          }
+          let jsonLd: Record<string, unknown> | undefined;
+          if (opts.jsonLd !== undefined) {
+            // Read outside the parse try so a missing @file reports the fs error, not "invalid JSON".
+            const raw = resolveInput(opts.jsonLd);
+            let parsed: unknown;
+            try {
+              parsed = JSON.parse(raw);
+            } catch {
+              exitWithError('--json-ld must be valid JSON');
+              return;
+            }
+            if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+              exitWithError('--json-ld must be a JSON object');
+              return;
+            }
+            jsonLd = parsed as Record<string, unknown>;
+          }
           if (
             !opts.title &&
             !opts.slug &&
@@ -159,10 +184,12 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
             !opts.metaDescription &&
             !opts.metaKeywords &&
             opts.brief === undefined &&
-            !opts.clearBrief
+            !opts.clearBrief &&
+            jsonLd === undefined &&
+            !opts.clearJsonLd
           ) {
             exitWithError(
-              'Provide at least one field to update: --title, --slug, --content, --meta-description, --meta-keywords, --brief, or --clear-brief',
+              'Provide at least one field to update: --title, --slug, --content, --meta-description, --meta-keywords, --brief, --clear-brief, --json-ld, or --clear-json-ld',
             );
             return;
           }
@@ -180,7 +207,14 @@ export function registerArticles(program: Command, client: AxiosInstance): void 
             ...(opts.clearBrief
               ? { brief: null }
               : opts.brief !== undefined && { brief: resolveInput(opts.brief).trim() }),
+            ...(opts.clearJsonLd ? { jsonLd: null } : jsonLd !== undefined && { jsonLd }),
           });
+          // An API release without jsonLd support ignores the key and still answers 200.
+          if (jsonLd !== undefined && !data.metadata?.jsonLd) {
+            process.stderr.write(
+              'Warning: the server did not store the JSON-LD. It may predate jsonLd support on PUT /articles/:id.\n',
+            );
+          }
           if (opts.json) return printJson(data);
           printKeyValue(data as unknown as Record<string, unknown>);
         } catch (e: unknown) {

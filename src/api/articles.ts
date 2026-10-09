@@ -21,7 +21,7 @@ export interface ArticleDetail {
   metadata: {
     metaDescription: string | null;
     metaKeywords: string[] | null;
-    jsonLd: string | null;
+    jsonLd: Record<string, unknown> | null;
   };
   brief: string | null;
 }
@@ -73,6 +73,7 @@ export const articlesApi = (client: AxiosInstance) => ({
       metaDescription?: string;
       metaKeywords?: string[];
       brief?: string | null;
+      jsonLd?: Record<string, unknown> | null;
     },
   ) => client.put<ArticleDetail>(`/articles/${id}`, body).then((r) => r.data),
 

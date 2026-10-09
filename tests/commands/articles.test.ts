@@ -578,3 +578,113 @@ describe('articles regenerate --brief-addition', () => {
     expect(scope.isDone()).toBe(true);
   });
 });
+
+describe('articles update --json-ld / --clear-json-ld', () => {
+  const schema = { '@context': 'https://schema.org', '@graph': [{ '@type': 'FAQPage' }] };
+
+  it('sends a parsed JSON-LD object from an inline string', async () => {
+    const scope = nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { jsonLd: schema })
+      .reply(200, { id: 1, title: 'T', metadata: { jsonLd: schema } });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(
+      ['articles', 'update', '1', '--json-ld', JSON.stringify(schema), '--json'],
+      {
+        from: 'user',
+      },
+    );
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it('reads the JSON-LD object from an @filepath', async () => {
+    const fs = await import('fs');
+    const os = await import('os');
+    const path = await import('path');
+    const file = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'hinto-jsonld-')),
+      'combined-jsonld.json',
+    );
+    fs.writeFileSync(file, JSON.stringify(schema));
+
+    const scope = nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { jsonLd: schema })
+      .reply(200, { id: 1, title: 'T' });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--json-ld', `@${file}`, '--json'], {
+      from: 'user',
+    });
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it('warns when the server answers without storing the JSON-LD (older API)', async () => {
+    nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { jsonLd: schema })
+      .reply(200, { id: 1, title: 'T', metadata: { jsonLd: null } });
+    const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(
+      ['articles', 'update', '1', '--json-ld', JSON.stringify(schema), '--json'],
+      {
+        from: 'user',
+      },
+    );
+
+    expect(stderr).toHaveBeenCalledWith(expect.stringContaining('did not store the JSON-LD'));
+    stderr.mockRestore();
+  });
+
+  it('sends jsonLd: null for --clear-json-ld', async () => {
+    const scope = nock(BASE_URL)
+      .put('/api/external/v2/articles/1', { jsonLd: null })
+      .reply(200, { id: 1, title: 'T' });
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--clear-json-ld', '--json'], {
+      from: 'user',
+    });
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it.each([
+    ['invalid JSON', '{not json', 'must be valid JSON'],
+    ['a JSON array', '[{"@type":"FAQPage"}]', 'must be a JSON object'],
+  ])('rejects %s without calling the API', async (_label, value, message) => {
+    const exitWithErrorSpy = jest
+      .spyOn(errors, 'exitWithError')
+      .mockImplementation(() => undefined as never);
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--json-ld', value], { from: 'user' });
+
+    expect(exitWithErrorSpy).toHaveBeenCalledWith(expect.stringContaining(message));
+    exitWithErrorSpy.mockRestore();
+  });
+
+  it('rejects --json-ld together with --clear-json-ld', async () => {
+    const exitWithErrorSpy = jest
+      .spyOn(errors, 'exitWithError')
+      .mockImplementation(() => undefined as never);
+
+    const program = new Command();
+    registerArticles(program, client);
+    await program.parseAsync(['articles', 'update', '1', '--json-ld', '{}', '--clear-json-ld'], {
+      from: 'user',
+    });
+
+    expect(exitWithErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('--json-ld and --clear-json-ld'),
+    );
+    exitWithErrorSpy.mockRestore();
+  });
+});
