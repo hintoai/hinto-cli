@@ -187,6 +187,8 @@ hinto articles update <id> --title "New Title"
 hinto articles update <id> --slug "new-slug"
 hinto articles update <id> --brief "Covers setup only, not troubleshooting."
 hinto articles update <id> --clear-brief
+hinto articles update <id> --json-ld @combined-jsonld.json
+hinto articles update <id> --clear-json-ld
 
 hinto articles duplicate <id>
 hinto articles move <id> --folder <folderId>

@@ -175,10 +175,10 @@ hinto articles create-empty [--title "..."] [--folder <id>] [--brief <brief>] [-
 
 ### `hinto articles update <id>`
 
-Update an article's title, slug, body content, or SEO fields. Use `--content` to replace the body with Markdown (string or `@filepath`). To re-generate content from the source video via AI instead, use `hinto articles regenerate <id>`.
+Update an article's title, slug, body content, SEO fields, or JSON-LD schema. Use `--content` to replace the body with Markdown (string or `@filepath`). To re-generate content from the source video via AI instead, use `hinto articles regenerate <id>`.
 
 ```bash
-hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body" | --content @body.md] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--brief <brief> | --clear-brief] [--json]
+hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body" | --content @body.md] [--meta-description "..."] [--meta-keywords "kw1,kw2"] [--brief <brief> | --clear-brief] [--json-ld <json> | --clear-json-ld] [--json]
 ```
 
 | Flag | Required | Description |
@@ -190,6 +190,8 @@ hinto articles update <id> [--title "..."] [--slug "..."] [--content "# New body
 | `--meta-keywords <keywords>` | No | Comma-separated SEO keywords |
 | `--brief <brief>` | No | Replace the article's durable scope (string or `@filepath`, max 4000 chars). Only steers generation while the article has no content — see [Briefs](#briefs). Cannot be combined with `--clear-brief`. |
 | `--clear-brief` | No | Clear the article's stored brief. Cannot be combined with `--brief`. |
+| `--json-ld <json>` | No | JSON-LD schema for the article: one JSON object (a single node or an `@graph` wrapper), inline or `@filepath`. Replaces the stored schema. Cannot be combined with `--clear-json-ld`. |
+| `--clear-json-ld` | No | Remove the article's custom JSON-LD schema. |
 
 > Updating `--content` replaces the article body, snapshots a version, and re-translates any existing translations. Requires API ≥ the release that added content updates. At least one field is required.
 
