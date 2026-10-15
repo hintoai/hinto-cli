@@ -223,17 +223,21 @@ describe('hinto export commands', () => {
     expect(scope.isDone()).toBe(true);
   });
 
-  it('project --format docx passes the format', async () => {
+  it('project --format docx passes the format and writes the file', async () => {
+    const bytes = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x80, 0xff]);
     const scope = nock(BASE_URL)
       .get('/api/external/v2/export/project')
       .query({ format: 'docx' })
-      .reply(200, Buffer.from('PK'), { 'content-type': 'application/zip' });
-    const out = path.join(tmpDir, 'p.zip');
+      .reply(200, bytes, {
+        'content-type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      });
+    const out = path.join(tmpDir, 'p.docx');
 
     await buildProgram().parseAsync(['export', 'project', '--format', 'docx', '--out', out], {
       from: 'user',
     });
 
     expect(scope.isDone()).toBe(true);
+    expect(fs.readFileSync(out).equals(bytes)).toBe(true);
   });
 });

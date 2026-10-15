@@ -67,8 +67,8 @@ export function registerExport(program: Command, client: AxiosInstance): void {
 
   exportCmd
     .command('project')
-    .description('Export the full project as zip')
-    .requiredOption('--out <path>', 'Output zip file path')
+    .description('Export the full project')
+    .requiredOption('--out <path>', 'Output file path')
     .option(
       '--format <fmt>',
       'Export format: markdown (default), html, pdf, docx, vsdx, or llm-text',
