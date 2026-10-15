@@ -1,7 +1,13 @@
 import type { AxiosInstance } from 'axios';
 import type { Command } from 'commander';
 import fs from 'fs';
-import { exportApi } from '../api/export';
+import {
+  type ArticleFormat,
+  exportApi,
+  type FolderFormat,
+  isBinaryFormat,
+  type ProjectFormat,
+} from '../api/export';
 import { exitWithError } from '../errors';
 
 export function registerExport(program: Command, client: AxiosInstance): void {
@@ -11,21 +17,18 @@ export function registerExport(program: Command, client: AxiosInstance): void {
   exportCmd
     .command('article <id>')
     .description('Export an article')
-    .option('--format <fmt>', 'Output format: md (default), html, or pdf', 'md')
+    .option('--format <fmt>', 'Output format: md (default), html, pdf, docx, or vsdx', 'md')
     .option('--out <path>', 'Save to file instead of stdout')
     .option('--lang <code>', 'Export a translated version by language code (e.g. fr, de)')
     .action(async (id: string, opts: { format: string; out?: string; lang?: string }) => {
       try {
         // API accepts 'markdown' not 'md'
-        const apiFormat = (opts.format === 'md' ? 'markdown' : opts.format) as
-          | 'markdown'
-          | 'html'
-          | 'pdf';
-        const isPdf = apiFormat === 'pdf';
+        const apiFormat = (opts.format === 'md' ? 'markdown' : opts.format) as ArticleFormat;
+        const binary = isBinaryFormat(apiFormat);
 
-        if (isPdf && !opts.out) {
+        if (binary && !opts.out) {
           exitWithError(
-            '--out <path> is required for PDF export (binary output cannot be printed to stdout)',
+            `--out <path> is required for ${apiFormat} export (binary output cannot be printed to stdout)`,
           );
           return;
         }
@@ -33,7 +36,7 @@ export function registerExport(program: Command, client: AxiosInstance): void {
         const data = await api.article(id, apiFormat, opts.lang);
 
         if (opts.out) {
-          if (isPdf) {
+          if (binary) {
             fs.writeFileSync(opts.out, data as Buffer);
           } else {
             fs.writeFileSync(opts.out, data as string, 'utf-8');
@@ -49,11 +52,12 @@ export function registerExport(program: Command, client: AxiosInstance): void {
 
   exportCmd
     .command('folder <id>')
-    .description('Export a folder as PDF')
-    .requiredOption('--out <path>', 'Output zip file path')
-    .action(async (id: string, opts: { out: string }) => {
+    .description('Export a folder (PDF, Word, or Visio)')
+    .requiredOption('--out <path>', 'Output file path')
+    .option('--format <fmt>', 'Export format: pdf (default), docx, or vsdx', 'pdf')
+    .action(async (id: string, opts: { out: string; format: string }) => {
       try {
-        const data = await api.folder(id);
+        const data = await api.folder(id, opts.format as FolderFormat);
         fs.writeFileSync(opts.out, data);
         process.stdout.write(`Folder exported to ${opts.out}\n`);
       } catch (e: unknown) {
@@ -67,13 +71,12 @@ export function registerExport(program: Command, client: AxiosInstance): void {
     .requiredOption('--out <path>', 'Output zip file path')
     .option(
       '--format <fmt>',
-      'Export format: markdown (default), html, pdf, or llm-text',
+      'Export format: markdown (default), html, pdf, docx, vsdx, or llm-text',
       'markdown',
     )
     .action(async (opts: { out: string; format: string }) => {
       try {
-        const fmt = opts.format as 'markdown' | 'html' | 'pdf' | 'llm-text';
-        const data = await api.project(fmt);
+        const data = await api.project(opts.format as ProjectFormat);
         fs.writeFileSync(opts.out, data);
         process.stdout.write(`Project exported to ${opts.out}\n`);
       } catch (e: unknown) {

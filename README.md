@@ -360,10 +360,15 @@ Possible `status` values: `pending` · `processing` · `completed` · `failed`.
 hinto export article <id> --format md           # print Markdown to stdout
 hinto export article <id> --format html         # print HTML to stdout
 hinto export article <id> --format md --out article.md   # write to file
+hinto export article <id> --format docx --out article.docx  # Word (binary formats need --out)
+hinto export article <id> --format vsdx --out article.vsdx  # Visio, imports into Miro
 
-hinto export folder <id> --out folder.zip
-hinto export project --out project.zip
+hinto export folder <id> --out folder.pdf                   # pdf (default), docx, or vsdx
+hinto export folder <id> --format vsdx --out folder.zip
+hinto export project --out project.zip                      # markdown, html, pdf, docx, vsdx, or llm-text
 ```
+
+`vsdx`: Visio file for Miro (Create new → Import → Import diagram); folder and project return a ZIP of one .vsdx per article.
 
 ### `hinto publish`
 
