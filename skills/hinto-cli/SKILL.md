@@ -193,7 +193,7 @@ Read the reference file for the relevant command group:
 | Project info, structure tree, languages | `references/project.md` |
 | Publish, republish, unpublish | `references/publish.md` |
 | Browse available templates | `references/templates.md` |
-| Export articles, folders, or full project | `references/export.md` |
+| Export articles, folders, or full project (Markdown, HTML, PDF, Word, Visio for Miro) | `references/export.md` |
 | Turn a video into content (one article vs. structure) | `references/content-from-video.md` |
 | Common task recipes (upload→generate→publish, edit→republish, add images) | `references/recipes.md` |
 | Product behavior (versioning/restore, stubs/auto-generate, images, translations) | `references/product-behavior.md` |
